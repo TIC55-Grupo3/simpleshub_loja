@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIMPLES HUB – PDV</title>
+<title>SIMPLES HUB – Visão Geral</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -235,9 +235,6 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 @media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(3,1fr)}.ar-two-col{grid-template-columns:1fr}.cards-2col{grid-template-columns:1fr}.cards-equal{grid-template-columns:1fr}.fin-summary{grid-template-columns:1fr}.cards-3col{grid-template-columns:1fr}}
 @media(max-width:700px){.sys-company-pill{display:none}.sys-topnav-brand{padding:8px 14px 6px}.sys-tab{padding:6px 8px;min-width:50px}.sys-tab-name{font-size:9px}.sys-content{padding:14px 12px}.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
-<style>
-.sys-panel-page { display:block; animation: heroIn .3s ease; }
-</style>
 </head>
 <body>
 <div class="sys-layout">
@@ -264,7 +261,7 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
             <div class="sys-user-role">Administrador</div>
           </div>
         </div>
-        <button class="sys-logout-btn" onclick="showToast('Saindo...')">⏻ Sair</button>
+        <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
       </div>
     </div>
     <div class="sys-topnav-tabs" id="sys-tabs">
@@ -274,12 +271,12 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
         </button>
       </div>
       <div class="sys-tab-group">
-        <button class="sys-tab" onclick="navigateTo('dashboard')">
+        <button class="sys-tab active" onclick="navigateTo('dashboard')">
           <span class="sys-tab-name">Visão Geral</span>
         </button>
       </div>
       <div class="sys-tab-group">
-        <button class="sys-tab active" onclick="navigateTo('pdv')">
+        <button class="sys-tab" onclick="navigateTo('pdv')">
           <span class="sys-tab-name">🛒 PDV</span>
         </button>
         <button class="sys-tab" onclick="navigateTo('vendas')">
@@ -321,59 +318,58 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
     </div>
     <div class="sys-topnav-actions">
       <span class="sys-action-label">Ações</span>
-      <div id="sys-actions-container"><button class="sys-act-btn" onclick="showToast('Use o carrinho ao lado!')">+ Nova venda</button><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge">3</span></button></div>
+      <div id="sys-actions-container"><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge">3</span></button></div>
     </div>
   </div>
 
   <main class="sys-main">
     <div class="sys-content">
-<div class="sys-panel-page" id="panel-pdv">
-        <div class="pdv-layout">
-          <div>
-            <div class="inner-card" style="margin-bottom:14px">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-                <div class="inner-card-title" style="margin:0">🛒 Ponto de Venda</div>
-                <input type="text" placeholder="Buscar produto..." style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;outline:none;width:220px">
-              </div>
-              <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">Eletrônicos</div>
-              <div class="pdv-products-grid">
-                <div class="pdv-product-card" onclick="addToCart('Smartwatch','R$ 199,00',199)"><div class="pdv-product-icon">⌚</div><div class="pdv-product-name">Smartwatch</div><div class="pdv-product-price">R$ 199,00</div></div>
-                <div class="pdv-product-card" onclick="addToCart('Fone Bluetooth','R$ 89,00',89)"><div class="pdv-product-icon">🎧</div><div class="pdv-product-name">Fone Bluetooth</div><div class="pdv-product-price">R$ 89,00</div></div>
-                <div class="pdv-product-card" onclick="addToCart('Carregador Portátil','R$ 68,00',68)"><div class="pdv-product-icon">🔋</div><div class="pdv-product-name">Carregador Portátil</div><div class="pdv-product-price">R$ 68,00</div></div>
-                <div class="pdv-product-card" onclick="addToCart('Cabo USB-C','R$ 34,00',34)"><div class="pdv-product-icon">🔌</div><div class="pdv-product-name">Cabo USB-C</div><div class="pdv-product-price">R$ 34,00</div></div>
-                <div class="pdv-product-card" onclick="addToCart('Mouse Sem Fio','R$ 79,00',79)"><div class="pdv-product-icon">🖱️</div><div class="pdv-product-name">Mouse Sem Fio</div><div class="pdv-product-price">R$ 79,00</div></div>
-                <div class="pdv-product-card" onclick="addToCart('Teclado Bluetooth','R$ 149,00',149)"><div class="pdv-product-icon">⌨️</div><div class="pdv-product-name">Teclado Bluetooth</div><div class="pdv-product-price">R$ 149,00</div></div>
-              </div>
-              <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">Acessórios</div>
-              <div class="pdv-products-grid">
-                <div class="pdv-product-card" onclick="addToCart('Suporte Celular','R$ 28,00',28)"><div class="pdv-product-icon">📱</div><div class="pdv-product-name">Suporte Celular</div><div class="pdv-product-price">R$ 28,00</div></div>
-                <div class="pdv-product-card" onclick="addToCart('Película Protetora','R$ 19,00',19)"><div class="pdv-product-icon">🛡️</div><div class="pdv-product-name">Película Protetora</div><div class="pdv-product-price">R$ 19,00</div></div>
-                <div class="pdv-product-card" onclick="addToCart('Capa para Celular','R$ 39,00',39)"><div class="pdv-product-icon">📲</div><div class="pdv-product-name">Capa Celular</div><div class="pdv-product-price">R$ 39,00</div></div>
-              </div>
+<div class="sys-panel-page" id="panel-dashboard">
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-card-label">Vendas hoje</div><div class="stat-card-num green">24</div><div class="stat-card-trend trend-up">↑ +6 vs ontem</div></div>
+          <div class="stat-card"><div class="stat-card-label">Clientes cadastrados</div><div class="stat-card-num">412</div><div class="stat-card-trend trend-up">↑ +14 esta semana</div></div>
+          <div class="stat-card"><div class="stat-card-label">Receita do mês</div><div class="stat-card-num green">R$ 32.480</div><div class="stat-card-trend trend-up">↑ 18% vs mês anterior</div></div>
+          <div class="stat-card"><div class="stat-card-label">Ticket médio</div><div class="stat-card-num">R$ 94</div><div class="stat-card-trend trend-up">↑ R$ 8 vs mês anterior</div></div>
+        </div>
+        <div class="cards-2col">
+          <div class="inner-card">
+            <div class="inner-card-title">📈 Vendas por dia — Março 2026</div>
+            <div class="bar-chart">
+              <div class="bar-col"><div class="bar" style="height:55%"></div><div class="bar-label">Seg</div></div>
+              <div class="bar-col"><div class="bar" style="height:78%"></div><div class="bar-label">Ter</div></div>
+              <div class="bar-col"><div class="bar" style="height:42%"></div><div class="bar-label">Qua</div></div>
+              <div class="bar-col"><div class="bar" style="height:88%"></div><div class="bar-label">Qui</div></div>
+              <div class="bar-col"><div class="bar" style="height:100%;background:var(--green)"></div><div class="bar-label">Sex</div></div>
+              <div class="bar-col"><div class="bar" style="height:92%"></div><div class="bar-label">Sáb</div></div>
+              <div class="bar-col"><div class="bar" style="height:18%;background:#eee"></div><div class="bar-label">Dom</div></div>
             </div>
           </div>
-          <!-- Carrinho -->
-          <div class="pdv-cart">
-            <div class="pdv-cart-header">
-              <div class="pdv-cart-title">🛒 Carrinho</div>
-              <div class="pdv-cart-sub" id="pdv-cart-count">0 item(s)</div>
+          <div class="inner-card">
+            <div class="inner-card-title">🏆 Produtos mais vendidos</div>
+            <div class="pie-legend">
+              <div class="pie-item"><div class="pie-dot" style="background:var(--green)"></div><div class="pie-name">Smartwatch</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:38%"></div></div><div class="pie-pct">38%</div></div>
+              <div class="pie-item"><div class="pie-dot" style="background:#6bcf7f"></div><div class="pie-name">Fone Bluetooth</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:27%;background:#6bcf7f"></div></div><div class="pie-pct">27%</div></div>
+              <div class="pie-item"><div class="pie-dot" style="background:#a8e6b3"></div><div class="pie-name">Carregador Portátil</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:20%;background:#a8e6b3"></div></div><div class="pie-pct">20%</div></div>
+              <div class="pie-item"><div class="pie-dot" style="background:#d4f1db"></div><div class="pie-name">Cabo USB-C</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:15%;background:#d4f1db"></div></div><div class="pie-pct">15%</div></div>
             </div>
-            <div class="pdv-cart-items" id="pdv-cart-items">
-              <div class="pdv-empty">Nenhum item adicionado</div>
+          </div>
+        </div>
+        <div class="cards-equal">
+          <div class="inner-card">
+            <div class="inner-card-title">🕐 Últimas vendas</div>
+            <div class="recent-list">
+              <div class="recent-item"><div class="recent-avatar">AC</div><div class="recent-info"><div class="recent-name">Ana Carvalho</div><div class="recent-detail">Smartwatch · Carlos · PIX</div></div><div class="recent-value">R$ 199</div></div>
+              <div class="recent-item"><div class="recent-avatar">JF</div><div class="recent-info"><div class="recent-name">João Ferreira</div><div class="recent-detail">Fone BT + Cabo · Mariana · Cartão</div></div><div class="recent-value">R$ 127</div></div>
+              <div class="recent-item"><div class="recent-avatar">PL</div><div class="recent-info"><div class="recent-name">Paula Lima</div><div class="recent-detail">Carregador · Carlos · Dinheiro</div></div><div class="recent-value">R$ 68</div></div>
+              <div class="recent-item"><div class="recent-avatar">MS</div><div class="recent-info"><div class="recent-name">Marcos Silva</div><div class="recent-detail">Cabo USB-C · Mariana · PIX</div></div><div class="recent-value">R$ 34</div></div>
             </div>
-            <div class="pdv-cart-footer">
-              <div class="pdv-total-row">
-                <span>Total</span>
-                <span id="pdv-total">R$ 0,00</span>
-              </div>
-              <select class="pdv-payment-select" id="pdv-payment">
-                <option value="">Forma de pagamento...</option>
-                <option>PIX</option>
-                <option>Cartão de Crédito</option>
-                <option>Cartão de Débito</option>
-                <option>Dinheiro</option>
-              </select>
-              <button class="pdv-btn-finalizar" onclick="finalizarVenda()">✓ Finalizar Venda</button>
+          </div>
+          <div class="inner-card">
+            <div class="inner-card-title">💰 Resumo financeiro — Março</div>
+            <div class="recent-list">
+              <div class="recent-item"><div class="recent-avatar" style="background:var(--green-light);color:var(--green)">↑</div><div class="recent-info"><div class="recent-name">Total Receitas</div><div class="recent-detail">345 vendas realizadas</div></div><div class="recent-value">R$ 32.480</div></div>
+              <div class="recent-item"><div class="recent-avatar" style="background:#fff0f0;color:#c0392b">↓</div><div class="recent-info"><div class="recent-name">Total Despesas</div><div class="recent-detail">Mercadoria, aluguel, outros</div></div><div class="recent-value" style="color:#c0392b">R$ 18.200</div></div>
+              <div class="recent-item"><div class="recent-avatar" style="background:var(--green);color:#fff">$</div><div class="recent-info"><div class="recent-name">Lucro Líquido</div><div class="recent-detail">Resultado do período</div></div><div class="recent-value">R$ 14.280</div></div>
             </div>
           </div>
         </div>
@@ -384,18 +380,26 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 
 <script>
 
-/* ===== NAVEGAÇÃO ENTRE PÁGINAS ===== */
+/* ===== MAPA DE PÁGINAS ===== */
 var pageMap = {
   'inicio':'inicio.html','dashboard':'visao_geral.html','pdv':'pdv.html',
   'vendas':'vendas.html','clientes':'clientes.html','funcionarios':'funcionarios.html',
   'produtos':'produtos.html','estoque':'estoque.html','financeiro':'financeiro.html',
   'lembretes':'lembretes.html','suporte':'suporte.html','configuracoes':'configuracoes.html'
 };
+
 function navigateTo(name) {
-  if (pageMap[name]) window.location.href = pageMap[name];
+  if (pageMap[name]) {
+    window.location.href = pageMap[name];
+  } else {
+    showToast('Página em desenvolvimento');
+  }
 }
-// Alias para compatibilidade com chamadas internas
-var showPanel = navigateTo;
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'index.html';
+}
 
 /* ===== TOAST ===== */
 function showToast(msg) {
@@ -421,44 +425,6 @@ function adjustTopnavHeight() {
 }
 window.addEventListener('load', adjustTopnavHeight);
 window.addEventListener('resize', adjustTopnavHeight);
-
-
-/* ===== PDV ===== */
-var cart = [];
-function addToCart(name, price, value) {
-  var existing = cart.find(function(i){ return i.name === name; });
-  if (existing) { existing.qty++; existing.total = existing.qty * value; }
-  else { cart.push({ name: name, price: price, value: value, qty: 1, total: value }); }
-  renderCart();
-  showToast(name + ' adicionado ao carrinho!');
-}
-function removeFromCart(idx) { cart.splice(idx, 1); renderCart(); }
-function renderCart() {
-  var el = document.getElementById('pdv-cart-items');
-  var countEl = document.getElementById('pdv-cart-count');
-  var totalEl = document.getElementById('pdv-total');
-  if (!el) return;
-  var total = cart.reduce(function(s, i){ return s + i.total; }, 0);
-  countEl.textContent = cart.length + ' item(s)';
-  totalEl.textContent = 'R$ ' + total.toFixed(2).replace('.',',');
-  if (cart.length === 0) { el.innerHTML = '<div class="pdv-empty">Nenhum item adicionado</div>'; return; }
-  el.innerHTML = cart.map(function(item, idx) {
-    return '<div class="pdv-cart-item">' +
-      '<span class="pdv-cart-item-name">' + item.name + ' x' + item.qty + '</span>' +
-      '<span class="pdv-cart-item-price">R$ ' + item.total.toFixed(2).replace('.',',') + '</span>' +
-      '<button class="pdv-cart-item-remove" onclick="removeFromCart(' + idx + ')">✕</button>' +
-      '</div>';
-  }).join('');
-}
-function finalizarVenda() {
-  var pay = document.getElementById('pdv-payment').value;
-  if (cart.length === 0) { showToast('Adicione itens ao carrinho!'); return; }
-  if (!pay) { showToast('Selecione a forma de pagamento!'); return; }
-  var total = cart.reduce(function(s, i){ return s + i.total; }, 0);
-  cart = []; renderCart();
-  document.getElementById('pdv-payment').value = '';
-  showToast('✓ Venda finalizada! Total: R$ ' + total.toFixed(2).replace('.',',') + ' · ' + pay);
-}
 
 </script>
 </body>
