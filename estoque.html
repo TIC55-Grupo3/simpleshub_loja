@@ -231,12 +231,20 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 .pdv-btn-finalizar:hover{background:var(--green-dark);transform:translateY(-1px)}
 .pdv-empty{color:var(--muted);font-size:12px;text-align:center;padding:20px 0}
 
+/* Estilos para o modal de entrada de estoque */
+.modal-small{max-width:480px}
+.form-radio-group{display:flex;gap:16px;margin-top:8px}
+.form-radio-group label{display:flex;align-items:center;gap:6px;font-weight:500;font-size:13px;color:var(--ink);text-transform:none}
+.movimentacoes-list{max-height:300px;overflow-y:auto}
+.movimentacao-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border);font-size:12px}
+.movimentacao-tipo{font-weight:700;padding:2px 8px;border-radius:20px;font-size:10px}
+.tipo-entrada{background:#e8f5e9;color:#2e7d32}
+.tipo-saida{background:#fff0f0;color:#c0392b}
+.tipo-ajuste{background:#fff8e7;color:#e67e22}
+
 @media(max-width:1100px){.pdv-layout{grid-template-columns:1fr}}
 @media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(3,1fr)}.ar-two-col{grid-template-columns:1fr}.cards-2col{grid-template-columns:1fr}.cards-equal{grid-template-columns:1fr}.fin-summary{grid-template-columns:1fr}.cards-3col{grid-template-columns:1fr}}
 @media(max-width:700px){.sys-company-pill{display:none}.sys-topnav-brand{padding:8px 14px 6px}.sys-tab{padding:6px 8px;min-width:50px}.sys-tab-name{font-size:9px}.sys-content{padding:14px 12px}.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(2,1fr)}}
-</style>
-<style>
-.sys-panel-page { display:block; animation: heroIn .3s ease; }
 </style>
 </head>
 <body>
@@ -321,7 +329,7 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
     </div>
     <div class="sys-topnav-actions">
       <span class="sys-action-label">Ações</span>
-      <div id="sys-actions-container"><button class="sys-act-btn" onclick="showToast('Registrando...')">+ Registrar entrada</button><button class="sys-act-btn ghost" onclick="showToast('Em breve!')">📋 Movimentações</button><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge">3</span></button></div>
+      <div id="sys-actions-container"><button class="sys-act-btn" onclick="openEntradaModal()">+ Registrar entrada</button><button class="sys-act-btn ghost" onclick="openMovimentacoesModal()">📋 Movimentações</button><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge">3</span></button></div>
     </div>
   </div>
 
@@ -329,33 +337,87 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
     <div class="sys-content">
 <div class="sys-panel-page" id="panel-estoque">
         <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
-          <div class="stat-card"><div class="stat-card-label">Produtos no estoque</div><div class="stat-card-num">6</div><div class="stat-card-trend">Por SKU cadastrado</div></div>
-          <div class="stat-card"><div class="stat-card-label">Itens em alerta</div><div class="stat-card-num" style="color:#c0392b">2</div><div class="stat-card-trend trend-down">↓ Repor em breve</div></div>
+          <div class="stat-card"><div class="stat-card-label">Produtos no estoque</div><div class="stat-card-num" id="total-produtos">0</div><div class="stat-card-trend">Por SKU cadastrado</div></div>
+          <div class="stat-card"><div class="stat-card-label">Itens em alerta</div><div class="stat-card-num" id="alert-count" style="color:#c0392b">0</div><div class="stat-card-trend trend-down">↓ Repor em breve</div></div>
           <div class="stat-card"><div class="stat-card-label">Valor total em estoque</div><div class="stat-card-num green">R$ 18.640</div><div class="stat-card-trend trend-up">Atualizado hoje</div></div>
         </div>
         <div class="table-wrap">
           <div class="table-header">
             <div><div class="table-title">Controle de estoque por filial</div><div class="table-sub">Quantidades atuais e limites configurados</div></div>
             <div class="table-actions">
-              <button class="topbar-btn ghost" onclick="showToast('Movimentações em breve!')">📋 Movimentações</button>
-              <button class="topbar-btn primary" onclick="showToast('Registrando entrada...')">+ Entrada</button>
+              <button class="topbar-btn ghost" onclick="openMovimentacoesModal()">📋 Movimentações</button>
+              <button class="topbar-btn primary" onclick="openEntradaModal()">+ Entrada</button>
             </div>
           </div>
           <table class="tbl">
-            <thead><tr><th>Produto</th><th>Filial</th><th>Qtd. Atual</th><th>Qtd. Mínima</th><th>Estoque Máx.</th><th>Situação</th><th>Ações</th></tr></thead>
-            <tbody>
-              <tr><td>Smartwatch</td><td>Centro</td><td>24</td><td>5</td><td>60</td><td><span class="badge badge-green">Normal</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td>Fone Bluetooth</td><td>Centro</td><td>4</td><td>8</td><td>50</td><td><span class="badge badge-red">Crítico</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td>Carregador Portátil</td><td>Centro</td><td>32</td><td>10</td><td>80</td><td><span class="badge badge-green">Normal</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td>Cabo USB-C</td><td>Shopping</td><td>11</td><td>15</td><td>100</td><td><span class="badge badge-yellow">Baixo</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td>Mouse Sem Fio</td><td>Shopping</td><td>18</td><td>5</td><td>40</td><td><span class="badge badge-green">Normal</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td>Película Protetora</td><td>Shopping</td><td>60</td><td>20</td><td>200</td><td><span class="badge badge-green">Normal</span></td><td><button class="action-btn">✏️</button></td></tr>
+            <thead>
+              <tr><th>Produto</th><th>Filial</th><th>Qtd. Atual</th><th>Qtd. Mínima</th><th>Estoque Máx.</th><th>Situação</th><th>Ações</th>
+            </thead>
+            <tbody id="estoque-tbody">
+              <tr><td colspan="7" style="text-align:center">Carregando...</td></tr>
             </tbody>
-          </table>
+           </table>
         </div>
       </div>
     </div>
   </main>
+</div>
+
+<!-- MODAL ENTRADA ESTOQUE -->
+<div id="modal-entrada" class="modal-overlay">
+  <div class="modal modal-small">
+    <div class="modal-head">
+      <div class="modal-title">➕ Registrar Entrada de Estoque</div>
+      <button class="modal-close" onclick="closeEntradaModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Produto</label>
+        <select id="entrada-produto"></select>
+      </div>
+      <div class="form-row">
+        <label>Filial</label>
+        <select id="entrada-filial">
+          <option value="Centro">Centro (Matriz)</option>
+          <option value="Shopping">Shopping (Filial)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Quantidade</label>
+        <input type="number" id="entrada-quantidade" step="1" value="1" min="1">
+      </div>
+      <div class="form-row">
+        <label>Motivo</label>
+        <textarea id="entrada-motivo" rows="2" placeholder="Ex: Compra de fornecedor, retorno de cliente, etc..."></textarea>
+      </div>
+      <div class="form-row">
+        <label>Valor unitário (opcional)</label>
+        <input type="text" id="entrada-valor" placeholder="R$ 0,00">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeEntradaModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="confirmarEntrada()">Confirmar Entrada</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MOVIMENTAÇÕES -->
+<div id="modal-movimentacoes" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">📋 Histórico de Movimentações</div>
+      <button class="modal-close" onclick="closeMovimentacoesModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="movimentacoes-list" id="movimentacoes-list">
+        <!-- histórico dinâmico -->
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeMovimentacoesModal()">Fechar</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -370,7 +432,6 @@ var pageMap = {
 function navigateTo(name) {
   if (pageMap[name]) window.location.href = pageMap[name];
 }
-// Alias para compatibilidade com chamadas internas
 var showPanel = navigateTo;
 
 /* ===== TOAST ===== */
@@ -398,6 +459,195 @@ function adjustTopnavHeight() {
 window.addEventListener('load', adjustTopnavHeight);
 window.addEventListener('resize', adjustTopnavHeight);
 
+/* ===== DADOS DE ESTOQUE ===== */
+let estoqueData = [
+  { id: 1, produto: "Smartwatch", filial: "Centro", quantidade: 24, minimo: 5, maximo: 60 },
+  { id: 2, produto: "Fone Bluetooth", filial: "Centro", quantidade: 4, minimo: 8, maximo: 50 },
+  { id: 3, produto: "Carregador Portátil", filial: "Centro", quantidade: 32, minimo: 10, maximo: 80 },
+  { id: 4, produto: "Cabo USB-C", filial: "Shopping", quantidade: 11, minimo: 15, maximo: 100 },
+  { id: 5, produto: "Mouse Sem Fio", filial: "Shopping", quantidade: 18, minimo: 5, maximo: 40 },
+  { id: 6, produto: "Película Protetora", filial: "Shopping", quantidade: 60, minimo: 20, maximo: 200 }
+];
+
+let movimentacoes = [
+  { id: 1, produto: "Fone Bluetooth", filial: "Centro", tipo: "saida", quantidade: 2, motivo: "Venda #0344", data: "18/03/2026 10:32", usuario: "Gerente", saldoAnterior: 6, saldoPosterior: 4 },
+  { id: 2, produto: "Cabo USB-C", filial: "Shopping", tipo: "entrada", quantidade: 10, motivo: "Compra fornecedor", data: "17/03/2026 14:15", usuario: "Gerente", saldoAnterior: 1, saldoPosterior: 11 }
+];
+
+function getSituacao(quantidade, minimo, maximo) {
+  if (quantidade <= minimo) return { texto: "Crítico", classe: "badge-red" };
+  if (quantidade >= maximo) return { texto: "Excedente", classe: "badge-yellow" };
+  return { texto: "Normal", classe: "badge-green" };
+}
+
+function renderTabelaEstoque() {
+  const tbody = document.getElementById('estoque-tbody');
+  if (!tbody) return;
+  
+  if (estoqueData.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">Nenhum produto cadastrado</td></tr>';
+    return;
+  }
+  
+  let alertas = 0;
+  let html = '';
+  
+  estoqueData.forEach(item => {
+    const situacao = getSituacao(item.quantidade, item.minimo, item.maximo);
+    if (item.quantidade <= item.minimo) alertas++;
+    html += `
+      <tr>
+        <td>${item.produto}</td>
+        <td>${item.filial}</td>
+        <td><strong>${item.quantidade}</strong></td>
+        <td>${item.minimo}</td>
+        <td>${item.maximo}</td>
+        <td><span class="badge ${situacao.classe}">${situacao.texto}</span></td>
+        <td><button class="action-btn" onclick="abrirAjusteRapido('${item.produto}', '${item.filial}')">✏️</button></td>
+      </tr>
+    `;
+  });
+  
+  tbody.innerHTML = html;
+  document.getElementById('alert-count').innerText = alertas;
+  document.getElementById('total-produtos').innerText = estoqueData.length;
+}
+
+function registrarMovimentacao(produto, filial, tipo, quantidade, motivo, saldoAnterior, saldoPosterior) {
+  const now = new Date();
+  const dataStr = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR');
+  const novaLinha = {
+    id: movimentacoes.length + 1,
+    produto: produto,
+    filial: filial,
+    tipo: tipo,
+    quantidade: quantidade,
+    motivo: motivo,
+    data: dataStr,
+    usuario: "Gerente",
+    saldoAnterior: saldoAnterior,
+    saldoPosterior: saldoPosterior
+  };
+  movimentacoes.unshift(novaLinha);
+}
+
+function atualizarEstoque(produto, filial, novaQuantidade, tipo, quantidade, motivo) {
+  const index = estoqueData.findIndex(i => i.produto === produto && i.filial === filial);
+  if (index === -1) return false;
+  const saldoAnterior = estoqueData[index].quantidade;
+  estoqueData[index].quantidade = novaQuantidade;
+  registrarMovimentacao(produto, filial, tipo, quantidade, motivo, saldoAnterior, novaQuantidade);
+  renderTabelaEstoque();
+  return true;
+}
+
+/* ===== MODAL ENTRADA ESTOQUE ===== */
+function openEntradaModal() {
+  const selectProd = document.getElementById('entrada-produto');
+  const produtosUnicos = [...new Set(estoqueData.map(i => i.produto))];
+  selectProd.innerHTML = produtosUnicos.map(p => `<option value="${p}">${p}</option>`).join('');
+  document.getElementById('entrada-quantidade').value = 1;
+  document.getElementById('entrada-motivo').value = '';
+  document.getElementById('entrada-valor').value = '';
+  document.getElementById('modal-entrada').classList.add('open');
+}
+
+function closeEntradaModal() {
+  document.getElementById('modal-entrada').classList.remove('open');
+}
+
+function confirmarEntrada() {
+  const produto = document.getElementById('entrada-produto').value;
+  const filial = document.getElementById('entrada-filial').value;
+  const quantidade = parseInt(document.getElementById('entrada-quantidade').value);
+  let motivo = document.getElementById('entrada-motivo').value.trim();
+  const valorUnitario = document.getElementById('entrada-valor').value;
+  
+  if (!produto || !filial || isNaN(quantidade) || quantidade <= 0) {
+    showToast('Preencha todos os campos corretamente.');
+    return;
+  }
+  
+  if (!motivo) {
+    motivo = 'Entrada de estoque (compra)';
+  }
+  
+  const estoqueItem = estoqueData.find(i => i.produto === produto && i.filial === filial);
+  if (!estoqueItem) {
+    showToast('Produto não encontrado para esta filial.');
+    return;
+  }
+  
+  const novaQuantidade = estoqueItem.quantidade + quantidade;
+  
+  atualizarEstoque(produto, filial, novaQuantidade, 'entrada', quantidade, motivo);
+  
+  if (valorUnitario) {
+    showToast(`✅ Entrada registrada! ${produto} (${filial}): +${quantidade} un. Valor: ${valorUnitario}/un`);
+  } else {
+    showToast(`✅ Entrada registrada! ${produto} (${filial}): +${quantidade} unidades`);
+  }
+  
+  closeEntradaModal();
+}
+
+/* ===== AJUSTE RÁPIDO NA TABELA ===== */
+function abrirAjusteRapido(produto, filial) {
+  const itemAtual = estoqueData.find(i => i.produto === produto && i.filial === filial);
+  if (!itemAtual) return;
+  
+  const novaQtd = prompt(`Ajustar quantidade de ${produto} (${filial})\nQuantidade atual: ${itemAtual.quantidade}\n\nDigite a NOVA quantidade (número inteiro não negativo):`);
+  
+  if (novaQtd === null) return;
+  
+  const novaQuantidade = parseInt(novaQtd);
+  if (isNaN(novaQuantidade) || novaQuantidade < 0) {
+    showToast('Quantidade inválida. Digite um número inteiro não negativo.');
+    return;
+  }
+  
+  const diferenca = novaQuantidade - itemAtual.quantidade;
+  if (diferenca === 0) {
+    showToast('Nenhuma alteração realizada.');
+    return;
+  }
+  
+  let tipo = diferenca > 0 ? 'entrada' : 'saida';
+  let motivo = `Ajuste manual - ${diferenca > 0 ? 'aumento' : 'redução'} de estoque`;
+  
+  atualizarEstoque(produto, filial, novaQuantidade, tipo, Math.abs(diferenca), motivo);
+  showToast(`✅ Estoque ajustado! ${produto} (${filial}): ${itemAtual.quantidade} → ${novaQuantidade}`);
+}
+
+/* ===== MODAL MOVIMENTAÇÕES ===== */
+function openMovimentacoesModal() {
+  const container = document.getElementById('movimentacoes-list');
+  if (movimentacoes.length === 0) {
+    container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">Nenhuma movimentação registrada ainda.</div>';
+  } else {
+    container.innerHTML = movimentacoes.map(m => {
+      let tipoClass = '';
+      let tipoIcon = '';
+      if (m.tipo === 'entrada') { tipoClass = 'tipo-entrada'; tipoIcon = '➕'; }
+      else if (m.tipo === 'saida') { tipoClass = 'tipo-saida'; tipoIcon = '➖'; }
+      else { tipoClass = 'tipo-ajuste'; tipoIcon = '🔄'; }
+      return `<div class="movimentacao-item">
+        <div style="flex:2"><strong>${m.produto}</strong> (${m.filial})<br><small style="color:var(--muted)">${m.data}</small></div>
+        <div style="flex:1"><span class="movimentacao-tipo ${tipoClass}">${tipoIcon} ${m.tipo.toUpperCase()}</span><br><small>${m.quantidade} un.</small></div>
+        <div style="flex:2"><small>${m.motivo}</small><br><small>${m.usuario}</small></div>
+        <div style="flex:0.5;text-align:right"><small>${m.saldoAnterior} → ${m.saldoPosterior}</small></div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('modal-movimentacoes').classList.add('open');
+}
+
+function closeMovimentacoesModal() {
+  document.getElementById('modal-movimentacoes').classList.remove('open');
+}
+
+// Inicialização
+renderTabelaEstoque();
 
 </script>
 </body>
