@@ -231,12 +231,16 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 .pdv-btn-finalizar:hover{background:var(--green-dark);transform:translateY(-1px)}
 .pdv-empty{color:var(--muted);font-size:12px;text-align:center;padding:20px 0}
 
+/* Estilos adicionais para o modal */
+.modal-small{max-width:520px}
+.radio-group{display:flex;gap:16px;margin-top:8px}
+.radio-group label{display:flex;align-items:center;gap:6px;font-weight:500;font-size:13px;text-transform:none}
+.file-input{padding:8px 12px;border:1.5px dashed var(--border);border-radius:8px;background:var(--green-pale);cursor:pointer;font-size:12px;color:var(--muted)}
+.file-input:hover{border-color:var(--green);background:var(--green-light)}
+
 @media(max-width:1100px){.pdv-layout{grid-template-columns:1fr}}
 @media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(3,1fr)}.ar-two-col{grid-template-columns:1fr}.cards-2col{grid-template-columns:1fr}.cards-equal{grid-template-columns:1fr}.fin-summary{grid-template-columns:1fr}.cards-3col{grid-template-columns:1fr}}
 @media(max-width:700px){.sys-company-pill{display:none}.sys-topnav-brand{padding:8px 14px 6px}.sys-tab{padding:6px 8px;min-width:50px}.sys-tab-name{font-size:9px}.sys-content{padding:14px 12px}.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(2,1fr)}}
-</style>
-<style>
-.sys-panel-page { display:block; animation: heroIn .3s ease; }
 </style>
 </head>
 <body>
@@ -264,7 +268,7 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
             <div class="sys-user-role">Administrador</div>
           </div>
         </div>
-        <button class="sys-logout-btn" onclick="showToast('Saindo...')">⏻ Sair</button>
+        <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
       </div>
     </div>
     <div class="sys-topnav-tabs" id="sys-tabs">
@@ -321,7 +325,7 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
     </div>
     <div class="sys-topnav-actions">
       <span class="sys-action-label">Ações</span>
-      <div id="sys-actions-container"><button class="sys-act-btn" onclick="showToast('Abrindo chamado...')">+ Abrir chamado</button><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge">3</span></button></div>
+      <div id="sys-actions-container"><button class="sys-act-btn" onclick="openChamadoModal()">+ Abrir chamado</button><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge">3</span></button></div>
     </div>
   </div>
 
@@ -332,37 +336,93 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
           <div class="table-header">
             <div><div class="table-title">Chamados de suporte</div><div class="table-sub">Solicitações enviadas à equipe SIMPLES HUB</div></div>
             <div class="table-actions">
-              <button class="topbar-btn primary" onclick="showToast('Abrindo chamado...')">+ Abrir chamado</button>
+              <button class="topbar-btn primary" onclick="openChamadoModal()">+ Abrir chamado</button>
             </div>
           </div>
           <table class="tbl">
-            <thead><tr><th>Nº</th><th>Título</th><th>Categoria</th><th>Prioridade</th><th>Abertura</th><th>Fechamento</th><th>Status</th><th>Ações</th></tr></thead>
-            <tbody>
-              <tr><td>#0008</td><td>Erro ao registrar venda no PDV</td><td>Técnico</td><td><span class="badge badge-red">Alta</span></td><td>17/03/2026</td><td>—</td><td><span class="badge badge-yellow">Em análise</span></td><td><button class="action-btn">🔍</button></td></tr>
-              <tr><td>#0007</td><td>Relatório financeiro não exporta PDF</td><td>Funcionalidade</td><td><span class="badge badge-yellow">Média</span></td><td>10/03/2026</td><td>—</td><td><span class="badge badge-blue">Atendimento</span></td><td><button class="action-btn">🔍</button></td></tr>
-              <tr><td>#0006</td><td>Dúvida sobre cadastro de produtos</td><td>Dúvida</td><td><span class="badge badge-gray">Baixa</span></td><td>05/03/2026</td><td>06/03/2026</td><td><span class="badge badge-green">Resolvido</span></td><td><button class="action-btn">🔍</button></td></tr>
+            <thead>
+              <tr><th>Nº</th><th>Título</th><th>Categoria</th><th>Prioridade</th><th>Abertura</th><th>Fechamento</th><th>Status</th><th>Ações</th>
+            </thead>
+            <tbody id="chamados-tbody">
+              <!-- dados preenchidos via JS -->
             </tbody>
-          </table>
+           </table>
         </div>
       </div>
     </div>
   </main>
 </div>
 
+<!-- MODAL ABRIR CHAMADO -->
+<div id="modal-chamado" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">📞 Abrir Chamado de Suporte</div>
+      <button class="modal-close" onclick="closeChamadoModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Título *</label>
+        <input type="text" id="chamado-titulo" placeholder="Ex: Erro ao gerar relatório">
+      </div>
+      <div class="form-row">
+        <label>Descrição *</label>
+        <textarea id="chamado-descricao" rows="4" placeholder="Descreva detalhadamente o problema ou dúvida..."></textarea>
+      </div>
+      <div class="form-row">
+        <label>Categoria</label>
+        <select id="chamado-categoria">
+          <option value="Técnico">Técnico</option>
+          <option value="Funcionalidade">Funcionalidade</option>
+          <option value="Dúvida">Dúvida</option>
+          <option value="Sugestão">Sugestão</option>
+          <option value="Urgente">Urgente</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Prioridade</label>
+        <select id="chamado-prioridade">
+          <option value="Baixa">Baixa</option>
+          <option value="Média">Média</option>
+          <option value="Alta">Alta</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Anexar imagem (opcional)</label>
+        <div class="file-input" onclick="document.getElementById('chamado-anexo').click()">📎 Clique para selecionar arquivo</div>
+        <input type="file" id="chamado-anexo" accept="image/*" style="display:none">
+        <div id="anexo-nome" style="font-size:10px;color:var(--muted);margin-top:4px"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeChamadoModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="salvarChamado()">Enviar Chamado</button>
+    </div>
+  </div>
+</div>
+
 <script>
 
-/* ===== NAVEGAÇÃO ENTRE PÁGINAS ===== */
+/* ===== MAPA DE PÁGINAS ===== */
 var pageMap = {
   'inicio':'inicio.html','dashboard':'visao_geral.html','pdv':'pdv.html',
   'vendas':'vendas.html','clientes':'clientes.html','funcionarios':'funcionarios.html',
   'produtos':'produtos.html','estoque':'estoque.html','financeiro':'financeiro.html',
   'lembretes':'lembretes.html','suporte':'suporte.html','configuracoes':'configuracoes.html'
 };
+
 function navigateTo(name) {
-  if (pageMap[name]) window.location.href = pageMap[name];
+  if (pageMap[name]) {
+    window.location.href = pageMap[name];
+  } else {
+    showToast('Página em desenvolvimento');
+  }
 }
-// Alias para compatibilidade com chamadas internas
-var showPanel = navigateTo;
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'index.html';
+}
 
 /* ===== TOAST ===== */
 function showToast(msg) {
@@ -389,6 +449,157 @@ function adjustTopnavHeight() {
 window.addEventListener('load', adjustTopnavHeight);
 window.addEventListener('resize', adjustTopnavHeight);
 
+/* ===== DADOS DE CHAMADOS ===== */
+let chamadosData = [
+  { id: 8, titulo: "Erro ao registrar venda no PDV", descricao: "Ao tentar finalizar venda, sistema apresenta erro inesperado.", categoria: "Técnico", prioridade: "Alta", abertura: "17/03/2026", fechamento: "-", status: "Em análise", anexo: null },
+  { id: 7, titulo: "Relatório financeiro não exporta PDF", descricao: "Ao clicar em exportar PDF, nada acontece.", categoria: "Funcionalidade", prioridade: "Média", abertura: "10/03/2026", fechamento: "-", status: "Atendimento", anexo: null },
+  { id: 6, titulo: "Dúvida sobre cadastro de produtos", descricao: "Como cadastrar produtos com preços diferenciados por filial?", categoria: "Dúvida", prioridade: "Baixa", abertura: "05/03/2026", fechamento: "06/03/2026", status: "Resolvido", anexo: null }
+];
+
+let nextId = 9;
+
+function getPrioridadeClass(prioridade) {
+  switch(prioridade) {
+    case 'Alta': return 'badge-red';
+    case 'Média': return 'badge-yellow';
+    case 'Baixa': return 'badge-gray';
+    default: return 'badge-gray';
+  }
+}
+
+function getStatusClass(status) {
+  switch(status) {
+    case 'Resolvido': return 'badge-green';
+    case 'Em análise': return 'badge-yellow';
+    case 'Atendimento': return 'badge-blue';
+    default: return 'badge-gray';
+  }
+}
+
+function renderTabelaChamados() {
+  const tbody = document.getElementById('chamados-tbody');
+  if (!tbody) return;
+  
+  if (chamadosData.length === 0) {
+    tbody.innerHTML = '江南<td colspan="8" style="text-align:center">Nenhum chamado registrado</td> </tr>';
+    return;
+  }
+  
+  let html = '';
+  chamadosData.forEach(chamado => {
+    const prioridadeClass = getPrioridadeClass(chamado.prioridade);
+    const statusClass = getStatusClass(chamado.status);
+    html += `
+      <tr>
+        <td>#${chamado.id.toString().padStart(4, '0')}</td>
+        <td><strong>${chamado.titulo}</strong> </td>
+        <td>${chamado.categoria} </td>
+        <td><span class="badge ${prioridadeClass}">${chamado.prioridade}</span> </td>
+        <td>${chamado.abertura} </td>
+        <td>${chamado.fechamento} </td>
+        <td><span class="badge ${statusClass}">${chamado.status}</span> </td>
+        <td><button class="action-btn" onclick="visualizarChamado(${chamado.id})">🔍</button> </td>
+       </tr>
+    `;
+  });
+  tbody.innerHTML = html;
+}
+
+/* ===== MODAL CHAMADO ===== */
+function openChamadoModal() {
+  document.getElementById('chamado-titulo').value = '';
+  document.getElementById('chamado-descricao').value = '';
+  document.getElementById('chamado-categoria').value = 'Técnico';
+  document.getElementById('chamado-prioridade').value = 'Média';
+  document.getElementById('chamado-anexo').value = '';
+  document.getElementById('anexo-nome').innerHTML = '';
+  document.getElementById('modal-chamado').classList.add('open');
+}
+
+function closeChamadoModal() {
+  document.getElementById('modal-chamado').classList.remove('open');
+}
+
+function visualizarChamado(id) {
+  const chamado = chamadosData.find(c => c.id === id);
+  if (!chamado) return;
+  
+  let anexoInfo = '';
+  if (chamado.anexo) {
+    anexoInfo = `\n📎 Anexo: ${chamado.anexo}`;
+  }
+  
+  alert(`📋 Detalhes do Chamado #${chamado.id.toString().padStart(4, '0')}\n\n` +
+        `Título: ${chamado.titulo}\n` +
+        `Descrição: ${chamado.descricao}\n` +
+        `Categoria: ${chamado.categoria}\n` +
+        `Prioridade: ${chamado.prioridade}\n` +
+        `Abertura: ${chamado.abertura}\n` +
+        `Fechamento: ${chamado.fechamento}\n` +
+        `Status: ${chamado.status}${anexoInfo}`);
+}
+
+// Anexar arquivo
+document.getElementById('chamado-anexo').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file) {
+    document.getElementById('anexo-nome').innerHTML = `📎 Arquivo selecionado: ${file.name}`;
+  } else {
+    document.getElementById('anexo-nome').innerHTML = '';
+  }
+});
+
+function salvarChamado() {
+  const titulo = document.getElementById('chamado-titulo').value.trim();
+  const descricao = document.getElementById('chamado-descricao').value.trim();
+  const categoria = document.getElementById('chamado-categoria').value;
+  const prioridade = document.getElementById('chamado-prioridade').value;
+  const anexoFile = document.getElementById('chamado-anexo').files[0];
+  
+  if (!titulo) {
+    showToast('Por favor, informe o título do chamado.');
+    return;
+  }
+  
+  if (!descricao) {
+    showToast('Por favor, descreva o problema ou dúvida.');
+    return;
+  }
+  
+  const now = new Date();
+  const dataAbertura = now.toLocaleDateString('pt-BR');
+  
+  let anexoNome = null;
+  if (anexoFile) {
+    anexoNome = anexoFile.name;
+  }
+  
+  const novoChamado = {
+    id: nextId++,
+    titulo: titulo,
+    descricao: descricao,
+    categoria: categoria,
+    prioridade: prioridade,
+    abertura: dataAbertura,
+    fechamento: "-",
+    status: "Em análise",
+    anexo: anexoNome
+  };
+  
+  chamadosData.unshift(novoChamado);
+  renderTabelaChamados();
+  
+  let mensagem = `✅ Chamado #${novoChamado.id.toString().padStart(4, '0')} aberto com sucesso!`;
+  if (anexoNome) {
+    mensagem += `\n📎 Anexo: ${anexoNome}`;
+  }
+  showToast(mensagem);
+  
+  closeChamadoModal();
+}
+
+// Inicialização
+renderTabelaChamados();
 
 </script>
 </body>
