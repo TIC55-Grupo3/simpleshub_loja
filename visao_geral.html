@@ -235,9 +235,6 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 @media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(3,1fr)}.ar-two-col{grid-template-columns:1fr}.cards-2col{grid-template-columns:1fr}.cards-equal{grid-template-columns:1fr}.fin-summary{grid-template-columns:1fr}.cards-3col{grid-template-columns:1fr}}
 @media(max-width:700px){.sys-company-pill{display:none}.sys-topnav-brand{padding:8px 14px 6px}.sys-tab{padding:6px 8px;min-width:50px}.sys-tab-name{font-size:9px}.sys-content{padding:14px 12px}.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
-<style>
-.sys-panel-page { display:block; animation: heroIn .3s ease; }
-</style>
 </head>
 <body>
 <div class="sys-layout">
@@ -264,7 +261,7 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
             <div class="sys-user-role">Administrador</div>
           </div>
         </div>
-        <button class="sys-logout-btn" onclick="showToast('Saindo...')">⏻ Sair</button>
+        <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
       </div>
     </div>
     <div class="sys-topnav-tabs" id="sys-tabs">
@@ -383,18 +380,26 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 
 <script>
 
-/* ===== NAVEGAÇÃO ENTRE PÁGINAS ===== */
+/* ===== MAPA DE PÁGINAS ===== */
 var pageMap = {
   'inicio':'inicio.html','dashboard':'visao_geral.html','pdv':'pdv.html',
   'vendas':'vendas.html','clientes':'clientes.html','funcionarios':'funcionarios.html',
   'produtos':'produtos.html','estoque':'estoque.html','financeiro':'financeiro.html',
   'lembretes':'lembretes.html','suporte':'suporte.html','configuracoes':'configuracoes.html'
 };
+
 function navigateTo(name) {
-  if (pageMap[name]) window.location.href = pageMap[name];
+  if (pageMap[name]) {
+    window.location.href = pageMap[name];
+  } else {
+    showToast('Página em desenvolvimento');
+  }
 }
-// Alias para compatibilidade com chamadas internas
-var showPanel = navigateTo;
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'index.html';
+}
 
 /* ===== TOAST ===== */
 function showToast(msg) {
@@ -420,7 +425,6 @@ function adjustTopnavHeight() {
 }
 window.addEventListener('load', adjustTopnavHeight);
 window.addEventListener('resize', adjustTopnavHeight);
-
 
 </script>
 </body>
