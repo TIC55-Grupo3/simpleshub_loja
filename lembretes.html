@@ -231,12 +231,16 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 .pdv-btn-finalizar:hover{background:var(--green-dark);transform:translateY(-1px)}
 .pdv-empty{color:var(--muted);font-size:12px;text-align:center;padding:20px 0}
 
+/* Estilos adicionais */
+.modal-small{max-width:520px}
+.priority-badge{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700}
+.priority-urgente{background:#fff0f0;color:#c0392b;border:1px solid #ffcccc}
+.priority-pendente{background:#fffde7;color:#856404;border:1px solid #fff176}
+.priority-futuro{background:#f5f5f5;color:#666;border:1px solid #e0e0e0}
+
 @media(max-width:1100px){.pdv-layout{grid-template-columns:1fr}}
 @media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(3,1fr)}.ar-two-col{grid-template-columns:1fr}.cards-2col{grid-template-columns:1fr}.cards-equal{grid-template-columns:1fr}.fin-summary{grid-template-columns:1fr}.cards-3col{grid-template-columns:1fr}}
 @media(max-width:700px){.sys-company-pill{display:none}.sys-topnav-brand{padding:8px 14px 6px}.sys-tab{padding:6px 8px;min-width:50px}.sys-tab-name{font-size:9px}.sys-content{padding:14px 12px}.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(2,1fr)}}
-</style>
-<style>
-.sys-panel-page { display:block; animation: heroIn .3s ease; }
 </style>
 </head>
 <body>
@@ -264,7 +268,7 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
             <div class="sys-user-role">Administrador</div>
           </div>
         </div>
-        <button class="sys-logout-btn" onclick="showToast('Saindo...')">⏻ Sair</button>
+        <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
       </div>
     </div>
     <div class="sys-topnav-tabs" id="sys-tabs">
@@ -321,7 +325,7 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
     </div>
     <div class="sys-topnav-actions">
       <span class="sys-action-label">Ações</span>
-      <div id="sys-actions-container"><button class="sys-act-btn" onclick="showToast('Novo lembrete...')">+ Novo lembrete</button><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge">3</span></button></div>
+      <div id="sys-actions-container"><button class="sys-act-btn" onclick="openLembreteModal()">+ Novo lembrete</button><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge" id="notif-badge">3</span></button></div>
     </div>
   </div>
 
@@ -332,38 +336,79 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
           <div class="table-header">
             <div><div class="table-title">Lembretes internos</div><div class="table-sub">Notificações criadas pelos usuários da empresa</div></div>
             <div class="table-actions">
-              <button class="topbar-btn primary" onclick="showToast('Novo lembrete...')">+ Novo lembrete</button>
+              <button class="topbar-btn primary" onclick="openLembreteModal()">+ Novo lembrete</button>
             </div>
           </div>
           <table class="tbl">
-            <thead><tr><th>Título</th><th>Descrição</th><th>Data e hora</th><th>Criado por</th><th>Status</th><th>Ações</th></tr></thead>
-            <tbody>
-              <tr><td>Repor estoque — Fone Bluetooth</td><td>Quantidade abaixo do mínimo — fazer pedido ao fornecedor.</td><td>18/03/2026 08:00</td><td>Gerente</td><td><span class="badge badge-red">Urgente</span></td><td><button class="action-btn">✏️</button><button class="action-btn">🗑️</button></td></tr>
-              <tr><td>Reunião com fornecedor</td><td>Negociar nova tabela de preços para abril.</td><td>18/03/2026 16:00</td><td>Gerente</td><td><span class="badge badge-yellow">Pendente</span></td><td><button class="action-btn">✏️</button><button class="action-btn">🗑️</button></td></tr>
-              <tr><td>Revisar precificação</td><td>Ajustar margens dos eletrônicos conforme mercado.</td><td>20/03/2026 10:00</td><td>Gerente</td><td><span class="badge badge-yellow">Pendente</span></td><td><button class="action-btn">✏️</button><button class="action-btn">🗑️</button></td></tr>
-              <tr><td>Renovar contrato de aluguel</td><td>Contrato vence em abril — negociar reajuste.</td><td>01/04/2026 09:00</td><td>Gerente</td><td><span class="badge badge-gray">Futuro</span></td><td><button class="action-btn">✏️</button><button class="action-btn">🗑️</button></td></tr>
+            <thead> <tr><th>Título</th><th>Descrição</th><th>Data e hora</th><th>Criado por</th><th>Prioridade</th><th>Ações</th> </tr> </thead>
+            <tbody id="lembretes-tbody">
+              <!-- dados preenchidos via JS -->
             </tbody>
-          </table>
+           </table>
         </div>
       </div>
     </div>
   </main>
 </div>
 
+<!-- MODAL NOVO/EDITAR LEMBRETE -->
+<div id="modal-lembrete" class="modal-overlay">
+  <div class="modal modal-small">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-lembrete-title">➕ Novo Lembrete</div>
+      <button class="modal-close" onclick="closeLembreteModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Título *</label>
+        <input type="text" id="lembrete-titulo" placeholder="Ex: Reunião com fornecedor">
+      </div>
+      <div class="form-row">
+        <label>Descrição</label>
+        <textarea id="lembrete-descricao" rows="3" placeholder="Detalhes sobre o lembrete..."></textarea>
+      </div>
+      <div class="form-row">
+        <label>Data e hora *</label>
+        <input type="datetime-local" id="lembrete-data">
+      </div>
+      <div class="form-row">
+        <label>Prioridade</label>
+        <select id="lembrete-prioridade">
+          <option value="Urgente">🔴 Urgente</option>
+          <option value="Pendente">🟡 Pendente</option>
+          <option value="Futuro">⚪ Futuro</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeLembreteModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="salvarLembrete()">Salvar Lembrete</button>
+    </div>
+  </div>
+</div>
+
 <script>
 
-/* ===== NAVEGAÇÃO ENTRE PÁGINAS ===== */
+/* ===== MAPA DE PÁGINAS ===== */
 var pageMap = {
   'inicio':'inicio.html','dashboard':'visao_geral.html','pdv':'pdv.html',
   'vendas':'vendas.html','clientes':'clientes.html','funcionarios':'funcionarios.html',
   'produtos':'produtos.html','estoque':'estoque.html','financeiro':'financeiro.html',
   'lembretes':'lembretes.html','suporte':'suporte.html','configuracoes':'configuracoes.html'
 };
+
 function navigateTo(name) {
-  if (pageMap[name]) window.location.href = pageMap[name];
+  if (pageMap[name]) {
+    window.location.href = pageMap[name];
+  } else {
+    showToast('Página em desenvolvimento');
+  }
 }
-// Alias para compatibilidade com chamadas internas
-var showPanel = navigateTo;
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'index.html';
+}
 
 /* ===== TOAST ===== */
 function showToast(msg) {
@@ -390,6 +435,162 @@ function adjustTopnavHeight() {
 window.addEventListener('load', adjustTopnavHeight);
 window.addEventListener('resize', adjustTopnavHeight);
 
+/* ===== DADOS DE LEMBRETES ===== */
+let lembretesData = [
+  { id: 1, titulo: "Repor estoque — Fone Bluetooth", descricao: "Quantidade abaixo do mínimo — fazer pedido ao fornecedor.", dataHora: "2026-03-18T08:00", criadoPor: "Gerente", prioridade: "Urgente" },
+  { id: 2, titulo: "Reunião com fornecedor", descricao: "Negociar nova tabela de preços para abril.", dataHora: "2026-03-18T16:00", criadoPor: "Gerente", prioridade: "Pendente" },
+  { id: 3, titulo: "Revisar precificação", descricao: "Ajustar margens dos eletrônicos conforme mercado.", dataHora: "2026-03-20T10:00", criadoPor: "Gerente", prioridade: "Pendente" },
+  { id: 4, titulo: "Renovar contrato de aluguel", descricao: "Contrato vence em abril — negociar reajuste.", dataHora: "2026-04-01T09:00", criadoPor: "Gerente", prioridade: "Futuro" }
+];
+
+let nextId = 5;
+
+function formatarDataHora(dataHora) {
+  if (!dataHora) return '-';
+  const data = new Date(dataHora);
+  return data.toLocaleString('pt-BR');
+}
+
+function getPriorityClass(prioridade) {
+  switch(prioridade) {
+    case 'Urgente': return 'badge-red';
+    case 'Pendente': return 'badge-yellow';
+    case 'Futuro': return 'badge-gray';
+    default: return 'badge-gray';
+  }
+}
+
+function atualizarBadgeNotificacao() {
+  const badge = document.getElementById('notif-badge');
+  if (badge) {
+    const pendentes = lembretesData.filter(l => l.prioridade !== 'Futuro').length;
+    badge.innerText = pendentes;
+  }
+}
+
+function renderTabelaLembretes() {
+  const tbody = document.getElementById('lembretes-tbody');
+  if (!tbody) return;
+  
+  if (lembretesData.length === 0) {
+    tbody.innerHTML = '江南<td colspan="6" style="text-align:center">Nenhum lembrete cadastrado</td> </tr>';
+    atualizarBadgeNotificacao();
+    return;
+  }
+  
+  let html = '';
+  lembretesData.forEach(l => {
+    const priorityClass = getPriorityClass(l.prioridade);
+    html += `
+      <tr>
+        <td><strong>${l.titulo}</strong></td>
+        <td>${l.descricao || '-'}</td>
+        <td>${formatarDataHora(l.dataHora)}</td>
+        <td>${l.criadoPor}</td>
+        <td><span class="badge ${priorityClass}">${l.prioridade}</span></td>
+        <td>
+          <button class="action-btn" onclick="editarLembrete(${l.id})">✏️</button>
+          <button class="action-btn" onclick="excluirLembrete(${l.id})">🗑️</button>
+        </td>
+       </tr>
+    `;
+  });
+  tbody.innerHTML = html;
+  atualizarBadgeNotificacao();
+}
+
+/* ===== MODAL LEMBRETE ===== */
+let editandoLembreteId = null;
+
+function openLembreteModal() {
+  editandoLembreteId = null;
+  document.getElementById('modal-lembrete-title').innerHTML = '➕ Novo Lembrete';
+  document.getElementById('lembrete-titulo').value = '';
+  document.getElementById('lembrete-descricao').value = '';
+  
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('lembrete-data').value = now.toISOString().slice(0, 16);
+  
+  document.getElementById('lembrete-prioridade').value = 'Pendente';
+  document.getElementById('modal-lembrete').classList.add('open');
+}
+
+function editarLembrete(id) {
+  const lembrete = lembretesData.find(l => l.id === id);
+  if (!lembrete) return;
+  
+  editandoLembreteId = id;
+  document.getElementById('modal-lembrete-title').innerHTML = '✏️ Editar Lembrete';
+  document.getElementById('lembrete-titulo').value = lembrete.titulo;
+  document.getElementById('lembrete-descricao').value = lembrete.descricao;
+  document.getElementById('lembrete-data').value = lembrete.dataHora;
+  document.getElementById('lembrete-prioridade').value = lembrete.prioridade;
+  document.getElementById('modal-lembrete').classList.add('open');
+}
+
+function closeLembreteModal() {
+  document.getElementById('modal-lembrete').classList.remove('open');
+}
+
+function excluirLembrete(id) {
+  if (confirm('Tem certeza que deseja excluir este lembrete?')) {
+    const index = lembretesData.findIndex(l => l.id === id);
+    if (index !== -1) {
+      lembretesData.splice(index, 1);
+      renderTabelaLembretes();
+      showToast('✅ Lembrete excluído com sucesso!');
+    }
+  }
+}
+
+function salvarLembrete() {
+  const titulo = document.getElementById('lembrete-titulo').value.trim();
+  const descricao = document.getElementById('lembrete-descricao').value.trim();
+  const dataHora = document.getElementById('lembrete-data').value;
+  const prioridade = document.getElementById('lembrete-prioridade').value;
+  
+  if (!titulo) {
+    showToast('Por favor, informe o título do lembrete.');
+    return;
+  }
+  
+  if (!dataHora) {
+    showToast('Por favor, informe a data e hora do lembrete.');
+    return;
+  }
+  
+  if (editandoLembreteId !== null) {
+    const index = lembretesData.findIndex(l => l.id === editandoLembreteId);
+    if (index !== -1) {
+      lembretesData[index] = {
+        ...lembretesData[index],
+        titulo: titulo,
+        descricao: descricao,
+        dataHora: dataHora,
+        prioridade: prioridade
+      };
+      showToast(`✅ Lembrete "${titulo}" atualizado com sucesso!`);
+    }
+  } else {
+    const novoLembrete = {
+      id: nextId++,
+      titulo: titulo,
+      descricao: descricao,
+      dataHora: dataHora,
+      criadoPor: "Gerente",
+      prioridade: prioridade
+    };
+    lembretesData.push(novoLembrete);
+    showToast(`✅ Lembrete "${titulo}" adicionado com sucesso!`);
+  }
+  
+  renderTabelaLembretes();
+  closeLembreteModal();
+}
+
+// Inicialização
+renderTabelaLembretes();
 
 </script>
 </body>
