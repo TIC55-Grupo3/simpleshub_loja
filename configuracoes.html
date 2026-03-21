@@ -231,12 +231,14 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 .pdv-btn-finalizar:hover{background:var(--green-dark);transform:translateY(-1px)}
 .pdv-empty{color:var(--muted);font-size:12px;text-align:center;padding:20px 0}
 
+/* Estilos adicionais para modais */
+.modal-small{max-width:520px}
+.filial-item{background:var(--green-pale);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
+.filial-item:last-child{margin-bottom:0}
+
 @media(max-width:1100px){.pdv-layout{grid-template-columns:1fr}}
 @media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(3,1fr)}.ar-two-col{grid-template-columns:1fr}.cards-2col{grid-template-columns:1fr}.cards-equal{grid-template-columns:1fr}.fin-summary{grid-template-columns:1fr}.cards-3col{grid-template-columns:1fr}}
 @media(max-width:700px){.sys-company-pill{display:none}.sys-topnav-brand{padding:8px 14px 6px}.sys-tab{padding:6px 8px;min-width:50px}.sys-tab-name{font-size:9px}.sys-content{padding:14px 12px}.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(2,1fr)}}
-</style>
-<style>
-.sys-panel-page { display:block; animation: heroIn .3s ease; }
 </style>
 </head>
 <body>
@@ -254,17 +256,17 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
       </div>
       <div class="sys-brand-right">
         <div class="sys-company-pill">
-          <span class="sys-company-name">Loja Modelo</span>
+          <span class="sys-company-name" id="header-company-name">Loja Modelo</span>
           <span class="sys-company-badge">Loja</span>
         </div>
         <div class="sys-user-chip">
           <div class="sys-user-avatar">A</div>
           <div>
-            <div class="sys-user-name">Gerente da Loja</div>
+            <div class="sys-user-name" id="header-user-name">Gerente da Loja</div>
             <div class="sys-user-role">Administrador</div>
           </div>
         </div>
-        <button class="sys-logout-btn" onclick="showToast('Saindo...')">⏻ Sair</button>
+        <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
       </div>
     </div>
     <div class="sys-topnav-tabs" id="sys-tabs">
@@ -321,7 +323,7 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
     </div>
     <div class="sys-topnav-actions">
       <span class="sys-action-label">Ações</span>
-      <div id="sys-actions-container"><button class="sys-act-btn" onclick="showToast('Configurações salvas!')">💾 Salvar configurações</button><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge">3</span></button></div>
+      <div id="sys-actions-container"><button class="sys-act-btn" onclick="salvarConfiguracoesGerais()">💾 Salvar configurações</button><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge">3</span></button></div>
     </div>
   </div>
 
@@ -331,33 +333,26 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
         <div class="cards-equal">
           <div class="inner-card">
             <div class="form-section-title">Dados da empresa</div>
-            <div class="form-row"><label>Razão Social</label><input type="text" value="Loja Modelo Comércio LTDA"></div>
-            <div class="form-row"><label>CNPJ</label><input type="text" value="98.765.432/0001-11"></div>
-            <div class="form-row"><label>E-mail</label><input type="email" value="contato@lojamodelosimples.com.br"></div>
-            <div class="form-row"><label>Telefone</label><input type="text" value="(11) 3333-4444"></div>
-            <button class="topbar-btn primary" style="margin-top:8px" onclick="showToast('Dados salvos com sucesso!')">Salvar alterações</button>
+            <div class="form-row"><label>Razão Social</label><input type="text" id="empresa-razao" value="Loja Modelo Comércio LTDA"></div>
+            <div class="form-row"><label>CNPJ</label><input type="text" id="empresa-cnpj" value="98.765.432/0001-11"></div>
+            <div class="form-row"><label>E-mail</label><input type="email" id="empresa-email" value="contato@lojamodelosimples.com.br"></div>
+            <div class="form-row"><label>Telefone</label><input type="text" id="empresa-telefone" value="(11) 3333-4444"></div>
+            <button class="topbar-btn primary" style="margin-top:8px" onclick="salvarDadosEmpresa()">Salvar alterações</button>
           </div>
           <div class="inner-card">
             <div class="form-section-title">Filiais cadastradas</div>
-            <div style="display:flex;flex-direction:column;gap:12px">
-              <div style="background:var(--green-pale);border:1px solid var(--border);border-radius:10px;padding:14px">
-                <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px">Centro <span class="badge badge-green" style="margin-left:6px;vertical-align:middle">Matriz</span></div>
-                <div style="font-size:11px;color:var(--muted)">Rua das Flores, 100 · (11) 3333-4444</div>
-              </div>
-              <div style="background:var(--green-pale);border:1px solid var(--border);border-radius:10px;padding:14px">
-                <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px">Shopping <span class="badge badge-blue" style="margin-left:6px;vertical-align:middle">Filial</span></div>
-                <div style="font-size:11px;color:var(--muted)">Av. Principal, 500 Loja 42 · (11) 3444-5555</div>
-              </div>
+            <div id="filiais-container" style="display:flex;flex-direction:column;gap:12px">
+              <!-- filiais carregadas via JS -->
             </div>
-            <button class="topbar-btn ghost" style="margin-top:12px" onclick="showToast('Em breve: adicionar filial!')">+ Adicionar filial</button>
+            <button class="topbar-btn ghost" style="margin-top:12px" onclick="openFilialModal()">+ Adicionar filial</button>
           </div>
           <div class="inner-card">
             <div class="form-section-title">Preferências do sistema</div>
-            <div class="form-row"><label>Horário de abertura</label><input type="time" value="08:00"></div>
-            <div class="form-row"><label>Horário de fechamento</label><input type="time" value="20:00"></div>
-            <div class="form-row"><label>Notificações por e-mail</label><select><option>Habilitado</option><option>Desabilitado</option></select></div>
-            <div class="form-row"><label>Moeda padrão</label><select><option>BRL — Real Brasileiro</option><option>USD — Dólar</option></select></div>
-            <button class="topbar-btn primary" style="margin-top:8px" onclick="showToast('Preferências salvas!')">Salvar preferências</button>
+            <div class="form-row"><label>Horário de abertura</label><input type="time" id="pref-horario-abertura" value="08:00"></div>
+            <div class="form-row"><label>Horário de fechamento</label><input type="time" id="pref-horario-fechamento" value="20:00"></div>
+            <div class="form-row"><label>Notificações por e-mail</label><select id="pref-notificacoes"><option>Habilitado</option><option>Desabilitado</option></select></div>
+            <div class="form-row"><label>Moeda padrão</label><select id="pref-moeda"><option>BRL — Real Brasileiro</option><option>USD — Dólar</option></select></div>
+            <button class="topbar-btn primary" style="margin-top:8px" onclick="salvarPreferencias()">Salvar preferências</button>
           </div>
           <div class="inner-card">
             <div class="form-section-title">Módulos habilitados</div>
@@ -379,20 +374,63 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
   </main>
 </div>
 
+<!-- MODAL ADICIONAR FILIAL -->
+<div id="modal-filial" class="modal-overlay">
+  <div class="modal modal-small">
+    <div class="modal-head">
+      <div class="modal-title">➕ Adicionar Nova Filial</div>
+      <button class="modal-close" onclick="closeFilialModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Nome da Filial *</label>
+        <input type="text" id="filial-nome" placeholder="Ex: Filial Zona Sul">
+      </div>
+      <div class="form-row">
+        <label>Endereço</label>
+        <input type="text" id="filial-endereco" placeholder="Rua, número, bairro">
+      </div>
+      <div class="form-row">
+        <label>Telefone</label>
+        <input type="text" id="filial-telefone" placeholder="(11) 99999-9999">
+      </div>
+      <div class="form-row">
+        <label>Tipo</label>
+        <select id="filial-tipo">
+          <option value="Filial">Filial</option>
+          <option value="Matriz">Matriz</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeFilialModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="adicionarFilial()">Adicionar Filial</button>
+    </div>
+  </div>
+</div>
+
 <script>
 
-/* ===== NAVEGAÇÃO ENTRE PÁGINAS ===== */
+/* ===== MAPA DE PÁGINAS ===== */
 var pageMap = {
   'inicio':'inicio.html','dashboard':'visao_geral.html','pdv':'pdv.html',
   'vendas':'vendas.html','clientes':'clientes.html','funcionarios':'funcionarios.html',
   'produtos':'produtos.html','estoque':'estoque.html','financeiro':'financeiro.html',
   'lembretes':'lembretes.html','suporte':'suporte.html','configuracoes':'configuracoes.html'
 };
+
 function navigateTo(name) {
-  if (pageMap[name]) window.location.href = pageMap[name];
+  if (pageMap[name]) {
+    window.location.href = pageMap[name];
+  } else {
+    showToast('Página em desenvolvimento');
+  }
 }
-// Alias para compatibilidade com chamadas internas
-var showPanel = navigateTo;
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'index.html';
+}
 
 /* ===== TOAST ===== */
 function showToast(msg) {
@@ -419,6 +457,152 @@ function adjustTopnavHeight() {
 window.addEventListener('load', adjustTopnavHeight);
 window.addEventListener('resize', adjustTopnavHeight);
 
+/* ===== DADOS GLOBAIS ===== */
+let filiaisData = [
+  { id: 1, nome: "Centro", endereco: "Rua das Flores, 100", telefone: "(11) 3333-4444", tipo: "Matriz" },
+  { id: 2, nome: "Shopping", endereco: "Av. Principal, 500 Loja 42", telefone: "(11) 3444-5555", tipo: "Filial" }
+];
+
+let empresaData = {
+  razaoSocial: "Loja Modelo Comércio LTDA",
+  cnpj: "98.765.432/0001-11",
+  email: "contato@lojamodelosimples.com.br",
+  telefone: "(11) 3333-4444",
+  nomeFantasia: "Loja Modelo"
+};
+
+let preferenciasData = {
+  horarioAbertura: "08:00",
+  horarioFechamento: "20:00",
+  notificacoes: "Habilitado",
+  moeda: "BRL — Real Brasileiro"
+};
+
+let nextFilialId = 3;
+
+function renderFiliais() {
+  const container = document.getElementById('filiais-container');
+  if (!container) return;
+  
+  if (filiaisData.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Nenhuma filial cadastrada</div>';
+    return;
+  }
+  
+  let html = '';
+  filiaisData.forEach(filial => {
+    const tipoClass = filial.tipo === 'Matriz' ? 'badge-green' : 'badge-blue';
+    html += `
+      <div style="background:var(--green-pale);border:1px solid var(--border);border-radius:10px;padding:14px">
+        <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center">
+          <span>${filial.nome} <span class="badge ${tipoClass}" style="margin-left:6px;vertical-align:middle">${filial.tipo}</span></span>
+          <button class="action-btn" onclick="excluirFilial(${filial.id})" style="color:#c0392b">🗑️</button>
+        </div>
+        <div style="font-size:11px;color:var(--muted)">${filial.endereco} · ${filial.telefone}</div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+function excluirFilial(id) {
+  if (confirm('Tem certeza que deseja excluir esta filial?')) {
+    const index = filiaisData.findIndex(f => f.id === id);
+    if (index !== -1 && filiaisData[index].tipo !== 'Matriz') {
+      filiaisData.splice(index, 1);
+      renderFiliais();
+      showToast('✅ Filial excluída com sucesso!');
+    } else if (filiaisData[index].tipo === 'Matriz') {
+      showToast('❌ Não é possível excluir a filial matriz.');
+    }
+  }
+}
+
+/* ===== MODAL FILIAL ===== */
+function openFilialModal() {
+  document.getElementById('filial-nome').value = '';
+  document.getElementById('filial-endereco').value = '';
+  document.getElementById('filial-telefone').value = '';
+  document.getElementById('filial-tipo').value = 'Filial';
+  document.getElementById('modal-filial').classList.add('open');
+}
+
+function closeFilialModal() {
+  document.getElementById('modal-filial').classList.remove('open');
+}
+
+function adicionarFilial() {
+  const nome = document.getElementById('filial-nome').value.trim();
+  const endereco = document.getElementById('filial-endereco').value.trim();
+  const telefone = document.getElementById('filial-telefone').value.trim();
+  const tipo = document.getElementById('filial-tipo').value;
+  
+  if (!nome) {
+    showToast('Por favor, informe o nome da filial.');
+    return;
+  }
+  
+  const novaFilial = {
+    id: nextFilialId++,
+    nome: nome,
+    endereco: endereco || 'Endereço não informado',
+    telefone: telefone || 'Telefone não informado',
+    tipo: tipo
+  };
+  
+  filiaisData.push(novaFilial);
+  renderFiliais();
+  closeFilialModal();
+  showToast(`✅ Filial "${nome}" adicionada com sucesso!`);
+}
+
+/* ===== DADOS DA EMPRESA ===== */
+function salvarDadosEmpresa() {
+  empresaData.razaoSocial = document.getElementById('empresa-razao').value.trim();
+  empresaData.cnpj = document.getElementById('empresa-cnpj').value.trim();
+  empresaData.email = document.getElementById('empresa-email').value.trim();
+  empresaData.telefone = document.getElementById('empresa-telefone').value.trim();
+  empresaData.nomeFantasia = empresaData.razaoSocial.split(' ')[0] + ' ' + empresaData.razaoSocial.split(' ')[1] || 'Loja Modelo';
+  
+  document.getElementById('header-company-name').innerText = empresaData.nomeFantasia;
+  
+  showToast('✅ Dados da empresa salvos com sucesso!');
+}
+
+/* ===== PREFERÊNCIAS ===== */
+function salvarPreferencias() {
+  preferenciasData.horarioAbertura = document.getElementById('pref-horario-abertura').value;
+  preferenciasData.horarioFechamento = document.getElementById('pref-horario-fechamento').value;
+  preferenciasData.notificacoes = document.getElementById('pref-notificacoes').value;
+  preferenciasData.moeda = document.getElementById('pref-moeda').value;
+  
+  showToast('✅ Preferências do sistema salvas com sucesso!');
+}
+
+/* ===== SALVAR CONFIGURAÇÕES GERAIS ===== */
+function salvarConfiguracoesGerais() {
+  salvarDadosEmpresa();
+  salvarPreferencias();
+  showToast('✅ Todas as configurações foram salvas!');
+}
+
+// Carregar dados iniciais
+function carregarDados() {
+  renderFiliais();
+  document.getElementById('empresa-razao').value = empresaData.razaoSocial;
+  document.getElementById('empresa-cnpj').value = empresaData.cnpj;
+  document.getElementById('empresa-email').value = empresaData.email;
+  document.getElementById('empresa-telefone').value = empresaData.telefone;
+  document.getElementById('header-company-name').innerText = empresaData.nomeFantasia;
+  
+  document.getElementById('pref-horario-abertura').value = preferenciasData.horarioAbertura;
+  document.getElementById('pref-horario-fechamento').value = preferenciasData.horarioFechamento;
+  document.getElementById('pref-notificacoes').value = preferenciasData.notificacoes;
+  document.getElementById('pref-moeda').value = preferenciasData.moeda;
+}
+
+// Inicialização
+carregarDados();
 
 </script>
 </body>
