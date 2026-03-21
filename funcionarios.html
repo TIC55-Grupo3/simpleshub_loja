@@ -231,12 +231,12 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 .pdv-btn-finalizar:hover{background:var(--green-dark);transform:translateY(-1px)}
 .pdv-empty{color:var(--muted);font-size:12px;text-align:center;padding:20px 0}
 
+/* Estilos adicionais para modal */
+.modal-small{max-width:520px}
+
 @media(max-width:1100px){.pdv-layout{grid-template-columns:1fr}}
 @media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(3,1fr)}.ar-two-col{grid-template-columns:1fr}.cards-2col{grid-template-columns:1fr}.cards-equal{grid-template-columns:1fr}.fin-summary{grid-template-columns:1fr}.cards-3col{grid-template-columns:1fr}}
 @media(max-width:700px){.sys-company-pill{display:none}.sys-topnav-brand{padding:8px 14px 6px}.sys-tab{padding:6px 8px;min-width:50px}.sys-tab-name{font-size:9px}.sys-content{padding:14px 12px}.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(2,1fr)}}
-</style>
-<style>
-.sys-panel-page { display:block; animation: heroIn .3s ease; }
 </style>
 </head>
 <body>
@@ -264,7 +264,7 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
             <div class="sys-user-role">Administrador</div>
           </div>
         </div>
-        <button class="sys-logout-btn" onclick="showToast('Saindo...')">⏻ Sair</button>
+        <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
       </div>
     </div>
     <div class="sys-topnav-tabs" id="sys-tabs">
@@ -321,7 +321,7 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
     </div>
     <div class="sys-topnav-actions">
       <span class="sys-action-label">Ações</span>
-      <div id="sys-actions-container"><button class="sys-act-btn" onclick="showToast('Abrindo formulário...')">+ Novo funcionário</button><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge">3</span></button></div>
+      <div id="sys-actions-container"><button class="sys-act-btn" onclick="openFuncionarioModal()">+ Novo funcionário</button><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge">3</span></button></div>
     </div>
   </div>
 
@@ -332,38 +332,100 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
           <div class="table-header">
             <div><div class="table-title">Equipe da loja</div><div class="table-sub">Funcionários cadastrados por filial</div></div>
             <div class="table-actions">
-              <button class="topbar-btn primary" onclick="showToast('Abrindo formulário...')">+ Novo funcionário</button>
+              <button class="topbar-btn primary" onclick="openFuncionarioModal()">+ Novo funcionário</button>
             </div>
           </div>
           <table class="tbl">
-            <thead><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>Cargo</th><th>Filial</th><th>Desde</th><th>Status</th><th>Ações</th></tr></thead>
-            <tbody>
-              <tr><td>Carlos Vendedor</td><td>123.456.789-00</td><td>(11) 99801-5566</td><td>Vendedor</td><td>Centro</td><td>10/01/2024</td><td><span class="badge badge-green">Ativo</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td>Mariana Oliveira</td><td>987.654.321-00</td><td>(11) 99900-3344</td><td>Vendedora</td><td>Centro</td><td>01/03/2024</td><td><span class="badge badge-green">Ativo</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td>Diego Estoque</td><td>456.789.123-00</td><td>(11) 98811-7788</td><td>Estoquista</td><td>Shopping</td><td>15/05/2024</td><td><span class="badge badge-green">Ativo</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td>Renata Caixa</td><td>321.654.987-00</td><td>(11) 99700-4422</td><td>Caixa</td><td>Shopping</td><td>20/06/2024</td><td><span class="badge badge-yellow">Férias</span></td><td><button class="action-btn">✏️</button></td></tr>
+            <thead>
+              <tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>Cargo</th><th>Filial</th><th>Desde</th><th>Status</th><th>Ações</th>
+            </thead>
+            <tbody id="funcionarios-tbody">
+              <!-- dados preenchidos via JS -->
             </tbody>
-          </table>
+           </table>
         </div>
       </div>
     </div>
   </main>
 </div>
 
+<!-- MODAL NOVO/EDITAR FUNCIONÁRIO -->
+<div id="modal-funcionario" class="modal-overlay">
+  <div class="modal modal-small">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-funcionario-title">➕ Novo Funcionário</div>
+      <button class="modal-close" onclick="closeFuncionarioModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Nome completo *</label>
+        <input type="text" id="funcionario-nome" placeholder="Ex: João Silva">
+      </div>
+      <div class="form-row">
+        <label>CPF *</label>
+        <input type="text" id="funcionario-cpf" placeholder="000.000.000-00" maxlength="14">
+      </div>
+      <div class="form-row">
+        <label>Telefone *</label>
+        <input type="text" id="funcionario-telefone" placeholder="(11) 99999-9999">
+      </div>
+      <div class="form-row">
+        <label>Cargo</label>
+        <select id="funcionario-cargo">
+          <option value="Vendedor">Vendedor</option>
+          <option value="Vendedora">Vendedora</option>
+          <option value="Estoquista">Estoquista</option>
+          <option value="Caixa">Caixa</option>
+          <option value="Gerente">Gerente</option>
+          <option value="Auxiliar">Auxiliar</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Filial</label>
+        <select id="funcionario-filial">
+          <option value="Centro">Centro (Matriz)</option>
+          <option value="Shopping">Shopping (Filial)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Status</label>
+        <select id="funcionario-status">
+          <option value="Ativo">Ativo</option>
+          <option value="Férias">Férias</option>
+          <option value="Afastado">Afastado</option>
+          <option value="Inativo">Inativo</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeFuncionarioModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="salvarFuncionario()">Salvar Funcionário</button>
+    </div>
+  </div>
+</div>
+
 <script>
 
-/* ===== NAVEGAÇÃO ENTRE PÁGINAS ===== */
+/* ===== MAPA DE PÁGINAS ===== */
 var pageMap = {
   'inicio':'inicio.html','dashboard':'visao_geral.html','pdv':'pdv.html',
   'vendas':'vendas.html','clientes':'clientes.html','funcionarios':'funcionarios.html',
   'produtos':'produtos.html','estoque':'estoque.html','financeiro':'financeiro.html',
   'lembretes':'lembretes.html','suporte':'suporte.html','configuracoes':'configuracoes.html'
 };
+
 function navigateTo(name) {
-  if (pageMap[name]) window.location.href = pageMap[name];
+  if (pageMap[name]) {
+    window.location.href = pageMap[name];
+  } else {
+    showToast('Página em desenvolvimento');
+  }
 }
-// Alias para compatibilidade com chamadas internas
-var showPanel = navigateTo;
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'index.html';
+}
 
 /* ===== TOAST ===== */
 function showToast(msg) {
@@ -390,6 +452,213 @@ function adjustTopnavHeight() {
 window.addEventListener('load', adjustTopnavHeight);
 window.addEventListener('resize', adjustTopnavHeight);
 
+/* ===== FUNÇÃO DE FORMATAÇÃO DE CPF ===== */
+function formatarCPF(input) {
+  let valor = input.value.replace(/\D/g, '');
+  
+  if (valor.length > 11) {
+    valor = valor.slice(0, 11);
+  }
+  
+  if (valor.length > 9) {
+    valor = valor.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+  } else if (valor.length > 6) {
+    valor = valor.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+  } else if (valor.length > 3) {
+    valor = valor.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+  }
+  
+  input.value = valor;
+}
+
+/* ===== FUNÇÃO DE FORMATAÇÃO DE TELEFONE ===== */
+function formatarTelefone(input) {
+  let valor = input.value.replace(/\D/g, '');
+  
+  if (valor.length > 11) {
+    valor = valor.slice(0, 11);
+  }
+  
+  if (valor.length > 10) {
+    valor = valor.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+  } else if (valor.length > 6) {
+    valor = valor.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+  } else if (valor.length > 2) {
+    valor = valor.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+  }
+  
+  input.value = valor;
+}
+
+/* ===== DADOS DE FUNCIONÁRIOS ===== */
+let funcionariosData = [
+  { id: 1, nome: "Carlos Vendedor", cpf: "123.456.789-00", telefone: "(11) 99801-5566", cargo: "Vendedor", filial: "Centro", dataAdmissao: "10/01/2024", status: "Ativo" },
+  { id: 2, nome: "Mariana Oliveira", cpf: "987.654.321-00", telefone: "(11) 99900-3344", cargo: "Vendedora", filial: "Centro", dataAdmissao: "01/03/2024", status: "Ativo" },
+  { id: 3, nome: "Diego Estoque", cpf: "456.789.123-00", telefone: "(11) 98811-7788", cargo: "Estoquista", filial: "Shopping", dataAdmissao: "15/05/2024", status: "Ativo" },
+  { id: 4, nome: "Renata Caixa", cpf: "321.654.987-00", telefone: "(11) 99700-4422", cargo: "Caixa", filial: "Shopping", dataAdmissao: "20/06/2024", status: "Férias" }
+];
+
+let nextId = 5;
+
+function getStatusClass(status) {
+  switch(status) {
+    case 'Ativo': return 'badge-green';
+    case 'Férias': return 'badge-yellow';
+    case 'Afastado': return 'badge-red';
+    default: return 'badge-gray';
+  }
+}
+
+function renderTabelaFuncionarios() {
+  const tbody = document.getElementById('funcionarios-tbody');
+  if (!tbody) return;
+  
+  if (funcionariosData.length === 0) {
+    tbody.innerHTML = '江南<td colspan="8" style="text-align:center">Nenhum funcionário cadastrado</td> </tr>';
+    return;
+  }
+  
+  let html = '';
+  funcionariosData.forEach(func => {
+    const statusClass = getStatusClass(func.status);
+    html += `
+       <tr>
+         <td>${func.nome}</td>
+         <td>${func.cpf}</td>
+         <td>${func.telefone}</td>
+         <td>${func.cargo}</td>
+         <td>${func.filial}</td>
+         <td>${func.dataAdmissao}</td>
+         <td><span class="badge ${statusClass}">${func.status}</span></td>
+         <td><button class="action-btn" onclick="editarFuncionario(${func.id})">✏️</button></td>
+       </tr>
+    `;
+  });
+  tbody.innerHTML = html;
+}
+
+/* ===== MODAL FUNCIONÁRIO ===== */
+let editandoFuncionarioId = null;
+
+function openFuncionarioModal() {
+  editandoFuncionarioId = null;
+  document.getElementById('modal-funcionario-title').innerHTML = '➕ Novo Funcionário';
+  document.getElementById('funcionario-nome').value = '';
+  document.getElementById('funcionario-cpf').value = '';
+  document.getElementById('funcionario-telefone').value = '';
+  document.getElementById('funcionario-cargo').value = 'Vendedor';
+  document.getElementById('funcionario-filial').value = 'Centro';
+  document.getElementById('funcionario-status').value = 'Ativo';
+  document.getElementById('modal-funcionario').classList.add('open');
+}
+
+function editarFuncionario(id) {
+  const func = funcionariosData.find(f => f.id === id);
+  if (!func) return;
+  
+  editandoFuncionarioId = id;
+  document.getElementById('modal-funcionario-title').innerHTML = '✏️ Editar Funcionário';
+  document.getElementById('funcionario-nome').value = func.nome;
+  document.getElementById('funcionario-cpf').value = func.cpf;
+  document.getElementById('funcionario-telefone').value = func.telefone;
+  document.getElementById('funcionario-cargo').value = func.cargo;
+  document.getElementById('funcionario-filial').value = func.filial;
+  document.getElementById('funcionario-status').value = func.status;
+  document.getElementById('modal-funcionario').classList.add('open');
+}
+
+function closeFuncionarioModal() {
+  document.getElementById('modal-funcionario').classList.remove('open');
+}
+
+function salvarFuncionario() {
+  const nome = document.getElementById('funcionario-nome').value.trim();
+  let cpf = document.getElementById('funcionario-cpf').value.trim();
+  let telefone = document.getElementById('funcionario-telefone').value.trim();
+  const cargo = document.getElementById('funcionario-cargo').value;
+  const filial = document.getElementById('funcionario-filial').value;
+  const status = document.getElementById('funcionario-status').value;
+  
+  if (!nome) {
+    showToast('Por favor, informe o nome do funcionário.');
+    return;
+  }
+  
+  if (!cpf) {
+    showToast('Por favor, informe o CPF do funcionário.');
+    return;
+  }
+  
+  if (!telefone) {
+    showToast('Por favor, informe o telefone do funcionário.');
+    return;
+  }
+  
+  // Remover formatação do CPF para validação
+  const cpfNumeros = cpf.replace(/\D/g, '');
+  if (cpfNumeros.length !== 11) {
+    showToast('CPF inválido. Deve conter 11 dígitos.');
+    return;
+  }
+  
+  const now = new Date();
+  const dataAdmissao = now.toLocaleDateString('pt-BR');
+  
+  if (editandoFuncionarioId !== null) {
+    // Editar funcionário existente
+    const index = funcionariosData.findIndex(f => f.id === editandoFuncionarioId);
+    if (index !== -1) {
+      funcionariosData[index] = {
+        ...funcionariosData[index],
+        nome: nome,
+        cpf: cpf,
+        telefone: telefone,
+        cargo: cargo,
+        filial: filial,
+        status: status
+      };
+      showToast(`✅ Funcionário "${nome}" atualizado com sucesso!`);
+    }
+  } else {
+    // Criar novo funcionário
+    const novoFuncionario = {
+      id: nextId++,
+      nome: nome,
+      cpf: cpf,
+      telefone: telefone,
+      cargo: cargo,
+      filial: filial,
+      dataAdmissao: dataAdmissao,
+      status: status
+    };
+    funcionariosData.push(novoFuncionario);
+    showToast(`✅ Funcionário "${nome}" cadastrado com sucesso!`);
+  }
+  
+  renderTabelaFuncionarios();
+  closeFuncionarioModal();
+}
+
+// Adicionar eventos de formatação aos campos
+document.addEventListener('DOMContentLoaded', function() {
+  const cpfInput = document.getElementById('funcionario-cpf');
+  const telefoneInput = document.getElementById('funcionario-telefone');
+  
+  if (cpfInput) {
+    cpfInput.addEventListener('input', function() {
+      formatarCPF(this);
+    });
+  }
+  
+  if (telefoneInput) {
+    telefoneInput.addEventListener('input', function() {
+      formatarTelefone(this);
+    });
+  }
+});
+
+// Inicialização
+renderTabelaFuncionarios();
 
 </script>
 </body>
