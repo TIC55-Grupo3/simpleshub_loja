@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIMPLES HUB – Financeiro</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
   --green:#1f2937;--green-dark:#111827;--green-mid:#374151;
@@ -149,38 +152,8 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 .form-row input,.form-row select,.form-row textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);outline:none;transition:border-color .2s;font-family:'Inter',sans-serif;background:var(--white)}
 .form-row input:focus,.form-row select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(31,41,55,.08)}
 .form-section-title{font-size:12px;font-weight:700;color:var(--green);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:14px;letter-spacing:.06em;text-transform:uppercase}
-
-/* Início (Acessos Rápidos) */
-.ar-welcome{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
-.ar-welcome-title{font-size:20px;font-weight:800;color:var(--ink);margin-bottom:4px}
-.ar-welcome-sub{font-size:12px;color:var(--muted)}
-.ar-shortcuts-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px}
-.ar-shortcut{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;position:relative}
-.ar-shortcut:hover{border-color:var(--green);box-shadow:0 4px 14px rgba(31,41,55,.08);transform:translateY(-2px)}
-.ar-shortcut-icon{font-size:24px}
-.ar-shortcut-label{font-size:11px;font-weight:700;color:var(--ink)}
-.ar-shortcut-badge{position:absolute;top:8px;right:8px;background:#e74c3c;color:#fff;border-radius:20px;font-size:9px;font-weight:800;padding:1px 6px}
-.ar-two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.ar-reminder-list{display:flex;flex-direction:column;gap:10px}
-.ar-reminder-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:var(--green-pale);border:1px solid var(--border)}
-.ar-reminder-dot{width:8px;height:8px;border-radius:50%;background:var(--green-line);flex-shrink:0}
-.ar-reminder-high .ar-reminder-dot{background:#c0392b}
-.ar-dot-mid{background:#e67e22!important}
-.ar-dot-low{background:var(--green)!important}
-.ar-reminder-content{flex:1}
-.ar-reminder-name{font-size:12px;font-weight:700;color:var(--ink)}
-.ar-reminder-time{font-size:10px;color:var(--muted);margin-top:2px}
-.ar-see-all{width:100%;margin-top:12px;padding:8px;background:transparent;border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
-.ar-see-all:hover{border-color:var(--green);color:var(--green);background:var(--green-light)}
-.ar-fav-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.ar-fav-item{background:var(--green-pale);border:1px solid var(--border);border-radius:10px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px;font-weight:700;color:var(--ink);cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
-.ar-fav-item:hover{border-color:var(--green);background:var(--green-light)}
-.ar-hist-tab{padding:5px 14px;border-radius:7px;font-size:11px;font-weight:700;border:1px solid var(--border);background:transparent;cursor:pointer;color:var(--muted);font-family:'Inter',sans-serif;transition:all .2s}
-.ar-hist-tab.active{background:var(--green);color:#fff;border-color:var(--green)}
-.ar-history-list{display:flex;flex-direction:column;gap:6px}
-.ar-hist-entry{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;background:var(--green-pale);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s}
-.ar-hist-entry:hover{background:var(--green-light);border-color:var(--green)}
-.ar-hist-time{font-size:10px;color:var(--muted);font-weight:500}
+.form-radio-group{display:flex;gap:16px;margin-top:8px}
+.form-radio-group label{display:flex;align-items:center;gap:6px;font-weight:500;font-size:13px;text-transform:none}
 
 /* Topbar btn */
 .topbar-btn{padding:9px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif}
@@ -235,9 +208,6 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 @media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(3,1fr)}.ar-two-col{grid-template-columns:1fr}.cards-2col{grid-template-columns:1fr}.cards-equal{grid-template-columns:1fr}.fin-summary{grid-template-columns:1fr}.cards-3col{grid-template-columns:1fr}}
 @media(max-width:700px){.sys-company-pill{display:none}.sys-topnav-brand{padding:8px 14px 6px}.sys-tab{padding:6px 8px;min-width:50px}.sys-tab-name{font-size:9px}.sys-content{padding:14px 12px}.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
-<style>
-.sys-panel-page { display:block; animation: heroIn .3s ease; }
-</style>
 </head>
 <body>
 <div class="sys-layout">
@@ -264,7 +234,7 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
             <div class="sys-user-role">Administrador</div>
           </div>
         </div>
-        <button class="sys-logout-btn" onclick="showToast('Saindo...')">⏻ Sair</button>
+        <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
       </div>
     </div>
     <div class="sys-topnav-tabs" id="sys-tabs">
@@ -321,56 +291,156 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
     </div>
     <div class="sys-topnav-actions">
       <span class="sys-action-label">Ações</span>
-      <div id="sys-actions-container"><button class="sys-act-btn" onclick="showToast('Novo lançamento...')">+ Novo lançamento</button><button class="sys-act-btn ghost" onclick="showToast('Exportando...')">📤 Exportar extrato</button><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge">3</span></button></div>
+      <div id="sys-actions-container"><button class="sys-act-btn" onclick="openLancamentoModal()">+ Novo lançamento</button><button class="sys-act-btn ghost" onclick="openExportModal()">📤 Exportar extrato</button><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge">3</span></button></div>
     </div>
   </div>
 
   <main class="sys-main">
     <div class="sys-content">
 <div class="sys-panel-page" id="panel-financeiro">
-        <div class="fin-summary">
-          <div class="fin-card receita"><div class="fin-label">Total de Receitas</div><div class="fin-val green">R$ 32.480,00</div><div style="font-size:11px;color:var(--muted);margin-top:4px">345 lançamentos de entrada</div></div>
-          <div class="fin-card despesa"><div class="fin-label">Total de Despesas</div><div class="fin-val red">R$ 18.200,00</div><div style="font-size:11px;color:#c0392b;margin-top:4px">38 lançamentos de saída</div></div>
-          <div class="fin-card saldo"><div class="fin-label">Lucro Líquido</div><div class="fin-val green">R$ 14.280,00</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Resultado de março/2026</div></div>
+        <div class="fin-summary" id="fin-summary">
+          <div class="fin-card receita"><div class="fin-label">Total de Receitas</div><div class="fin-val green" id="total-receitas">R$ 0,00</div><div style="font-size:11px;color:var(--muted);margin-top:4px" id="qtd-receitas">0 lançamentos de entrada</div></div>
+          <div class="fin-card despesa"><div class="fin-label">Total de Despesas</div><div class="fin-val red" id="total-despesas">R$ 0,00</div><div style="font-size:11px;color:#c0392b;margin-top:4px" id="qtd-despesas">0 lançamentos de saída</div></div>
+          <div class="fin-card saldo"><div class="fin-label">Lucro Líquido</div><div class="fin-val green" id="lucro-liquido">R$ 0,00</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Resultado atual</div></div>
         </div>
         <div class="table-wrap">
           <div class="table-header">
             <div><div class="table-title">Lançamentos financeiros</div><div class="table-sub">Receitas e despesas do período</div></div>
             <div class="table-actions">
-              <button class="topbar-btn ghost" onclick="showToast('Exportando extrato...')">📤 Exportar</button>
-              <button class="topbar-btn primary" onclick="showToast('Novo lançamento...')">+ Novo lançamento</button>
+              <button class="topbar-btn ghost" onclick="openExportModal()">📤 Exportar</button>
+              <button class="topbar-btn primary" onclick="openLancamentoModal()">+ Novo lançamento</button>
             </div>
           </div>
           <table class="tbl">
-            <thead><tr><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Lançamento</th><th>Vencimento</th><th>Pagamento</th><th>Status</th><th>Ações</th></tr></thead>
-            <tbody>
-              <tr><td><span class="badge badge-green">Receita</span></td><td>Venda #0345 — Smartwatch</td><td>R$ 199,00</td><td>18/03/2026</td><td>18/03/2026</td><td>PIX</td><td><span class="badge badge-green">Pago</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td><span class="badge badge-green">Receita</span></td><td>Venda #0344 — Fone + Cabo</td><td>R$ 127,00</td><td>18/03/2026</td><td>18/03/2026</td><td>Cartão</td><td><span class="badge badge-green">Pago</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td><span class="badge badge-red">Despesa</span></td><td>Compra de mercadoria — Fone Bluetooth</td><td>R$ 1.260,00</td><td>15/03/2026</td><td>20/03/2026</td><td>Boleto</td><td><span class="badge badge-yellow">Pendente</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td><span class="badge badge-red">Despesa</span></td><td>Aluguel — Março/2026</td><td>R$ 3.200,00</td><td>01/03/2026</td><td>10/03/2026</td><td>Transferência</td><td><span class="badge badge-green">Pago</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td><span class="badge badge-green">Receita</span></td><td>Venda #0341 — Pacote completo</td><td>R$ 256,00</td><td>16/03/2026</td><td>16/03/2026</td><td>Cartão</td><td><span class="badge badge-green">Pago</span></td><td><button class="action-btn">✏️</button></td></tr>
+            <thead> <tr><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Lançamento</th><th>Vencimento</th><th>Pagamento</th><th>Status</th><th>Ações</th></tr> </thead>
+            <tbody id="lancamentos-tbody">
+              <!-- dados preenchidos via JS -->
             </tbody>
-          </table>
+           </table>
         </div>
       </div>
     </div>
   </main>
 </div>
 
+<!-- MODAL NOVO LANÇAMENTO -->
+<div id="modal-lancamento" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-lancamento-title">➕ Novo Lançamento Financeiro</div>
+      <button class="modal-close" onclick="closeLancamentoModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Tipo de lançamento *</label>
+        <div class="form-radio-group">
+          <label><input type="radio" name="lancamento-tipo" value="Receita" checked> 💰 Receita (Entrada)</label>
+          <label><input type="radio" name="lancamento-tipo" value="Despesa"> 💸 Despesa (Saída)</label>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Descrição *</label>
+        <input type="text" id="lancamento-descricao" placeholder="Ex: Venda #0346, Compra de mercadoria, Aluguel...">
+      </div>
+      <div class="form-row">
+        <label>Valor *</label>
+        <input type="text" id="lancamento-valor" placeholder="0,00">
+      </div>
+      <div class="form-row">
+        <label>Data de lançamento *</label>
+        <input type="date" id="lancamento-data">
+      </div>
+      <div class="form-row">
+        <label>Data de vencimento</label>
+        <input type="date" id="lancamento-vencimento">
+      </div>
+      <div class="form-row">
+        <label>Forma de pagamento</label>
+        <select id="lancamento-pagamento">
+          <option value="PIX">PIX</option>
+          <option value="Cartão de Crédito">Cartão de Crédito</option>
+          <option value="Cartão de Débito">Cartão de Débito</option>
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="Boleto">Boleto</option>
+          <option value="Transferência">Transferência</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Status</label>
+        <select id="lancamento-status">
+          <option value="Pago">Pago</option>
+          <option value="Pendente">Pendente</option>
+          <option value="Atrasado">Atrasado</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeLancamentoModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="salvarLancamento()">Salvar Lançamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EXPORTAÇÃO -->
+<div class="modal-overlay" id="modal-export">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">📤 Exportar Extrato Financeiro</div>
+      <button class="modal-close" onclick="closeExportModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Formato do Arquivo</label>
+        <div class="form-radio-group">
+          <label><input type="radio" name="export-format" value="excel" checked> 📊 Excel (.xlsx)</label>
+          <label><input type="radio" name="export-format" value="csv"> 📄 CSV</label>
+          <label><input type="radio" name="export-format" value="pdf"> 📑 PDF</label>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Período</label>
+        <select id="export-period">
+          <option value="all">Todos os lançamentos</option>
+          <option value="month">Este mês</option>
+          <option value="receita">Apenas Receitas</option>
+          <option value="despesa">Apenas Despesas</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Nome do arquivo</label>
+        <input type="text" id="export-filename" placeholder="extrato_financeiro" value="extrato_financeiro">
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">Extensão será adicionada automaticamente</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeExportModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="confirmExport()">📥 Exportar Agora</button>
+    </div>
+  </div>
+</div>
+
 <script>
 
-/* ===== NAVEGAÇÃO ENTRE PÁGINAS ===== */
+/* ===== MAPA DE PÁGINAS ===== */
 var pageMap = {
   'inicio':'inicio.html','dashboard':'visao_geral.html','pdv':'pdv.html',
   'vendas':'vendas.html','clientes':'clientes.html','funcionarios':'funcionarios.html',
   'produtos':'produtos.html','estoque':'estoque.html','financeiro':'financeiro.html',
   'lembretes':'lembretes.html','suporte':'suporte.html','configuracoes':'configuracoes.html'
 };
+
 function navigateTo(name) {
-  if (pageMap[name]) window.location.href = pageMap[name];
+  if (pageMap[name]) {
+    window.location.href = pageMap[name];
+  } else {
+    showToast('Página em desenvolvimento');
+  }
 }
-// Alias para compatibilidade com chamadas internas
-var showPanel = navigateTo;
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'index.html';
+}
 
 /* ===== TOAST ===== */
 function showToast(msg) {
@@ -397,6 +467,285 @@ function adjustTopnavHeight() {
 window.addEventListener('load', adjustTopnavHeight);
 window.addEventListener('resize', adjustTopnavHeight);
 
+/* ===== DADOS DE LANÇAMENTOS ===== */
+let lancamentosData = [
+  { id: 1, tipo: "Receita", descricao: "Venda #0345 — Smartwatch", valor: 199.00, dataLancamento: "18/03/2026", dataVencimento: "18/03/2026", pagamento: "PIX", status: "Pago" },
+  { id: 2, tipo: "Receita", descricao: "Venda #0344 — Fone + Cabo", valor: 127.00, dataLancamento: "18/03/2026", dataVencimento: "18/03/2026", pagamento: "Cartão de Crédito", status: "Pago" },
+  { id: 3, tipo: "Despesa", descricao: "Compra de mercadoria — Fone Bluetooth", valor: 1260.00, dataLancamento: "15/03/2026", dataVencimento: "20/03/2026", pagamento: "Boleto", status: "Pendente" },
+  { id: 4, tipo: "Despesa", descricao: "Aluguel — Março/2026", valor: 3200.00, dataLancamento: "01/03/2026", dataVencimento: "10/03/2026", pagamento: "Transferência", status: "Pago" },
+  { id: 5, tipo: "Receita", descricao: "Venda #0341 — Pacote completo", valor: 256.00, dataLancamento: "16/03/2026", dataVencimento: "16/03/2026", pagamento: "Cartão de Crédito", status: "Pago" }
+];
+
+let nextId = 6;
+
+function formatarMoeda(valor) {
+  return 'R$ ' + valor.toFixed(2).replace('.', ',');
+}
+
+function getStatusClass(status) {
+  switch(status) {
+    case 'Pago': return 'badge-green';
+    case 'Pendente': return 'badge-yellow';
+    case 'Atrasado': return 'badge-red';
+    default: return 'badge-gray';
+  }
+}
+
+function getTipoClass(tipo) {
+  return tipo === 'Receita' ? 'badge-green' : 'badge-red';
+}
+
+function atualizarResumo() {
+  const receitas = lancamentosData.filter(l => l.tipo === 'Receita').reduce((sum, l) => sum + l.valor, 0);
+  const despesas = lancamentosData.filter(l => l.tipo === 'Despesa').reduce((sum, l) => sum + l.valor, 0);
+  const qtdReceitas = lancamentosData.filter(l => l.tipo === 'Receita').length;
+  const qtdDespesas = lancamentosData.filter(l => l.tipo === 'Despesa').length;
+  const lucro = receitas - despesas;
+  
+  document.getElementById('total-receitas').innerHTML = formatarMoeda(receitas);
+  document.getElementById('total-despesas').innerHTML = formatarMoeda(despesas);
+  document.getElementById('lucro-liquido').innerHTML = formatarMoeda(lucro);
+  document.getElementById('qtd-receitas').innerHTML = qtdReceitas + ' lançamentos de entrada';
+  document.getElementById('qtd-despesas').innerHTML = qtdDespesas + ' lançamentos de saída';
+}
+
+function renderTabelaLancamentos() {
+  const tbody = document.getElementById('lancamentos-tbody');
+  if (!tbody) return;
+  
+  if (lancamentosData.length === 0) {
+    tbody.innerHTML = '江南<td colspan="8" style="text-align:center">Nenhum lançamento registrado</td> </tr>';
+    atualizarResumo();
+    return;
+  }
+  
+  let html = '';
+  lancamentosData.forEach(l => {
+    const tipoClass = getTipoClass(l.tipo);
+    const statusClass = getStatusClass(l.status);
+    html += `
+      <tr>
+        <td><span class="badge ${tipoClass}">${l.tipo}</span></td>
+        <td>${l.descricao}</td>
+        <td>${formatarMoeda(l.valor)}</td>
+        <td>${l.dataLancamento}</td>
+        <td>${l.dataVencimento}</td>
+        <td>${l.pagamento}</td>
+        <td><span class="badge ${statusClass}">${l.status}</span></td>
+        <td><button class="action-btn" onclick="editarLancamento(${l.id})">✏️</button></td>
+      </tr>
+    `;
+  });
+  tbody.innerHTML = html;
+  atualizarResumo();
+}
+
+/* ===== MODAL LANÇAMENTO ===== */
+let editandoLancamentoId = null;
+
+function openLancamentoModal() {
+  editandoLancamentoId = null;
+  document.getElementById('modal-lancamento-title').innerHTML = '➕ Novo Lançamento Financeiro';
+  document.querySelector('input[name="lancamento-tipo"][value="Receita"]').checked = true;
+  document.getElementById('lancamento-descricao').value = '';
+  document.getElementById('lancamento-valor').value = '';
+  document.getElementById('lancamento-data').value = new Date().toISOString().split('T')[0];
+  document.getElementById('lancamento-vencimento').value = '';
+  document.getElementById('lancamento-pagamento').value = 'PIX';
+  document.getElementById('lancamento-status').value = 'Pago';
+  document.getElementById('modal-lancamento').classList.add('open');
+}
+
+function editarLancamento(id) {
+  const lancamento = lancamentosData.find(l => l.id === id);
+  if (!lancamento) return;
+  
+  editandoLancamentoId = id;
+  document.getElementById('modal-lancamento-title').innerHTML = '✏️ Editar Lançamento';
+  document.querySelector(`input[name="lancamento-tipo"][value="${lancamento.tipo}"]`).checked = true;
+  document.getElementById('lancamento-descricao').value = lancamento.descricao;
+  document.getElementById('lancamento-valor').value = lancamento.valor.toString().replace('.', ',');
+  
+  const [dia, mes, ano] = lancamento.dataLancamento.split('/');
+  document.getElementById('lancamento-data').value = `${ano}-${mes}-${dia}`;
+  
+  if (lancamento.dataVencimento && lancamento.dataVencimento !== '-') {
+    const [d, m, a] = lancamento.dataVencimento.split('/');
+    document.getElementById('lancamento-vencimento').value = `${a}-${m}-${d}`;
+  } else {
+    document.getElementById('lancamento-vencimento').value = '';
+  }
+  
+  document.getElementById('lancamento-pagamento').value = lancamento.pagamento;
+  document.getElementById('lancamento-status').value = lancamento.status;
+  document.getElementById('modal-lancamento').classList.add('open');
+}
+
+function closeLancamentoModal() {
+  document.getElementById('modal-lancamento').classList.remove('open');
+}
+
+function salvarLancamento() {
+  const tipo = document.querySelector('input[name="lancamento-tipo"]:checked').value;
+  const descricao = document.getElementById('lancamento-descricao').value.trim();
+  let valorStr = document.getElementById('lancamento-valor').value;
+  const dataLancamento = document.getElementById('lancamento-data').value;
+  const dataVencimento = document.getElementById('lancamento-vencimento').value;
+  const pagamento = document.getElementById('lancamento-pagamento').value;
+  const status = document.getElementById('lancamento-status').value;
+  
+  if (!descricao) {
+    showToast('Por favor, informe a descrição do lançamento.');
+    return;
+  }
+  
+  valorStr = valorStr.replace(/\./g, '').replace(',', '.');
+  const valor = parseFloat(valorStr);
+  if (isNaN(valor) || valor <= 0) {
+    showToast('Por favor, informe um valor válido.');
+    return;
+  }
+  
+  if (!dataLancamento) {
+    showToast('Por favor, informe a data de lançamento.');
+    return;
+  }
+  
+  const dataLancamentoFormatada = new Date(dataLancamento).toLocaleDateString('pt-BR');
+  const dataVencimentoFormatada = dataVencimento ? new Date(dataVencimento).toLocaleDateString('pt-BR') : '-';
+  
+  if (editandoLancamentoId !== null) {
+    const index = lancamentosData.findIndex(l => l.id === editandoLancamentoId);
+    if (index !== -1) {
+      lancamentosData[index] = {
+        ...lancamentosData[index],
+        tipo: tipo,
+        descricao: descricao,
+        valor: valor,
+        dataLancamento: dataLancamentoFormatada,
+        dataVencimento: dataVencimentoFormatada,
+        pagamento: pagamento,
+        status: status
+      };
+      showToast(`✅ Lançamento "${descricao}" atualizado com sucesso!`);
+    }
+  } else {
+    const novoLancamento = {
+      id: nextId++,
+      tipo: tipo,
+      descricao: descricao,
+      valor: valor,
+      dataLancamento: dataLancamentoFormatada,
+      dataVencimento: dataVencimentoFormatada,
+      pagamento: pagamento,
+      status: status
+    };
+    lancamentosData.push(novoLancamento);
+    showToast(`✅ Lançamento "${descricao}" adicionado com sucesso!`);
+  }
+  
+  renderTabelaLancamentos();
+  closeLancamentoModal();
+}
+
+/* ===== MODAL EXPORTAÇÃO ===== */
+function openExportModal() {
+  document.getElementById('modal-export').classList.add('open');
+}
+
+function closeExportModal() {
+  document.getElementById('modal-export').classList.remove('open');
+}
+
+function getFilteredLancamentos() {
+  const period = document.getElementById('export-period').value;
+  let filtered = [...lancamentosData];
+  
+  if (period === 'receita') {
+    filtered = filtered.filter(l => l.tipo === 'Receita');
+  } else if (period === 'despesa') {
+    filtered = filtered.filter(l => l.tipo === 'Despesa');
+  } else if (period === 'month') {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    filtered = filtered.filter(l => {
+      const [dia, mes, ano] = l.dataLancamento.split('/');
+      return parseInt(mes) - 1 === currentMonth && parseInt(ano) === currentYear;
+    });
+  }
+  
+  return filtered;
+}
+
+function confirmExport() {
+  const format = document.querySelector('input[name="export-format"]:checked').value;
+  const filename = document.getElementById('export-filename').value.trim() || 'extrato_financeiro';
+  const filtered = getFilteredLancamentos();
+  
+  if (filtered.length === 0) {
+    showToast('Nenhum lançamento encontrado para o filtro selecionado.');
+    closeExportModal();
+    return;
+  }
+  
+  closeExportModal();
+  showToast('Gerando arquivo ' + format.toUpperCase() + '...');
+  
+  setTimeout(() => {
+    const headers = ['Tipo', 'Descrição', 'Valor', 'Data Lançamento', 'Vencimento', 'Pagamento', 'Status'];
+    const rows = filtered.map(l => [
+      l.tipo,
+      l.descricao,
+      formatarMoeda(l.valor),
+      l.dataLancamento,
+      l.dataVencimento,
+      l.pagamento,
+      l.status
+    ]);
+    
+    if (format === 'pdf') {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(18);
+      doc.text('Extrato Financeiro - SIMPLES HUB', 14, 22);
+      doc.setFontSize(11);
+      doc.setTextColor(100);
+      doc.text('Gerado em: ' + new Date().toLocaleString(), 14, 30);
+      doc.autoTable({
+        head: [headers],
+        body: rows,
+        startY: 40,
+        theme: 'grid',
+        headStyles: { fillColor: [31, 41, 55] },
+        styles: { fontSize: 9 }
+      });
+      doc.save(filename + '.pdf');
+    } else if (format === 'excel') {
+      const data = [headers, ...rows];
+      const worksheet = XLSX.utils.aoa_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Extrato Financeiro");
+      XLSX.writeFile(workbook, filename + ".xlsx");
+    } else if (format === 'csv') {
+      const data = [headers, ...rows];
+      const csvContent = data.map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
+      const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename + ".csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+    showToast('✅ Download iniciado!');
+  }, 500);
+}
+
+// Inicialização
+renderTabelaLancamentos();
 
 </script>
 </body>
