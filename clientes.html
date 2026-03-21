@@ -231,12 +231,14 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 .pdv-btn-finalizar:hover{background:var(--green-dark);transform:translateY(-1px)}
 .pdv-empty{color:var(--muted);font-size:12px;text-align:center;padding:20px 0}
 
+/* Estilos adicionais */
+.modal-small{max-width:520px}
+.radio-group{display:flex;gap:16px;margin-top:8px}
+.radio-group label{display:flex;align-items:center;gap:6px;font-weight:500;font-size:13px;text-transform:none}
+
 @media(max-width:1100px){.pdv-layout{grid-template-columns:1fr}}
 @media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(3,1fr)}.ar-two-col{grid-template-columns:1fr}.cards-2col{grid-template-columns:1fr}.cards-equal{grid-template-columns:1fr}.fin-summary{grid-template-columns:1fr}.cards-3col{grid-template-columns:1fr}}
 @media(max-width:700px){.sys-company-pill{display:none}.sys-topnav-brand{padding:8px 14px 6px}.sys-tab{padding:6px 8px;min-width:50px}.sys-tab-name{font-size:9px}.sys-content{padding:14px 12px}.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(2,1fr)}}
-</style>
-<style>
-.sys-panel-page { display:block; animation: heroIn .3s ease; }
 </style>
 </head>
 <body>
@@ -321,7 +323,7 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
     </div>
     <div class="sys-topnav-actions">
       <span class="sys-action-label">Ações</span>
-      <div id="sys-actions-container"><button class="sys-act-btn" onclick="showToast('Abrindo formulário...')">+ Novo cliente</button><button class="sys-act-btn ghost" onclick="showToast('Exportando...')">📤 Exportar lista</button><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge">3</span></button></div>
+      <div id="sys-actions-container"><button class="sys-act-btn" onclick="openClienteModal()">+ Novo cliente</button><button class="sys-act-btn ghost" onclick="openExportarModal()">📤 Exportar lista</button><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge">3</span></button></div>
     </div>
   </div>
 
@@ -329,33 +331,113 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
     <div class="sys-content">
 <div class="sys-panel-page" id="panel-clientes">
         <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
-          <div class="stat-card"><div class="stat-card-label">Total de clientes</div><div class="stat-card-num">412</div><div class="stat-card-trend trend-up">↑ +14 esta semana</div></div>
-          <div class="stat-card"><div class="stat-card-label">Ativos no mês</div><div class="stat-card-num green">218</div><div class="stat-card-trend">53% do total</div></div>
-          <div class="stat-card"><div class="stat-card-label">Novos em março</div><div class="stat-card-num">32</div><div class="stat-card-trend trend-up">↑ +9 vs fevereiro</div></div>
+          <div class="stat-card"><div class="stat-card-label">Total de clientes</div><div class="stat-card-num" id="total-clientes">0</div><div class="stat-card-trend trend-up">↑ +14 esta semana</div></div>
+          <div class="stat-card"><div class="stat-card-label">Ativos no mês</div><div class="stat-card-num green" id="ativos-mes">0</div><div class="stat-card-trend">53% do total</div></div>
+          <div class="stat-card"><div class="stat-card-label">Novos em março</div><div class="stat-card-num" id="novos-marco">0</div><div class="stat-card-trend trend-up">↑ +9 vs fevereiro</div></div>
         </div>
         <div class="table-wrap">
           <div class="table-header">
             <div><div class="table-title">Clientes cadastrados</div><div class="table-sub">Base completa de clientes</div></div>
             <div class="table-actions">
-              <button class="topbar-btn ghost" onclick="showToast('Exportando lista...')">📤 Exportar</button>
-              <button class="topbar-btn primary" onclick="showToast('Abrindo formulário...')">+ Novo cliente</button>
+              <button class="topbar-btn ghost" onclick="openExportarModal()">📤 Exportar</button>
+              <button class="topbar-btn primary" onclick="openClienteModal()">+ Novo cliente</button>
             </div>
           </div>
           <table class="tbl">
-            <thead><tr><th>Nome</th><th>Telefone</th><th>E-mail</th><th>Cadastro</th><th>Compras</th><th>Total gasto</th><th>Status</th><th>Ações</th></tr></thead>
-            <tbody>
-              <tr><td>Ana Carvalho</td><td>(11) 99801-2233</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dabbb4bb9abfb7bbb3b6f4b9b5b7">[email&#160;protected]</a></td><td>10/01/2025</td><td>18</td><td>R$ 1.840</td><td><span class="badge badge-green">Ativo</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td>João Ferreira</td><td>(11) 99702-4411</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="513b3e303e11343c30383d7f323e3c">[email&#160;protected]</a></td><td>15/02/2025</td><td>12</td><td>R$ 980</td><td><span class="badge badge-green">Ativo</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td>Paula Lima</td><td>(11) 98811-3344</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bcccddc9d0ddfcd9d1ddd5d092dfd3d1">[email&#160;protected]</a></td><td>03/03/2025</td><td>7</td><td>R$ 540</td><td><span class="badge badge-green">Ativo</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td>Marcos Silva</td><td>(11) 99654-2211</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0c616d7e6f637f4c69616d6560226f6361">[email&#160;protected]</a></td><td>20/03/2025</td><td>5</td><td>R$ 340</td><td><span class="badge badge-green">Ativo</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td>Fernanda Costa</td><td>(11) 98733-9900</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="553330273b343b3134153038343c397b363a38">[email&#160;protected]</a></td><td>05/04/2025</td><td>22</td><td>R$ 2.180</td><td><span class="badge badge-green">Ativo</span></td><td><button class="action-btn">✏️</button></td></tr>
-              <tr><td>Bruno Alves</td><td>(11) 99812-0011</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b8dacacdd6d7f8ddd5d9d1d496dbd7d5">[email&#160;protected]</a></td><td>12/06/2025</td><td>3</td><td>R$ 210</td><td><span class="badge badge-yellow">Inativo</span></td><td><button class="action-btn">✏️</button></td></tr>
+            <thead>
+              <tr><th>Nome</th><th>Telefone</th><th>E-mail</th><th>Cadastro</th><th>Compras</th><th>Total gasto</th><th>Status</th><th>Ações</th>
+            </thead>
+            <tbody id="clientes-tbody">
+              <!-- dados preenchidos via JS -->
             </tbody>
           </table>
         </div>
       </div>
     </div>
   </main>
+</div>
+
+<!-- MODAL NOVO/EDITAR CLIENTE -->
+<div id="modal-cliente" class="modal-overlay">
+  <div class="modal modal-small">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-cliente-title">➕ Novo Cliente</div>
+      <button class="modal-close" onclick="closeClienteModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Nome completo *</label>
+        <input type="text" id="cliente-nome" placeholder="Ex: Maria Silva">
+      </div>
+      <div class="form-row">
+        <label>Telefone *</label>
+        <input type="text" id="cliente-telefone" placeholder="(11) 99999-9999">
+      </div>
+      <div class="form-row">
+        <label>E-mail</label>
+        <input type="email" id="cliente-email" placeholder="cliente@email.com">
+      </div>
+      <div class="form-row">
+        <label>Status</label>
+        <select id="cliente-status">
+          <option value="Ativo">Ativo</option>
+          <option value="Inativo">Inativo</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeClienteModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="salvarCliente()">Salvar Cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EXPORTAÇÃO -->
+<div id="modal-exportar" class="modal-overlay">
+  <div class="modal modal-small">
+    <div class="modal-head">
+      <div class="modal-title">📤 Exportar Lista de Clientes</div>
+      <button class="modal-close" onclick="closeExportarModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Formato de exportação</label>
+        <div class="radio-group">
+          <label><input type="radio" name="formato-export" value="csv" checked> 📄 CSV (Excel)</label>
+          <label><input type="radio" name="formato-export" value="json"> 📋 JSON (Dados brutos)</label>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Campos a incluir</label>
+        <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px">
+          <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" id="campo-nome" checked> Nome</label>
+          <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" id="campo-telefone" checked> Telefone</label>
+          <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" id="campo-email" checked> E-mail</label>
+          <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" id="campo-cadastro" checked> Data Cadastro</label>
+          <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" id="campo-compras" checked> Compras</label>
+          <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" id="campo-total" checked> Total Gasto</label>
+          <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" id="campo-status" checked> Status</label>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Filtrar por status</label>
+        <select id="filtro-status-export">
+          <option value="todos">Todos os clientes</option>
+          <option value="Ativo">Apenas ativos</option>
+          <option value="Inativo">Apenas inativos</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Nome do arquivo</label>
+        <input type="text" id="nome-arquivo" placeholder="clientes_exportados">
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">Extensão será adicionada automaticamente (.csv ou .json)</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeExportarModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="exportarClientes()">📥 Exportar Agora</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -370,7 +452,6 @@ var pageMap = {
 function navigateTo(name) {
   if (pageMap[name]) window.location.href = pageMap[name];
 }
-// Alias para compatibilidade com chamadas internas
 var showPanel = navigateTo;
 
 /* ===== TOAST ===== */
@@ -398,6 +479,258 @@ function adjustTopnavHeight() {
 window.addEventListener('load', adjustTopnavHeight);
 window.addEventListener('resize', adjustTopnavHeight);
 
+/* ===== DADOS DE CLIENTES ===== */
+let clientesData = [
+  { id: 1, nome: "Ana Carvalho", telefone: "(11) 99801-2233", email: "ana.carvalho@email.com", dataCadastro: "10/01/2025", compras: 18, totalGasto: 1840, status: "Ativo" },
+  { id: 2, nome: "João Ferreira", telefone: "(11) 99702-4411", email: "joao.ferreira@email.com", dataCadastro: "15/02/2025", compras: 12, totalGasto: 980, status: "Ativo" },
+  { id: 3, nome: "Paula Lima", telefone: "(11) 98811-3344", email: "paula.lima@email.com", dataCadastro: "03/03/2025", compras: 7, totalGasto: 540, status: "Ativo" },
+  { id: 4, nome: "Marcos Silva", telefone: "(11) 99654-2211", email: "marcos.silva@email.com", dataCadastro: "20/03/2025", compras: 5, totalGasto: 340, status: "Ativo" },
+  { id: 5, nome: "Fernanda Costa", telefone: "(11) 98733-9900", email: "fernanda.costa@email.com", dataCadastro: "05/04/2025", compras: 22, totalGasto: 2180, status: "Ativo" },
+  { id: 6, nome: "Bruno Alves", telefone: "(11) 99812-0011", email: "bruno.alves@email.com", dataCadastro: "12/06/2025", compras: 3, totalGasto: 210, status: "Inativo" }
+];
+
+let nextId = 7;
+
+function formatarMoeda(valor) {
+  return 'R$ ' + valor.toFixed(2).replace('.', ',');
+}
+
+function atualizarStats() {
+  const total = clientesData.length;
+  const ativos = clientesData.filter(c => c.status === 'Ativo').length;
+  const marco2025 = clientesData.filter(c => {
+    const [dia, mes, ano] = c.dataCadastro.split('/');
+    return mes === '03' && ano === '2025';
+  }).length;
+  
+  document.getElementById('total-clientes').innerText = total;
+  document.getElementById('ativos-mes').innerText = ativos;
+  document.getElementById('novos-marco').innerText = marco2025;
+}
+
+function renderTabelaClientes() {
+  const tbody = document.getElementById('clientes-tbody');
+  if (!tbody) return;
+  
+  if (clientesData.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">Nenhum cliente cadastrado</td></tr>';
+    atualizarStats();
+    return;
+  }
+  
+  let html = '';
+  clientesData.forEach(cliente => {
+    const statusClass = cliente.status === 'Ativo' ? 'badge-green' : 'badge-yellow';
+    html += `
+       <tr>
+         <td>${cliente.nome}</td>
+         <td>${cliente.telefone}</td>
+         <td>${cliente.email}</td>
+         <td>${cliente.dataCadastro}</td>
+         <td>${cliente.compras}</td>
+         <td>${formatarMoeda(cliente.totalGasto)}</td>
+         <td><span class="badge ${statusClass}">${cliente.status}</span></td>
+         <td><button class="action-btn" onclick="editarCliente(${cliente.id})">✏️</button></td>
+        </tr>
+    `;
+  });
+  tbody.innerHTML = html;
+  atualizarStats();
+}
+
+/* ===== MODAL CLIENTE ===== */
+let editandoClienteId = null;
+
+function openClienteModal() {
+  editandoClienteId = null;
+  document.getElementById('modal-cliente-title').innerHTML = '➕ Novo Cliente';
+  document.getElementById('cliente-nome').value = '';
+  document.getElementById('cliente-telefone').value = '';
+  document.getElementById('cliente-email').value = '';
+  document.getElementById('cliente-status').value = 'Ativo';
+  document.getElementById('modal-cliente').classList.add('open');
+}
+
+function editarCliente(id) {
+  const cliente = clientesData.find(c => c.id === id);
+  if (!cliente) return;
+  
+  editandoClienteId = id;
+  document.getElementById('modal-cliente-title').innerHTML = '✏️ Editar Cliente';
+  document.getElementById('cliente-nome').value = cliente.nome;
+  document.getElementById('cliente-telefone').value = cliente.telefone;
+  document.getElementById('cliente-email').value = cliente.email;
+  document.getElementById('cliente-status').value = cliente.status;
+  document.getElementById('modal-cliente').classList.add('open');
+}
+
+function closeClienteModal() {
+  document.getElementById('modal-cliente').classList.remove('open');
+}
+
+function salvarCliente() {
+  const nome = document.getElementById('cliente-nome').value.trim();
+  const telefone = document.getElementById('cliente-telefone').value.trim();
+  const email = document.getElementById('cliente-email').value.trim();
+  const status = document.getElementById('cliente-status').value;
+  
+  if (!nome) {
+    showToast('Por favor, informe o nome do cliente.');
+    return;
+  }
+  
+  if (!telefone) {
+    showToast('Por favor, informe o telefone do cliente.');
+    return;
+  }
+  
+  const now = new Date();
+  const dataCadastro = now.toLocaleDateString('pt-BR');
+  
+  if (editandoClienteId !== null) {
+    const index = clientesData.findIndex(c => c.id === editandoClienteId);
+    if (index !== -1) {
+      clientesData[index] = {
+        ...clientesData[index],
+        nome: nome,
+        telefone: telefone,
+        email: email,
+        status: status
+      };
+      showToast(`✅ Cliente "${nome}" atualizado com sucesso!`);
+    }
+  } else {
+    const novoCliente = {
+      id: nextId++,
+      nome: nome,
+      telefone: telefone,
+      email: email || '',
+      dataCadastro: dataCadastro,
+      compras: 0,
+      totalGasto: 0,
+      status: status
+    };
+    clientesData.push(novoCliente);
+    showToast(`✅ Cliente "${nome}" cadastrado com sucesso!`);
+  }
+  
+  renderTabelaClientes();
+  closeClienteModal();
+}
+
+/* ===== MODAL EXPORTAÇÃO ===== */
+function openExportarModal() {
+  document.getElementById('modal-exportar').classList.add('open');
+}
+
+function closeExportarModal() {
+  document.getElementById('modal-exportar').classList.remove('open');
+}
+
+function exportarClientes() {
+  const formato = document.querySelector('input[name="formato-export"]:checked').value;
+  const filtroStatus = document.getElementById('filtro-status-export').value;
+  let nomeArquivo = document.getElementById('nome-arquivo').value.trim();
+  
+  if (!nomeArquivo) {
+    const now = new Date();
+    nomeArquivo = `clientes_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}`;
+  }
+  
+  // Filtrar clientes
+  let dadosExportar = [...clientesData];
+  if (filtroStatus !== 'todos') {
+    dadosExportar = dadosExportar.filter(c => c.status === filtroStatus);
+  }
+  
+  if (dadosExportar.length === 0) {
+    showToast('Nenhum cliente encontrado com o filtro selecionado.');
+    return;
+  }
+  
+  // Mapear campos selecionados
+  const campos = {
+    nome: document.getElementById('campo-nome').checked,
+    telefone: document.getElementById('campo-telefone').checked,
+    email: document.getElementById('campo-email').checked,
+    dataCadastro: document.getElementById('campo-cadastro').checked,
+    compras: document.getElementById('campo-compras').checked,
+    totalGasto: document.getElementById('campo-total').checked,
+    status: document.getElementById('campo-status').checked
+  };
+  
+  // Verificar se pelo menos um campo foi selecionado
+  if (!Object.values(campos).some(v => v === true)) {
+    showToast('Selecione pelo menos um campo para exportar.');
+    return;
+  }
+  
+  // Preparar dados para exportação
+  const dadosParaExportar = dadosExportar.map(cliente => {
+    const obj = {};
+    if (campos.nome) obj.nome = cliente.nome;
+    if (campos.telefone) obj.telefone = cliente.telefone;
+    if (campos.email) obj.email = cliente.email;
+    if (campos.dataCadastro) obj.dataCadastro = cliente.dataCadastro;
+    if (campos.compras) obj.compras = cliente.compras;
+    if (campos.totalGasto) obj.totalGasto = cliente.totalGasto;
+    if (campos.status) obj.status = cliente.status;
+    return obj;
+  });
+  
+  let conteudo = '';
+  let extensao = '';
+  let mimeType = '';
+  
+  if (formato === 'csv') {
+    extensao = '.csv';
+    mimeType = 'text/csv;charset=utf-8;';
+    // Definir cabeçalhos
+    const headers = [];
+    if (campos.nome) headers.push('Nome');
+    if (campos.telefone) headers.push('Telefone');
+    if (campos.email) headers.push('Email');
+    if (campos.dataCadastro) headers.push('Data Cadastro');
+    if (campos.compras) headers.push('Compras');
+    if (campos.totalGasto) headers.push('Total Gasto');
+    if (campos.status) headers.push('Status');
+    
+    conteudo = headers.join(';') + '\n';
+    
+    dadosParaExportar.forEach(item => {
+      const linha = [];
+      if (campos.nome) linha.push(`"${item.nome}"`);
+      if (campos.telefone) linha.push(`"${item.telefone}"`);
+      if (campos.email) linha.push(`"${item.email}"`);
+      if (campos.dataCadastro) linha.push(`"${item.dataCadastro}"`);
+      if (campos.compras) linha.push(item.compras);
+      if (campos.totalGasto) linha.push(item.totalGasto);
+      if (campos.status) linha.push(`"${item.status}"`);
+      conteudo += linha.join(';') + '\n';
+    });
+  } else {
+    extensao = '.json';
+    mimeType = 'application/json;charset=utf-8;';
+    conteudo = JSON.stringify(dadosParaExportar, null, 2);
+  }
+  
+  // Criar e fazer download do arquivo
+  const blob = new Blob(["\uFEFF" + conteudo], { type: mimeType });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.href = url;
+  link.download = nomeArquivo + extensao;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+  
+  closeExportarModal();
+  showToast(`✅ Exportação concluída! ${dadosParaExportar.length} clientes exportados como ${formato.toUpperCase()}`);
+}
+
+// Inicialização
+renderTabelaClientes();
 
 </script>
 </body>
