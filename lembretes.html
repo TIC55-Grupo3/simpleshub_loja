@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIMPLES HUB – Lembretes</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#1f2937;--green-dark:#111827;--green-mid:#374151;
+  --green-light:#f1f5f9;--green-pale:#f8fafc;--green-line:#e2e8f0;
+  --white:#ffffff;--ink:#0f172a;--muted:#64748b;--border:#e2e8f0;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--white)}
+::-webkit-scrollbar-thumb{background:var(--green-line);border-radius:3px}
+@keyframes heroIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== SYSTEM LAYOUT ===== */
+.sys-layout{display:block;min-height:100vh;background:#eef2ee}
+
+/* ===== TOP NAV ===== */
+.sys-topnav{position:fixed;top:0;left:0;right:0;z-index:50;background:var(--ink)}
+.sys-topnav-brand{display:flex;align-items:center;justify-content:space-between;padding:10px 20px 8px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sys-brand-left{display:flex;align-items:center;gap:10px}
+.sys-brand-icon{width:34px;height:34px;border-radius:8px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.sys-brand-name{font-size:14px;font-weight:800;color:#fff;letter-spacing:.05em}
+.sys-brand-sub{font-size:10px;color:rgba(255,255,255,.38)}
+.sys-brand-right{display:flex;align-items:center;gap:10px}
+.sys-company-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:5px 12px}
+.sys-company-name{font-size:11px;font-weight:700;color:rgba(255,255,255,.85)}
+.sys-company-badge{font-size:9px;font-weight:700;background:rgba(31,41,55,.3);color:#94a3b8;border:1px solid rgba(31,41,55,.4);border-radius:20px;padding:1px 7px}
+.sys-user-chip{display:flex;align-items:center;gap:7px;cursor:pointer}
+.sys-user-avatar{width:30px;height:30px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+.sys-user-name{font-size:11px;font-weight:700;color:rgba(255,255,255,.8)}
+.sys-user-role{font-size:9px;color:rgba(255,255,255,.35)}
+.sys-logout-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:7px;font-size:11px;font-weight:600;color:rgba(255,255,255,.5);cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,.1);transition:all .2s;font-family:'Inter',sans-serif}
+.sys-logout-btn:hover{color:#ff7878;border-color:rgba(255,100,100,.3);background:rgba(255,100,100,.08)}
+
+/* Tabs */
+.sys-topnav-tabs{display:flex;align-items:stretch;overflow-x:auto;padding:0 12px;gap:2px;border-bottom:1px solid rgba(255,255,255,.06)}
+.sys-topnav-tabs::-webkit-scrollbar{height:0}
+.sys-tab-group{display:flex;align-items:stretch;padding:6px 4px;gap:2px;border-right:1px solid rgba(255,255,255,.07);margin-right:2px}
+.sys-tab-group:last-child{border-right:none}
+.sys-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:7px 12px;border-radius:8px;cursor:pointer;border:none;background:transparent;font-family:'Inter',sans-serif;transition:all .18s;min-width:64px;position:relative;white-space:nowrap}
+.sys-tab:hover{background:rgba(255,255,255,.08)}
+.sys-tab.active{background:var(--green)}
+.sys-tab-name{font-size:10px;font-weight:600;color:rgba(255,255,255,.55);line-height:1}
+.sys-tab.active .sys-tab-name{color:#fff}
+.sys-tab:hover .sys-tab-name{color:rgba(255,255,255,.85)}
+
+/* Actions row */
+.sys-topnav-actions{display:flex;align-items:center;gap:6px;padding:7px 16px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.12);min-height:44px}
+.sys-action-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);margin-right:4px;letter-spacing:.08em;text-transform:uppercase}
+.sys-act-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif;background:var(--green);color:#fff}
+.sys-act-btn:hover{background:var(--green-dark);transform:translateY(-1px)}
+.sys-act-btn.ghost{background:transparent;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.18)}
+.sys-act-btn.ghost:hover{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.3);transform:none}
+.sys-notif-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55);transition:all .2s;font-family:'Inter',sans-serif}
+.sys-notif-btn:hover{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.25)}
+.sys-notif-badge{background:#e74c3c;color:#fff;border-radius:20px;font-size:9px;font-weight:800;padding:1px 6px}
+.sys-topnav-actions #sys-actions-container{display:flex;align-items:center;gap:6px;flex:1}
+
+/* ===== MAIN ===== */
+.sys-main{flex:1;min-width:0}
+.sys-content{padding:24px 28px;min-height:100vh}
+.sys-panel{display:none}.sys-panel.active{display:block;animation:heroIn .3s ease}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 20px;transition:all .2s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--green-line);transition:background .2s}
+.stat-card:hover::before{background:var(--green)}
+.stat-card:hover{box-shadow:0 4px 16px rgba(31,41,55,.08);transform:translateY(-1px)}
+.stat-card-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.stat-card-num{font-size:26px;font-weight:800;color:var(--ink);line-height:1;margin-bottom:6px}
+.stat-card-num.green{color:var(--green)}
+.stat-card-trend{font-size:11px;font-weight:600}
+.trend-up{color:#1f2937}.trend-down{color:#c0392b}
+
+/* Tables */
+.table-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:var(--white)}
+.table-title{font-size:14px;font-weight:700;color:var(--ink)}
+.table-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.table-actions{display:flex;gap:8px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:9px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--green-pale);border-bottom:1px solid var(--border)}
+.tbl td{padding:11px 14px;font-size:13px;color:var(--ink);border-bottom:1px solid var(--border)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--green-pale)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-green{background:var(--green-light);color:var(--green);border:1px solid var(--green-line)}
+.badge-yellow{background:#fffde7;color:#856404;border:1px solid #fff176}
+.badge-red{background:#fff0f0;color:#c0392b;border:1px solid #ffcccc}
+.badge-blue{background:#e3f2fd;color:#1565c0;border:1px solid #bbdefb}
+.badge-gray{background:#f5f5f5;color:#666;border:1px solid #e0e0e0}
+.action-btn{background:none;border:none;cursor:pointer;padding:5px 8px;border-radius:6px;font-size:13px;transition:background .15s;color:var(--muted)}
+.action-btn:hover{background:var(--green-light);color:var(--green)}
+
+/* Cards */
+.cards-2col{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px}
+.cards-equal{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.cards-3col{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.inner-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.inner-card-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:14px}
+
+/* Bar chart */
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:110px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{background:var(--green-line);border-radius:4px 4px 0 0;width:100%;transition:all .3s;cursor:pointer}
+.bar:hover{background:var(--green)}
+.bar-label{font-size:9px;color:var(--muted);font-weight:600}
+
+/* Pie legend */
+.pie-legend{display:flex;flex-direction:column;gap:9px}
+.pie-item{display:flex;align-items:center;gap:8px;font-size:12px}
+.pie-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.pie-name{flex:1;color:var(--ink);font-weight:600}
+.pie-pct{color:var(--muted);font-weight:700;font-size:11px}
+.pie-bar-wrap{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.pie-bar-fill{height:100%;border-radius:3px;background:var(--green)}
+
+/* Recent list */
+.recent-list{display:flex;flex-direction:column;gap:0}
+.recent-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.recent-item:last-child{border-bottom:none}
+.recent-avatar{width:34px;height:34px;border-radius:50%;background:var(--green-light);border:1px solid var(--green-line);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--green);flex-shrink:0}
+.recent-info{flex:1;min-width:0}
+.recent-name{font-size:12px;font-weight:700;color:var(--ink)}
+.recent-detail{font-size:11px;color:var(--muted);margin-top:1px}
+.recent-value{font-size:12px;font-weight:700;color:var(--green);flex-shrink:0}
+
+/* Financeiro */
+.fin-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.fin-card{border-radius:12px;padding:18px 20px}
+.fin-card.receita{background:var(--green-light);border:1px solid var(--green-line)}
+.fin-card.despesa{background:#fff0f0;border:1px solid #ffcccc}
+.fin-card.saldo{background:var(--white);border:2px solid var(--green)}
+.fin-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.fin-val{font-size:24px;font-weight:800;color:var(--ink)}
+.fin-val.green{color:var(--green)}.fin-val.red{color:#c0392b}
+
+/* Form */
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.06em;text-transform:uppercase}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);outline:none;transition:border-color .2s;font-family:'Inter',sans-serif;background:var(--white)}
+.form-row input:focus,.form-row select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(31,41,55,.08)}
+.form-section-title{font-size:12px;font-weight:700;color:var(--green);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:14px;letter-spacing:.06em;text-transform:uppercase}
+
+/* Início (Acessos Rápidos) */
+.ar-welcome{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+.ar-welcome-title{font-size:20px;font-weight:800;color:var(--ink);margin-bottom:4px}
+.ar-welcome-sub{font-size:12px;color:var(--muted)}
+.ar-shortcuts-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px}
+.ar-shortcut{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;position:relative}
+.ar-shortcut:hover{border-color:var(--green);box-shadow:0 4px 14px rgba(31,41,55,.08);transform:translateY(-2px)}
+.ar-shortcut-icon{font-size:24px}
+.ar-shortcut-label{font-size:11px;font-weight:700;color:var(--ink)}
+.ar-shortcut-badge{position:absolute;top:8px;right:8px;background:#e74c3c;color:#fff;border-radius:20px;font-size:9px;font-weight:800;padding:1px 6px}
+.ar-two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.ar-reminder-list{display:flex;flex-direction:column;gap:10px}
+.ar-reminder-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:var(--green-pale);border:1px solid var(--border)}
+.ar-reminder-dot{width:8px;height:8px;border-radius:50%;background:var(--green-line);flex-shrink:0}
+.ar-reminder-high .ar-reminder-dot{background:#c0392b}
+.ar-dot-mid{background:#e67e22!important}
+.ar-dot-low{background:var(--green)!important}
+.ar-reminder-content{flex:1}
+.ar-reminder-name{font-size:12px;font-weight:700;color:var(--ink)}
+.ar-reminder-time{font-size:10px;color:var(--muted);margin-top:2px}
+.ar-see-all{width:100%;margin-top:12px;padding:8px;background:transparent;border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.ar-see-all:hover{border-color:var(--green);color:var(--green);background:var(--green-light)}
+.ar-fav-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.ar-fav-item{background:var(--green-pale);border:1px solid var(--border);border-radius:10px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px;font-weight:700;color:var(--ink);cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.ar-fav-item:hover{border-color:var(--green);background:var(--green-light)}
+.ar-hist-tab{padding:5px 14px;border-radius:7px;font-size:11px;font-weight:700;border:1px solid var(--border);background:transparent;cursor:pointer;color:var(--muted);font-family:'Inter',sans-serif;transition:all .2s}
+.ar-hist-tab.active{background:var(--green);color:#fff;border-color:var(--green)}
+.ar-history-list{display:flex;flex-direction:column;gap:6px}
+.ar-hist-entry{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;background:var(--green-pale);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s}
+.ar-hist-entry:hover{background:var(--green-light);border-color:var(--green)}
+.ar-hist-time{font-size:10px;color:var(--muted);font-weight:500}
+
+/* Topbar btn */
+.topbar-btn{padding:9px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif}
+.topbar-btn.primary{background:var(--green);color:#fff}
+.topbar-btn.primary:hover{background:var(--green-dark)}
+.topbar-btn.ghost{background:var(--white);color:var(--muted);border:1.5px solid var(--border)}
+.topbar-btn.ghost:hover{border-color:var(--green);color:var(--green)}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:16px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.2)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:15px;font-weight:800;color:var(--ink)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);transition:color .2s;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.modal-close:hover{color:var(--ink);background:var(--green-light)}
+.modal-body{padding:22px}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.modal-btn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif}
+.modal-btn.primary{background:var(--green);color:#fff}
+.modal-btn.primary:hover{background:var(--green-dark)}
+.modal-btn.ghost{background:var(--white);color:var(--muted);border:1.5px solid var(--border)}
+.modal-btn.ghost:hover{border-color:var(--green);color:var(--green)}
+
+/* PDV */
+.pdv-layout{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+.pdv-products-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.pdv-product-card{background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;text-align:center}
+.pdv-product-card:hover{border-color:var(--green);box-shadow:0 2px 10px rgba(31,41,55,.08)}
+.pdv-product-icon{font-size:28px;margin-bottom:6px}
+.pdv-product-name{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.pdv-product-price{font-size:13px;font-weight:800;color:var(--green)}
+.pdv-cart{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;position:sticky;top:80px}
+.pdv-cart-header{padding:14px 16px;border-bottom:1px solid var(--border);background:var(--green);color:#fff}
+.pdv-cart-title{font-size:13px;font-weight:800}
+.pdv-cart-sub{font-size:11px;color:rgba(255,255,255,.7);margin-top:2px}
+.pdv-cart-items{padding:14px 16px;min-height:160px;display:flex;flex-direction:column;gap:8px}
+.pdv-cart-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--green-pale);border-radius:8px;border:1px solid var(--border)}
+.pdv-cart-item-name{flex:1;font-size:12px;font-weight:600;color:var(--ink)}
+.pdv-cart-item-price{font-size:12px;font-weight:700;color:var(--green)}
+.pdv-cart-item-remove{background:none;border:none;color:#c0392b;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px}
+.pdv-cart-item-remove:hover{background:#fff0f0}
+.pdv-cart-footer{padding:14px 16px;border-top:1px solid var(--border)}
+.pdv-total-row{display:flex;justify-content:space-between;margin-bottom:12px;font-size:15px;font-weight:800;color:var(--ink)}
+.pdv-payment-select{width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;outline:none;margin-bottom:10px}
+.pdv-payment-select:focus{border-color:var(--green)}
+.pdv-btn-finalizar{width:100%;padding:13px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.pdv-btn-finalizar:hover{background:var(--green-dark);transform:translateY(-1px)}
+.pdv-empty{color:var(--muted);font-size:12px;text-align:center;padding:20px 0}
+
+/* Estilos adicionais */
+.modal-small{max-width:520px}
+.priority-badge{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700}
+.priority-urgente{background:#fff0f0;color:#c0392b;border:1px solid #ffcccc}
+.priority-pendente{background:#fffde7;color:#856404;border:1px solid #fff176}
+.priority-futuro{background:#f5f5f5;color:#666;border:1px solid #e0e0e0}
+
+@media(max-width:1100px){.pdv-layout{grid-template-columns:1fr}}
+@media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(3,1fr)}.ar-two-col{grid-template-columns:1fr}.cards-2col{grid-template-columns:1fr}.cards-equal{grid-template-columns:1fr}.fin-summary{grid-template-columns:1fr}.cards-3col{grid-template-columns:1fr}}
+@media(max-width:700px){.sys-company-pill{display:none}.sys-topnav-brand{padding:8px 14px 6px}.sys-tab{padding:6px 8px;min-width:50px}.sys-tab-name{font-size:9px}.sys-content{padding:14px 12px}.stats-row{grid-template-columns:repeat(2,1fr)}.ar-shortcuts-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="sys-layout">
+
+  <!-- TOP NAV -->
+  <div class="sys-topnav" id="sys-topnav">
+    <div class="sys-topnav-brand">
+      <div class="sys-brand-left">
+        <div class="sys-brand-icon">🛍️</div>
+        <div>
+          <div class="sys-brand-name">SIMPLES HUB</div>
+          <div class="sys-brand-sub">Sistema de Gestão</div>
+        </div>
+      </div>
+      <div class="sys-brand-right">
+        <div class="sys-company-pill">
+          <span class="sys-company-name">Loja Modelo</span>
+          <span class="sys-company-badge">Loja</span>
+        </div>
+        <div class="sys-user-chip">
+          <div class="sys-user-avatar">A</div>
+          <div>
+            <div class="sys-user-name">Gerente da Loja</div>
+            <div class="sys-user-role">Administrador</div>
+          </div>
+        </div>
+        <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
+      </div>
+    </div>
+    <div class="sys-topnav-tabs" id="sys-tabs">
+      <div class="sys-tab-group">
+        <button class="sys-tab" onclick="navigateTo('inicio')">
+          <span class="sys-tab-name">⚡ Início</span>
+        </button>
+      </div>
+      <div class="sys-tab-group">
+        <button class="sys-tab" onclick="navigateTo('dashboard')">
+          <span class="sys-tab-name">Visão Geral</span>
+        </button>
+      </div>
+      <div class="sys-tab-group">
+        <button class="sys-tab" onclick="navigateTo('pdv')">
+          <span class="sys-tab-name">🛒 PDV</span>
+        </button>
+        <button class="sys-tab" onclick="navigateTo('vendas')">
+          <span class="sys-tab-name">Vendas</span>
+        </button>
+      </div>
+      <div class="sys-tab-group">
+        <button class="sys-tab" onclick="navigateTo('clientes')">
+          <span class="sys-tab-name">Clientes</span>
+        </button>
+        <button class="sys-tab" onclick="navigateTo('funcionarios')">
+          <span class="sys-tab-name">Funcionários</span>
+        </button>
+      </div>
+      <div class="sys-tab-group">
+        <button class="sys-tab" onclick="navigateTo('produtos')">
+          <span class="sys-tab-name">Produtos</span>
+        </button>
+        <button class="sys-tab" onclick="navigateTo('estoque')">
+          <span class="sys-tab-name">Estoque</span>
+        </button>
+      </div>
+      <div class="sys-tab-group">
+        <button class="sys-tab" onclick="navigateTo('financeiro')">
+          <span class="sys-tab-name">Financeiro</span>
+        </button>
+      </div>
+      <div class="sys-tab-group">
+        <button class="sys-tab active" onclick="navigateTo('lembretes')">
+          <span class="sys-tab-name">Lembretes</span>
+        </button>
+        <button class="sys-tab" onclick="navigateTo('suporte')">
+          <span class="sys-tab-name">Suporte</span>
+        </button>
+        <button class="sys-tab" onclick="navigateTo('configuracoes')">
+          <span class="sys-tab-name">Config</span>
+        </button>
+      </div>
+    </div>
+    <div class="sys-topnav-actions">
+      <span class="sys-action-label">Ações</span>
+      <div id="sys-actions-container"><button class="sys-act-btn" onclick="openLembreteModal()">+ Novo lembrete</button><button class="sys-notif-btn" onclick="navigateTo('lembretes')">🔔 Lembretes <span class="sys-notif-badge" id="notif-badge">3</span></button></div>
+    </div>
+  </div>
+
+  <main class="sys-main">
+    <div class="sys-content">
+<div class="sys-panel-page" id="panel-lembretes">
+        <div class="table-wrap">
+          <div class="table-header">
+            <div><div class="table-title">Lembretes internos</div><div class="table-sub">Notificações criadas pelos usuários da empresa</div></div>
+            <div class="table-actions">
+              <button class="topbar-btn primary" onclick="openLembreteModal()">+ Novo lembrete</button>
+            </div>
+          </div>
+          <table class="tbl">
+            <thead> <tr><th>Título</th><th>Descrição</th><th>Data e hora</th><th>Criado por</th><th>Prioridade</th><th>Ações</th> </tr> </thead>
+            <tbody id="lembretes-tbody">
+              <!-- dados preenchidos via JS -->
+            </tbody>
+           </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL NOVO/EDITAR LEMBRETE -->
+<div id="modal-lembrete" class="modal-overlay">
+  <div class="modal modal-small">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-lembrete-title">➕ Novo Lembrete</div>
+      <button class="modal-close" onclick="closeLembreteModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Título *</label>
+        <input type="text" id="lembrete-titulo" placeholder="Ex: Reunião com fornecedor">
+      </div>
+      <div class="form-row">
+        <label>Descrição</label>
+        <textarea id="lembrete-descricao" rows="3" placeholder="Detalhes sobre o lembrete..."></textarea>
+      </div>
+      <div class="form-row">
+        <label>Data e hora *</label>
+        <input type="datetime-local" id="lembrete-data">
+      </div>
+      <div class="form-row">
+        <label>Prioridade</label>
+        <select id="lembrete-prioridade">
+          <option value="Urgente">🔴 Urgente</option>
+          <option value="Pendente">🟡 Pendente</option>
+          <option value="Futuro">⚪ Futuro</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeLembreteModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="salvarLembrete()">Salvar Lembrete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+/* ===== MAPA DE PÁGINAS ===== */
+var pageMap = {
+  'inicio':'inicio.html','dashboard':'visao_geral.html','pdv':'pdv.html',
+  'vendas':'vendas.html','clientes':'clientes.html','funcionarios':'funcionarios.html',
+  'produtos':'produtos.html','estoque':'estoque.html','financeiro':'financeiro.html',
+  'lembretes':'lembretes.html','suporte':'suporte.html','configuracoes':'configuracoes.html'
+};
+
+function navigateTo(name) {
+  if (pageMap[name]) {
+    window.location.href = pageMap[name];
+  } else {
+    showToast('Página em desenvolvimento');
+  }
+}
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'index.html';
+}
+
+/* ===== TOAST ===== */
+function showToast(msg) {
+  var t = document.getElementById('sys-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'sys-toast';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--ink);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:all .3s;opacity:0;transform:translateY(8px)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateY(0)';
+  clearTimeout(t._to);
+  t._to = setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(8px)'; }, 2800);
+}
+
+/* ===== AJUSTE TOPNAV ===== */
+function adjustTopnavHeight() {
+  var nav = document.getElementById('sys-topnav');
+  var main = document.querySelector('.sys-main');
+  if (nav && main) main.style.marginTop = nav.offsetHeight + 'px';
+}
+window.addEventListener('load', adjustTopnavHeight);
+window.addEventListener('resize', adjustTopnavHeight);
+
+/* ===== DADOS DE LEMBRETES ===== */
+let lembretesData = [
+  { id: 1, titulo: "Repor estoque — Fone Bluetooth", descricao: "Quantidade abaixo do mínimo — fazer pedido ao fornecedor.", dataHora: "2026-03-18T08:00", criadoPor: "Gerente", prioridade: "Urgente" },
+  { id: 2, titulo: "Reunião com fornecedor", descricao: "Negociar nova tabela de preços para abril.", dataHora: "2026-03-18T16:00", criadoPor: "Gerente", prioridade: "Pendente" },
+  { id: 3, titulo: "Revisar precificação", descricao: "Ajustar margens dos eletrônicos conforme mercado.", dataHora: "2026-03-20T10:00", criadoPor: "Gerente", prioridade: "Pendente" },
+  { id: 4, titulo: "Renovar contrato de aluguel", descricao: "Contrato vence em abril — negociar reajuste.", dataHora: "2026-04-01T09:00", criadoPor: "Gerente", prioridade: "Futuro" }
+];
+
+let nextId = 5;
+
+function formatarDataHora(dataHora) {
+  if (!dataHora) return '-';
+  const data = new Date(dataHora);
+  return data.toLocaleString('pt-BR');
+}
+
+function getPriorityClass(prioridade) {
+  switch(prioridade) {
+    case 'Urgente': return 'badge-red';
+    case 'Pendente': return 'badge-yellow';
+    case 'Futuro': return 'badge-gray';
+    default: return 'badge-gray';
+  }
+}
+
+function atualizarBadgeNotificacao() {
+  const badge = document.getElementById('notif-badge');
+  if (badge) {
+    const pendentes = lembretesData.filter(l => l.prioridade !== 'Futuro').length;
+    badge.innerText = pendentes;
+  }
+}
+
+function renderTabelaLembretes() {
+  const tbody = document.getElementById('lembretes-tbody');
+  if (!tbody) return;
+  
+  if (lembretesData.length === 0) {
+    tbody.innerHTML = '江南<td colspan="6" style="text-align:center">Nenhum lembrete cadastrado</td> </tr>';
+    atualizarBadgeNotificacao();
+    return;
+  }
+  
+  let html = '';
+  lembretesData.forEach(l => {
+    const priorityClass = getPriorityClass(l.prioridade);
+    html += `
+      <tr>
+        <td><strong>${l.titulo}</strong></td>
+        <td>${l.descricao || '-'}</td>
+        <td>${formatarDataHora(l.dataHora)}</td>
+        <td>${l.criadoPor}</td>
+        <td><span class="badge ${priorityClass}">${l.prioridade}</span></td>
+        <td>
+          <button class="action-btn" onclick="editarLembrete(${l.id})">✏️</button>
+          <button class="action-btn" onclick="excluirLembrete(${l.id})">🗑️</button>
+        </td>
+       </tr>
+    `;
+  });
+  tbody.innerHTML = html;
+  atualizarBadgeNotificacao();
+}
+
+/* ===== MODAL LEMBRETE ===== */
+let editandoLembreteId = null;
+
+function openLembreteModal() {
+  editandoLembreteId = null;
+  document.getElementById('modal-lembrete-title').innerHTML = '➕ Novo Lembrete';
+  document.getElementById('lembrete-titulo').value = '';
+  document.getElementById('lembrete-descricao').value = '';
+  
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('lembrete-data').value = now.toISOString().slice(0, 16);
+  
+  document.getElementById('lembrete-prioridade').value = 'Pendente';
+  document.getElementById('modal-lembrete').classList.add('open');
+}
+
+function editarLembrete(id) {
+  const lembrete = lembretesData.find(l => l.id === id);
+  if (!lembrete) return;
+  
+  editandoLembreteId = id;
+  document.getElementById('modal-lembrete-title').innerHTML = '✏️ Editar Lembrete';
+  document.getElementById('lembrete-titulo').value = lembrete.titulo;
+  document.getElementById('lembrete-descricao').value = lembrete.descricao;
+  document.getElementById('lembrete-data').value = lembrete.dataHora;
+  document.getElementById('lembrete-prioridade').value = lembrete.prioridade;
+  document.getElementById('modal-lembrete').classList.add('open');
+}
+
+function closeLembreteModal() {
+  document.getElementById('modal-lembrete').classList.remove('open');
+}
+
+function excluirLembrete(id) {
+  if (confirm('Tem certeza que deseja excluir este lembrete?')) {
+    const index = lembretesData.findIndex(l => l.id === id);
+    if (index !== -1) {
+      lembretesData.splice(index, 1);
+      renderTabelaLembretes();
+      showToast('✅ Lembrete excluído com sucesso!');
+    }
+  }
+}
+
+function salvarLembrete() {
+  const titulo = document.getElementById('lembrete-titulo').value.trim();
+  const descricao = document.getElementById('lembrete-descricao').value.trim();
+  const dataHora = document.getElementById('lembrete-data').value;
+  const prioridade = document.getElementById('lembrete-prioridade').value;
+  
+  if (!titulo) {
+    showToast('Por favor, informe o título do lembrete.');
+    return;
+  }
+  
+  if (!dataHora) {
+    showToast('Por favor, informe a data e hora do lembrete.');
+    return;
+  }
+  
+  if (editandoLembreteId !== null) {
+    const index = lembretesData.findIndex(l => l.id === editandoLembreteId);
+    if (index !== -1) {
+      lembretesData[index] = {
+        ...lembretesData[index],
+        titulo: titulo,
+        descricao: descricao,
+        dataHora: dataHora,
+        prioridade: prioridade
+      };
+      showToast(`✅ Lembrete "${titulo}" atualizado com sucesso!`);
+    }
+  } else {
+    const novoLembrete = {
+      id: nextId++,
+      titulo: titulo,
+      descricao: descricao,
+      dataHora: dataHora,
+      criadoPor: "Gerente",
+      prioridade: prioridade
+    };
+    lembretesData.push(novoLembrete);
+    showToast(`✅ Lembrete "${titulo}" adicionado com sucesso!`);
+  }
+  
+  renderTabelaLembretes();
+  closeLembreteModal();
+}
+
+// Inicialização
+renderTabelaLembretes();
+
+</script>
+</body>
+</html>
