@@ -345,12 +345,12 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
           </div>
           <table class="tbl">
             <thead>
-              <tr><th>Nome</th><th>Telefone</th><th>E-mail</th><th>Cadastro</th><th>Compras</th><th>Total gasto</th><th>Status</th><th>Ações</th>
+               <tr><th>Nome</th><th>Telefone</th><th>E-mail</th><th>Cadastro</th><th>Compras</th><th>Total gasto</th><th>Status</th><th>Ações</th>
             </thead>
             <tbody id="clientes-tbody">
               <!-- dados preenchidos via JS -->
             </tbody>
-           </>
+           </table>
         </div>
       </div>
     </div>
@@ -371,7 +371,7 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
       </div>
       <div class="form-row">
         <label>Telefone *</label>
-        <input type="text" id="cliente-telefone" placeholder="(11) 99999-9999">
+        <input type="text" id="cliente-telefone" placeholder="(11) 99999-9999" maxlength="15">
       </div>
       <div class="form-row">
         <label>E-mail</label>
@@ -488,6 +488,25 @@ function adjustTopnavHeight() {
 window.addEventListener('load', adjustTopnavHeight);
 window.addEventListener('resize', adjustTopnavHeight);
 
+/* ===== FUNÇÕES DE FORMATAÇÃO ===== */
+function formatarTelefone(input) {
+  let valor = input.value.replace(/\D/g, '');
+  
+  if (valor.length > 11) {
+    valor = valor.slice(0, 11);
+  }
+  
+  if (valor.length > 10) {
+    valor = valor.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+  } else if (valor.length > 6) {
+    valor = valor.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+  } else if (valor.length > 2) {
+    valor = valor.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+  }
+  
+  input.value = valor;
+}
+
 /* ===== DADOS DE CLIENTES ===== */
 let clientesData = [
   { id: 1, nome: "Ana Carvalho", telefone: "(11) 99801-2233", email: "ana.carvalho@email.com", dataCadastro: "10/01/2025", compras: 18, totalGasto: 1840, status: "Ativo" },
@@ -579,7 +598,7 @@ function closeClienteModal() {
 
 function salvarCliente() {
   const nome = document.getElementById('cliente-nome').value.trim();
-  const telefone = document.getElementById('cliente-telefone').value.trim();
+  let telefone = document.getElementById('cliente-telefone').value.trim();
   const email = document.getElementById('cliente-email').value.trim();
   const status = document.getElementById('cliente-status').value;
   
@@ -590,6 +609,13 @@ function salvarCliente() {
   
   if (!telefone) {
     showToast('Por favor, informe o telefone do cliente.');
+    return;
+  }
+  
+  // Validar telefone (remover formatação para verificar)
+  const telefoneNumeros = telefone.replace(/\D/g, '');
+  if (telefoneNumeros.length < 10 || telefoneNumeros.length > 11) {
+    showToast('Telefone inválido. Deve conter 10 ou 11 dígitos.');
     return;
   }
   
@@ -737,6 +763,16 @@ function exportarClientes() {
   closeExportarModal();
   showToast(`✅ Exportação concluída! ${dadosParaExportar.length} clientes exportados como ${formato.toUpperCase()}`);
 }
+
+// Adicionar evento de formatação ao campo de telefone
+document.addEventListener('DOMContentLoaded', function() {
+  const telefoneInput = document.getElementById('cliente-telefone');
+  if (telefoneInput) {
+    telefoneInput.addEventListener('input', function() {
+      formatarTelefone(this);
+    });
+  }
+});
 
 // Inicialização
 renderTabelaClientes();
