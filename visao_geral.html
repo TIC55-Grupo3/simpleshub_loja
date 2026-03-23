@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>SIMPLES HUB – Visão Geral</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -21,12 +21,12 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 
 /* ===== SIDEBAR LAYOUT ===== */
 .sys-layout{display:flex;min-height:100vh}
-.sys-sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--ink);color:#fff;display:flex;flex-direction:column;z-index:100}
+.sys-sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--ink);color:#fff;display:flex;flex-direction:column;z-index:100;transition:transform 0.3s ease;}
 .sys-sidebar-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:24px}
 .sys-sidebar-brand-icon{width:40px;height:40px;border-radius:10px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px}
 .sys-sidebar-brand-name{font-size:18px;font-weight:800;letter-spacing:.05em}
 .sys-sidebar-brand-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:4px}
-.sys-sidebar-nav{flex:1;display:flex;flex-direction:column;gap:4px;padding:0 12px}
+.sys-sidebar-nav{flex:1;display:flex;flex-direction:column;gap:4px;padding:0 12px;overflow-y:auto}
 .sys-sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);font-size:14px;font-weight:500;text-decoration:none}
 .sys-sidebar-item:hover{background:rgba(255,255,255,.08);color:#fff}
 .sys-sidebar-item.active{background:var(--green);color:#fff}
@@ -40,9 +40,13 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 .sys-logout-btn{width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
 .sys-logout-btn:hover{background:rgba(255,100,100,.2);color:#ff7878;border-color:rgba(255,100,100,.3)}
 
+/* Mobile menu toggle button */
+.mobile-menu-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--green);color:#fff;border:none;border-radius:8px;width:40px;height:40px;font-size:20px;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.mobile-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:99}
+
 /* MAIN CONTENT */
-.sys-main{margin-left:var(--sidebar-width);flex:1;min-width:0}
-.sys-top-header{background:var(--white);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.sys-main{margin-left:var(--sidebar-width);flex:1;min-width:0;transition:margin-left 0.3s ease}
+.sys-top-header{background:var(--white);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-wrap:wrap;gap:12px}
 .sys-page-title{font-size:18px;font-weight:700;color:var(--ink)}
 .sys-company-info{display:flex;align-items:center;gap:12px}
 .sys-company-pill{display:flex;align-items:center;gap:6px;background:var(--green-light);border:1px solid var(--border);border-radius:20px;padding:5px 12px}
@@ -102,8 +106,9 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 .recent-detail{font-size:11px;color:var(--muted);margin-top:1px}
 .recent-value{font-size:12px;font-weight:700;color:var(--green);flex-shrink:0}
 
+/* Responsividade */
 @media(max-width:900px){
-  .sys-sidebar{width:70px}
+  .sys-sidebar{width:70px;transform:translateX(0)}
   .sys-sidebar-brand{padding:16px 12px}
   .sys-sidebar-brand-icon{margin:0 auto}
   .sys-sidebar-brand-name,.sys-sidebar-brand-sub{display:none}
@@ -113,27 +118,52 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
   .sys-sidebar-user{justify-content:center}
   .sys-main{margin-left:70px}
   .stats-row{grid-template-columns:repeat(2,1fr)}
+  .cards-2col{grid-template-columns:1fr}
+  .cards-equal{grid-template-columns:1fr}
 }
+
 @media(max-width:700px){
-  .sys-sidebar{display:none}
+  .mobile-menu-toggle{display:flex}
+  .sys-sidebar{transform:translateX(-100%);width:260px;z-index:150}
+  .sys-sidebar.open{transform:translateX(0)}
+  .sys-sidebar.open .sys-sidebar-brand-name,
+  .sys-sidebar.open .sys-sidebar-brand-sub{display:block}
+  .sys-sidebar.open .sys-sidebar-item span:last-child{display:inline}
+  .sys-sidebar.open .sys-sidebar-user-info{display:block}
+  .sys-sidebar.open .sys-sidebar-user{justify-content:flex-start}
   .sys-main{margin-left:0}
+  .mobile-overlay.active{display:block}
   .stats-row{grid-template-columns:repeat(2,1fr)}
+  .cards-2col{grid-template-columns:1fr}
+  .cards-equal{grid-template-columns:1fr}
+  .sys-top-header{padding:12px 16px}
+  .sys-content{padding:16px}
 }
 </style>
 </head>
 <body>
+<!-- Botão menu mobile -->
+<button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menu">☰</button>
+<div class="mobile-overlay" id="mobileOverlay"></div>
+
 <div class="sys-layout">
-  <!-- SIDEBAR ESQUERDA -->
-  <aside class="sys-sidebar">
+  <!-- SIDEBAR ESQUERDA com item Desempenho adicionado -->
+  <aside class="sys-sidebar" id="sidebar">
     <div class="sys-sidebar-brand">
       <div class="sys-sidebar-brand-icon">🛍️</div>
       <div class="sys-sidebar-brand-name">SIMPLES HUB</div>
       <div class="sys-sidebar-brand-sub">Sistema de Gestão</div>
     </div>
     <nav class="sys-sidebar-nav">
+      <!-- Visão Geral (ativa nesta página) -->
       <a class="sys-sidebar-item active" onclick="navigateTo('dashboard')">
         <span class="sys-sidebar-item-icon">📊</span>
         <span>Visão Geral</span>
+      </a>
+      <!-- Desempenho (novo item - link para painel de desempenho) -->
+      <a class="sys-sidebar-item" onclick="navigateTo('desempenho')">
+        <span class="sys-sidebar-item-icon">📈</span>
+        <span>Desempenho</span>
       </a>
       <a class="sys-sidebar-item" onclick="navigateTo('pdv')">
         <span class="sys-sidebar-item-icon">🛒</span>
@@ -256,16 +286,30 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 
 <script>
 
-/* ===== MAPA DE PÁGINAS ===== */
+/* ===== MAPA DE PÁGINAS com inclusão da rota desempenho ===== */
 var pageMap = {
-  'dashboard':'visao_geral.html','pdv':'pdv.html',
-  'vendas':'vendas.html','clientes':'clientes.html','funcionarios':'funcionarios.html',
-  'produtos':'produtos.html','estoque':'estoque.html','financeiro':'financeiro.html',
-  'lembretes':'lembretes.html','suporte':'suporte.html','configuracoes':'configuracoes.html'
+  'dashboard':'visao_geral.html',
+  'desempenho':'painel_desempenho.html',
+  'pdv':'pdv.html',
+  'vendas':'vendas.html',
+  'clientes':'clientes.html',
+  'funcionarios':'funcionarios.html',
+  'produtos':'produtos.html',
+  'estoque':'estoque.html',
+  'financeiro':'financeiro.html',
+  'lembretes':'lembretes.html',
+  'suporte':'suporte.html',
+  'configuracoes':'configuracoes.html'
 };
 
 function navigateTo(name) {
   if (pageMap[name]) {
+    // Evita redirecionamento se já estiver na mesma página
+    const currentFile = window.location.pathname.split('/').pop();
+    if (pageMap[name] === currentFile) {
+      showToast('Você já está nesta página');
+      return;
+    }
     window.location.href = pageMap[name];
   } else {
     showToast('Página em desenvolvimento');
@@ -293,15 +337,63 @@ function showToast(msg) {
   t._to = setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(8px)'; }, 2800);
 }
 
-/* ===== AJUSTE TOPNAV ===== */
-function adjustTopnavHeight() {
-  // Removido pois não há mais topnav fixo
+/* ===== MOBILE MENU FUNCTIONS ===== */
+function toggleMobileMenu() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('mobileOverlay');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('active');
+  if (sidebar.classList.contains('open')) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
 }
-window.addEventListener('load', function() {
-  // Ajuste de altura não necessário com sidebar fixa
-});
-window.addEventListener('resize', function() {});
 
+function closeMobileMenu() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('mobileOverlay');
+  sidebar.classList.remove('open');
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Event listeners para mobile
+document.addEventListener('DOMContentLoaded', function() {
+  const toggleBtn = document.getElementById('mobileMenuToggle');
+  const overlay = document.getElementById('mobileOverlay');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', toggleMobileMenu);
+  }
+  if (overlay) {
+    overlay.addEventListener('click', closeMobileMenu);
+  }
+  
+  // Fecha menu ao clicar em um item do menu no mobile
+  const menuItems = document.querySelectorAll('.sys-sidebar-item');
+  menuItems.forEach(item => {
+    item.addEventListener('click', function() {
+      if (window.innerWidth <= 700) {
+        closeMobileMenu();
+      }
+    });
+  });
+  
+  // Ajusta o layout ao redimensionar
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 700) {
+      closeMobileMenu();
+    }
+  });
+});
+
+/* ===== AJUSTE TOPNAV ===== */
+window.addEventListener('load', function() {
+  // Garantir que o menu não fique aberto em telas grandes acidentalmente
+  if (window.innerWidth > 700) {
+    closeMobileMenu();
+  }
+});
 </script>
 </body>
 </html>
