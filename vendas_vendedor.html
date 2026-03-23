@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIMPLES HUB – Minhas Vendas (Vendedor)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<!-- Bibliotecas para Exportação -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+:root{
+  --green:#1f2937;--green-dark:#111827;--green-mid:#374151;
+  --green-light:#f1f5f9;--green-pale:#f8fafc;--green-line:#e2e8f0;
+  --white:#ffffff;--ink:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --sidebar-width: 260px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--white)}
+::-webkit-scrollbar-thumb{background:var(--green-line);border-radius:3px}
+@keyframes heroIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== SIDEBAR LAYOUT ===== */
+.sys-layout{display:flex;min-height:100vh}
+.sys-sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--ink);color:#fff;display:flex;flex-direction:column;z-index:100}
+.sys-sidebar-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:24px}
+.sys-sidebar-brand-icon{width:40px;height:40px;border-radius:10px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px}
+.sys-sidebar-brand-name{font-size:18px;font-weight:800;letter-spacing:.05em}
+.sys-sidebar-brand-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:4px}
+.sys-sidebar-nav{flex:1;display:flex;flex-direction:column;gap:4px;padding:0 12px}
+.sys-sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);font-size:14px;font-weight:500;text-decoration:none}
+.sys-sidebar-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.sys-sidebar-item.active{background:var(--green);color:#fff}
+.sys-sidebar-item-icon{font-size:18px;width:24px;text-align:center}
+.sys-sidebar-footer{padding:20px;border-top:1px solid rgba(255,255,255,.1);margin-top:auto}
+.sys-sidebar-user{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sys-sidebar-avatar{width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+.sys-sidebar-user-info{flex:1}
+.sys-sidebar-user-name{font-size:13px;font-weight:700}
+.sys-sidebar-user-role{font-size:10px;color:rgba(255,255,255,.5)}
+.sys-logout-btn{width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.sys-logout-btn:hover{background:rgba(255,100,100,.2);color:#ff7878;border-color:rgba(255,100,100,.3)}
+
+/* MAIN CONTENT */
+.sys-main{margin-left:var(--sidebar-width);flex:1;min-width:0}
+.sys-top-header{background:var(--white);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.sys-page-title{font-size:18px;font-weight:700;color:var(--ink)}
+.sys-company-info{display:flex;align-items:center;gap:12px}
+.sys-company-pill{display:flex;align-items:center;gap:6px;background:var(--green-light);border:1px solid var(--border);border-radius:20px;padding:5px 12px}
+.sys-company-name{font-size:11px;font-weight:700;color:var(--ink)}
+.sys-company-badge{font-size:9px;font-weight:700;background:var(--green);color:#fff;border-radius:20px;padding:1px 7px}
+.sys-content{padding:24px 28px;min-height:calc(100vh - 60px)}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 20px;transition:all .2s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--green-line);transition:background .2s}
+.stat-card:hover::before{background:var(--green)}
+.stat-card:hover{box-shadow:0 4px 16px rgba(31,41,55,.08);transform:translateY(-1px)}
+.stat-card-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.stat-card-num{font-size:26px;font-weight:800;color:var(--ink);line-height:1;margin-bottom:6px}
+.stat-card-num.green{color:var(--green)}
+.stat-card-trend{font-size:11px;font-weight:600}
+.trend-up{color:#1f2937}.trend-down{color:#c0392b}
+
+/* Tables */
+.table-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:var(--white)}
+.table-title{font-size:14px;font-weight:700;color:var(--ink)}
+.table-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.table-actions{display:flex;gap:8px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:9px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--green-pale);border-bottom:1px solid var(--border)}
+.tbl td{padding:11px 14px;font-size:13px;color:var(--ink);border-bottom:1px solid var(--border)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--green-pale)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-green{background:var(--green-light);color:var(--green);border:1px solid var(--green-line)}
+.badge-yellow{background:#fffde7;color:#856404;border:1px solid #fff176}
+.badge-red{background:#fff0f0;color:#c0392b;border:1px solid #ffcccc}
+.badge-blue{background:#e3f2fd;color:#1565c0;border:1px solid #bbdefb}
+.badge-gray{background:#f5f5f5;color:#666;border:1px solid #e0e0e0}
+.action-btn{background:none;border:none;cursor:pointer;padding:5px 8px;border-radius:6px;font-size:13px;transition:background .15s;color:var(--muted)}
+.action-btn:hover{background:var(--green-light);color:var(--green)}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:16px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.2)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:15px;font-weight:800;color:var(--ink)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);transition:color .2s;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.modal-close:hover{color:var(--ink);background:var(--green-light)}
+.modal-body{padding:22px}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.modal-btn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif}
+.modal-btn.primary{background:var(--green);color:#fff}
+.modal-btn.primary:hover{background:var(--green-dark)}
+.modal-btn.ghost{background:var(--white);color:var(--muted);border:1.5px solid var(--border)}
+.modal-btn.ghost:hover{border-color:var(--green);color:var(--green)}
+
+/* Form */
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.06em;text-transform:uppercase}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);outline:none;transition:border-color .2s;font-family:'Inter',sans-serif;background:var(--white)}
+.form-row input:focus,.form-row select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(31,41,55,.08)}
+.form-section-title{font-size:12px;font-weight:700;color:var(--green);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:14px;letter-spacing:.06em;text-transform:uppercase}
+.form-radio-group{display:flex;gap:16px;margin-top:8px}
+.form-radio-group label{display:flex;align-items:center;gap:6px;font-weight:500;font-size:13px;color:var(--ink);text-transform:none}
+
+/* Topbar btn (padrão) */
+.topbar-btn{padding:9px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif}
+.topbar-btn.primary{background:var(--green);color:#fff}
+.topbar-btn.primary:hover{background:var(--green-dark)}
+.topbar-btn.ghost{background:var(--white);color:var(--muted);border:1.5px solid var(--border)}
+.topbar-btn.ghost:hover{border-color:var(--green);color:var(--green)}
+
+@media(max-width:900px){
+  .sys-sidebar{width:70px}
+  .sys-sidebar-brand{padding:16px 12px}
+  .sys-sidebar-brand-icon{margin:0 auto}
+  .sys-sidebar-brand-name,.sys-sidebar-brand-sub{display:none}
+  .sys-sidebar-item span:last-child{display:none}
+  .sys-sidebar-item{padding:12px;justify-content:center}
+  .sys-sidebar-user-info{display:none}
+  .sys-sidebar-user{justify-content:center}
+  .sys-main{margin-left:70px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+  .sys-sidebar{display:none}
+  .sys-main{margin-left:0}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="sys-layout">
+  <!-- SIDEBAR ESQUERDA (Vendedor) -->
+  <aside class="sys-sidebar">
+    <div class="sys-sidebar-brand">
+      <div class="sys-sidebar-brand-icon">🛍️</div>
+      <div class="sys-sidebar-brand-name">SIMPLES HUB</div>
+      <div class="sys-sidebar-brand-sub">Sistema de Gestão</div>
+    </div>
+    <nav class="sys-sidebar-nav">
+      <a class="sys-sidebar-item" onclick="navigateTo('dashboard')">
+        <span class="sys-sidebar-item-icon">📊</span>
+        <span>Visão Geral</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('pdv')">
+        <span class="sys-sidebar-item-icon">🛒</span>
+        <span>PDV</span>
+      </a>
+      <a class="sys-sidebar-item active" onclick="navigateTo('vendas')">
+        <span class="sys-sidebar-item-icon">💳</span>
+        <span>Minhas Vendas</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('clientes')">
+        <span class="sys-sidebar-item-icon">👥</span>
+        <span>Clientes</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('estoque')">
+        <span class="sys-sidebar-item-icon">📋</span>
+        <span>Estoque</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('lembretes')">
+        <span class="sys-sidebar-item-icon">🔔</span>
+        <span>Lembretes</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('suporte')">
+        <span class="sys-sidebar-item-icon">🎧</span>
+        <span>Suporte</span>
+      </a>
+    </nav>
+    <div class="sys-sidebar-footer">
+      <div class="sys-sidebar-user">
+        <div class="sys-sidebar-avatar" id="sidebar-avatar">C</div>
+        <div class="sys-sidebar-user-info">
+          <div class="sys-sidebar-user-name" id="sidebar-user-name">Carlos Vendedor</div>
+          <div class="sys-sidebar-user-role" id="sidebar-user-role">Vendedor</div>
+        </div>
+      </div>
+      <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="sys-main">
+    <div class="sys-top-header">
+      <div class="sys-page-title">💳 Minhas Vendas</div>
+      <div class="sys-company-info">
+        <div class="sys-company-pill">
+          <span class="sys-company-name">Loja Modelo</span>
+          <span class="sys-company-badge" id="company-badge">Vendedor</span>
+        </div>
+      </div>
+    </div>
+    <div class="sys-content">
+      <div class="sys-panel-page" id="panel-vendas">
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+          <div class="stat-card"><div class="stat-card-label">Minhas vendas no mês</div><div class="stat-card-num" id="vendas-mes">25</div><div class="stat-card-trend trend-up">↑ +8 vs fevereiro</div></div>
+          <div class="stat-card"><div class="stat-card-label">Minha receita</div><div class="stat-card-num green" id="minha-receita">R$ 2.180</div><div class="stat-card-trend trend-up">↑ 12% vs mês anterior</div></div>
+          <div class="stat-card"><div class="stat-card-label">Meu ticket médio</div><div class="stat-card-num" id="meu-ticket">R$ 87,20</div><div class="stat-card-trend trend-up">↑ R$ 5 vs fevereiro</div></div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div><div class="table-title">Minhas vendas realizadas</div><div class="table-sub">Transações que eu finalizei</div></div>
+            <div class="table-actions">
+              <button class="topbar-btn ghost" onclick="openExportModal()">📤 Exportar</button>
+              <button class="topbar-btn primary" onclick="navigateTo('pdv')">+ Nova venda</button>
+            </div>
+          </div>
+          <table class="tbl" id="vendas-table">
+            <thead>  <th>Nº</th><th>Cliente</th><th>Data / Hora</th><th>Itens</th><th>Total</th><th>Pagamento</th><th>Status</th><th>Ações</th>  </thead>
+            <tbody id="vendas-tbody"></tbody>
+           </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL DE EXPORTAÇÃO -->
+<div class="modal-overlay" id="modal-export">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">📤 Exportar Minhas Vendas</div>
+      <button class="modal-close" onclick="closeExportModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Formato do Arquivo</label>
+        <div class="form-radio-group">
+          <label><input type="radio" name="export-format" value="excel" checked> 📊 Excel (.xlsx)</label>
+          <label><input type="radio" name="export-format" value="csv"> 📄 CSV</label>
+          <label><input type="radio" name="export-format" value="pdf"> 📑 PDF</label>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Período</label>
+        <select id="export-period">
+          <option value="today">Hoje</option>
+          <option value="week">Últimos 7 dias</option>
+          <option value="month" selected>Este mês</option>
+          <option value="all">Todos os registros</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Nome do arquivo</label>
+        <input type="text" id="export-filename" placeholder="minhas_vendas" value="minhas_vendas">
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">Extensão será adicionada automaticamente</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeExportModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="confirmExport()">📥 Exportar Agora</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== MAPA DE PÁGINAS (Vendedor) ===== */
+var pageMap = {
+  'dashboard':'visao_geral_vendedor.html',
+  'pdv':'pdv_vendedor.html',
+  'vendas':'vendas_vendedor.html',
+  'clientes':'clientes_vendedor.html',
+  'estoque':'estoque_vendedor.html',
+  'lembretes':'lembretes_vendedor.html',
+  'suporte':'suporte_vendedor.html'
+};
+
+function navigateTo(name) {
+  if (pageMap[name]) {
+    window.location.href = pageMap[name];
+  } else {
+    showToast('Página em desenvolvimento');
+  }
+}
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'login.html';
+}
+
+/* ===== TOAST ===== */
+function showToast(msg) {
+  var t = document.getElementById('sys-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'sys-toast';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--ink);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:all .3s;opacity:0;transform:translateY(8px)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateY(0)';
+  clearTimeout(t._to);
+  t._to = setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(8px)'; }, 2800);
+}
+
+function carregarPerfilUsuario() {
+  const userName = sessionStorage.getItem('userName');
+  const userRole = sessionStorage.getItem('userRole');
+  
+  if(userRole === 'func') {
+    document.getElementById('sidebar-user-name').innerText = userName || 'Carlos Vendedor';
+    document.getElementById('sidebar-user-role').innerText = 'Vendedor';
+    document.getElementById('sidebar-avatar').innerText = (userName || 'Carlos Vendedor').charAt(0);
+    document.getElementById('company-badge').innerText = 'Vendedor';
+  }
+}
+
+// Dados das vendas do vendedor Carlos
+const minhasVendas = [
+  { num: "#0345", cliente: "Ana Carvalho", data: "18/03/2025", itens: 1, total: 199.00, pagamento: "PIX", status: "Pago" },
+  { num: "#0344", cliente: "João Ferreira", data: "18/03/2025", itens: 2, total: 127.00, pagamento: "Cartão", status: "Pago" },
+  { num: "#0342", cliente: "Marcos Silva", data: "17/03/2025", itens: 1, total: 34.00, pagamento: "PIX", status: "Pago" },
+  { num: "#0341", cliente: "Fernanda Costa", data: "16/03/2025", itens: 3, total: 256.00, pagamento: "Cartão", status: "Pago" },
+  { num: "#0339", cliente: "Camila Santos", data: "14/03/2025", itens: 1, total: 89.00, pagamento: "Dinheiro", status: "Pago" },
+  { num: "#0338", cliente: "Roberto Lima", data: "13/03/2025", itens: 2, total: 148.00, pagamento: "PIX", status: "Pago" }
+];
+
+function formatarMoeda(valor) {
+  return 'R$ ' + valor.toFixed(2).replace('.', ',');
+}
+
+function renderTabelaVendas() {
+  const tbody = document.getElementById('vendas-tbody');
+  if(!tbody) return;
+  
+  let html = '';
+  minhasVendas.forEach(v => {
+    const statusClass = v.status === 'Pago' ? 'badge-green' : 'badge-yellow';
+    html += `
+      <tr>
+        <td>${v.num}</td>
+        <td>${v.cliente}</td>
+        <td>${v.data}</td>
+        <td>${v.itens}</td>
+        <td>${formatarMoeda(v.total)}</td>
+        <td>${v.pagamento}</td>
+        <td><span class="badge ${statusClass}">${v.status}</span></td>
+        <td><button class="action-btn" onclick="visualizarVenda('${v.num}')">🔍</button></td>
+      </tr>
+    `;
+  });
+  tbody.innerHTML = html;
+}
+
+function visualizarVenda(id) {
+  const venda = minhasVendas.find(v => v.num === id);
+  if(venda) {
+    alert(`📋 Detalhes da Venda ${venda.num}\n\nCliente: ${venda.cliente}\nData: ${venda.data}\nItens: ${venda.itens}\nTotal: ${formatarMoeda(venda.total)}\nPagamento: ${venda.pagamento}\nStatus: ${venda.status}`);
+  }
+}
+
+/* ===== MODAL EXPORTAÇÃO ===== */
+function openExportModal() {
+  document.getElementById('modal-export').classList.add('open');
+}
+function closeExportModal() {
+  document.getElementById('modal-export').classList.remove('open');
+}
+
+function getFilteredData() {
+  const period = document.getElementById('export-period').value;
+  
+  let filtered = [...minhasVendas];
+  if (period === 'today') {
+    filtered = minhasVendas.filter(s => s.data === new Date().toLocaleDateString('pt-BR'));
+  } else if (period === 'week') {
+    filtered = minhasVendas.filter(s => parseInt(s.data.split('/')[0]) >= 15);
+  } else if (period === 'month') {
+    filtered = minhasVendas;
+  }
+  return filtered;
+}
+
+function confirmExport() {
+  const format = document.querySelector('input[name="export-format"]:checked').value;
+  const filename = document.getElementById('export-filename').value.trim() || 'minhas_vendas';
+  const filtered = getFilteredData();
+  
+  if (filtered.length === 0) {
+    showToast('Nenhuma venda encontrada para o período selecionado.');
+    closeExportModal();
+    return;
+  }
+  
+  closeExportModal();
+  showToast('Gerando arquivo ' + format.toUpperCase() + '...');
+  
+  setTimeout(() => {
+    if (format === 'pdf') {
+      exportToPDF(filtered, filename);
+    } else if (format === 'excel') {
+      exportToExcel(filtered, filename);
+    } else if (format === 'csv') {
+      exportToCSV(filtered, filename);
+    }
+    showToast('✅ Download iniciado!');
+  }, 500);
+}
+
+function prepareData(filtered) {
+  const headers = ['Nº', 'Cliente', 'Data', 'Itens', 'Total', 'Pagamento', 'Status'];
+  const rows = filtered.map(sale => [
+    sale.num,
+    sale.cliente,
+    sale.data,
+    sale.itens,
+    formatarMoeda(sale.total),
+    sale.pagamento,
+    sale.status
+  ]);
+  return { headers, rows };
+}
+
+function exportToPDF(filtered, filename) {
+  const { jsPDF } = window.jspdf;
+  const { headers, rows } = prepareData(filtered);
+  const doc = new jsPDF();
+  doc.setFontSize(18);
+  doc.text('Relatório de Minhas Vendas - SIMPLES HUB', 14, 22);
+  doc.setFontSize(11);
+  doc.setTextColor(100);
+  doc.text('Gerado em: ' + new Date().toLocaleString(), 14, 30);
+  doc.autoTable({ head: [headers], body: rows, startY: 40, theme: 'grid', headStyles: { fillColor: [31, 41, 55] }, styles: { fontSize: 9 } });
+  doc.save(filename + '.pdf');
+}
+
+function exportToExcel(filtered, filename) {
+  const { headers, rows } = prepareData(filtered);
+  const data = [headers, ...rows];
+  const worksheet = XLSX.utils.aoa_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Minhas Vendas");
+  XLSX.writeFile(workbook, filename + ".xlsx");
+}
+
+function exportToCSV(filtered, filename) {
+  const { headers, rows } = prepareData(filtered);
+  const data = [headers, ...rows];
+  const csvContent = data.map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
+  const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute("download", filename + ".csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+// Inicialização
+carregarPerfilUsuario();
+renderTabelaVendas();
+</script>
+</body>
+</html>

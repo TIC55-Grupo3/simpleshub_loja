@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIMPLES HUB – Suporte (Vendedor)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#1f2937;--green-dark:#111827;--green-mid:#374151;
+  --green-light:#f1f5f9;--green-pale:#f8fafc;--green-line:#e2e8f0;
+  --white:#ffffff;--ink:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --sidebar-width: 260px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--white)}
+::-webkit-scrollbar-thumb{background:var(--green-line);border-radius:3px}
+@keyframes heroIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== SIDEBAR LAYOUT ===== */
+.sys-layout{display:flex;min-height:100vh}
+.sys-sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--ink);color:#fff;display:flex;flex-direction:column;z-index:100}
+.sys-sidebar-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:24px}
+.sys-sidebar-brand-icon{width:40px;height:40px;border-radius:10px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px}
+.sys-sidebar-brand-name{font-size:18px;font-weight:800;letter-spacing:.05em}
+.sys-sidebar-brand-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:4px}
+.sys-sidebar-nav{flex:1;display:flex;flex-direction:column;gap:4px;padding:0 12px}
+.sys-sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);font-size:14px;font-weight:500;text-decoration:none}
+.sys-sidebar-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.sys-sidebar-item.active{background:var(--green);color:#fff}
+.sys-sidebar-item-icon{font-size:18px;width:24px;text-align:center}
+.sys-sidebar-footer{padding:20px;border-top:1px solid rgba(255,255,255,.1);margin-top:auto}
+.sys-sidebar-user{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sys-sidebar-avatar{width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+.sys-sidebar-user-info{flex:1}
+.sys-sidebar-user-name{font-size:13px;font-weight:700}
+.sys-sidebar-user-role{font-size:10px;color:rgba(255,255,255,.5)}
+.sys-logout-btn{width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.sys-logout-btn:hover{background:rgba(255,100,100,.2);color:#ff7878;border-color:rgba(255,100,100,.3)}
+
+/* MAIN CONTENT */
+.sys-main{margin-left:var(--sidebar-width);flex:1;min-width:0}
+.sys-top-header{background:var(--white);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.sys-page-title{font-size:18px;font-weight:700;color:var(--ink)}
+.sys-company-info{display:flex;align-items:center;gap:12px}
+.sys-company-pill{display:flex;align-items:center;gap:6px;background:var(--green-light);border:1px solid var(--border);border-radius:20px;padding:5px 12px}
+.sys-company-name{font-size:11px;font-weight:700;color:var(--ink)}
+.sys-company-badge{font-size:9px;font-weight:700;background:var(--green);color:#fff;border-radius:20px;padding:1px 7px}
+.sys-content{padding:24px 28px;min-height:calc(100vh - 60px)}
+
+/* Tables */
+.table-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:var(--white)}
+.table-title{font-size:14px;font-weight:700;color:var(--ink)}
+.table-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.table-actions{display:flex;gap:8px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:9px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--green-pale);border-bottom:1px solid var(--border)}
+.tbl td{padding:11px 14px;font-size:13px;color:var(--ink);border-bottom:1px solid var(--border)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--green-pale)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-green{background:var(--green-light);color:var(--green);border:1px solid var(--green-line)}
+.badge-yellow{background:#fffde7;color:#856404;border:1px solid #fff176}
+.badge-red{background:#fff0f0;color:#c0392b;border:1px solid #ffcccc}
+.badge-blue{background:#e3f2fd;color:#1565c0;border:1px solid #bbdefb}
+.badge-gray{background:#f5f5f5;color:#666;border:1px solid #e0e0e0}
+.action-btn{background:none;border:none;cursor:pointer;padding:5px 8px;border-radius:6px;font-size:13px;transition:background .15s;color:var(--muted)}
+.action-btn:hover{background:var(--green-light);color:var(--green)}
+
+/* Topbar btn */
+.topbar-btn{padding:9px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif}
+.topbar-btn.primary{background:var(--green);color:#fff}
+.topbar-btn.primary:hover{background:var(--green-dark)}
+.topbar-btn.ghost{background:var(--white);color:var(--muted);border:1.5px solid var(--border)}
+.topbar-btn.ghost:hover{border-color:var(--green);color:var(--green)}
+
+/* Form */
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.06em;text-transform:uppercase}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);outline:none;transition:border-color .2s;font-family:'Inter',sans-serif;background:var(--white)}
+.form-row input:focus,.form-row select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(31,41,55,.08)}
+.form-section-title{font-size:12px;font-weight:700;color:var(--green);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:14px;letter-spacing:.06em;text-transform:uppercase}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:16px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.2)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:15px;font-weight:800;color:var(--ink)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);transition:color .2s;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.modal-close:hover{color:var(--ink);background:var(--green-light)}
+.modal-body{padding:22px}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.modal-btn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif}
+.modal-btn.primary{background:var(--green);color:#fff}
+.modal-btn.primary:hover{background:var(--green-dark)}
+.modal-btn.ghost{background:var(--white);color:var(--muted);border:1.5px solid var(--border)}
+.modal-btn.ghost:hover{border-color:var(--green);color:var(--green)}
+.modal-small{max-width:520px}
+.radio-group{display:flex;gap:16px;margin-top:8px}
+.file-input{padding:8px 12px;border:1.5px dashed var(--border);border-radius:8px;background:var(--green-pale);cursor:pointer;font-size:12px;color:var(--muted);text-align:center}
+.file-input:hover{border-color:var(--green);background:var(--green-light)}
+
+@media(max-width:900px){
+  .sys-sidebar{width:70px}
+  .sys-sidebar-brand{padding:16px 12px}
+  .sys-sidebar-brand-icon{margin:0 auto}
+  .sys-sidebar-brand-name,.sys-sidebar-brand-sub{display:none}
+  .sys-sidebar-item span:last-child{display:none}
+  .sys-sidebar-item{padding:12px;justify-content:center}
+  .sys-sidebar-user-info{display:none}
+  .sys-sidebar-user{justify-content:center}
+  .sys-main{margin-left:70px}
+}
+@media(max-width:700px){
+  .sys-sidebar{display:none}
+  .sys-main{margin-left:0}
+}
+</style>
+</head>
+<body>
+<div class="sys-layout">
+  <!-- SIDEBAR ESQUERDA (Vendedor) -->
+  <aside class="sys-sidebar">
+    <div class="sys-sidebar-brand">
+      <div class="sys-sidebar-brand-icon">🛍️</div>
+      <div class="sys-sidebar-brand-name">SIMPLES HUB</div>
+      <div class="sys-sidebar-brand-sub">Sistema de Gestão</div>
+    </div>
+    <nav class="sys-sidebar-nav">
+      <a class="sys-sidebar-item" onclick="navigateTo('dashboard')">
+        <span class="sys-sidebar-item-icon">📊</span>
+        <span>Visão Geral</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('pdv')">
+        <span class="sys-sidebar-item-icon">🛒</span>
+        <span>PDV</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('vendas')">
+        <span class="sys-sidebar-item-icon">💳</span>
+        <span>Minhas Vendas</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('clientes')">
+        <span class="sys-sidebar-item-icon">👥</span>
+        <span>Clientes</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('estoque')">
+        <span class="sys-sidebar-item-icon">📋</span>
+        <span>Estoque</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('lembretes')">
+        <span class="sys-sidebar-item-icon">🔔</span>
+        <span>Lembretes</span>
+      </a>
+      <a class="sys-sidebar-item active" onclick="navigateTo('suporte')">
+        <span class="sys-sidebar-item-icon">🎧</span>
+        <span>Suporte</span>
+      </a>
+    </nav>
+    <div class="sys-sidebar-footer">
+      <div class="sys-sidebar-user">
+        <div class="sys-sidebar-avatar" id="sidebar-avatar">C</div>
+        <div class="sys-sidebar-user-info">
+          <div class="sys-sidebar-user-name" id="sidebar-user-name">Carlos Vendedor</div>
+          <div class="sys-sidebar-user-role" id="sidebar-user-role">Vendedor</div>
+        </div>
+      </div>
+      <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="sys-main">
+    <div class="sys-top-header">
+      <div class="sys-page-title">🎧 Suporte</div>
+      <div class="sys-company-info">
+        <div class="sys-company-pill">
+          <span class="sys-company-name">Loja Modelo</span>
+          <span class="sys-company-badge" id="company-badge">Vendedor</span>
+        </div>
+      </div>
+    </div>
+    <div class="sys-content">
+      <div class="sys-panel-page" id="panel-suporte">
+        <div class="table-wrap">
+          <div class="table-header">
+            <div><div class="table-title">Meus chamados de suporte</div><div class="table-sub">Solicitações enviadas à equipe SIMPLES HUB</div></div>
+            <div class="table-actions">
+              <button class="topbar-btn primary" onclick="openChamadoModal()">+ Abrir chamado</button>
+            </div>
+          </div>
+          <table class="tbl">
+            <thead> <th>Nº</th><th>Título</th><th>Categoria</th><th>Prioridade</th><th>Abertura</th><th>Fechamento</th><th>Status</th><th>Ações</th> </thead>
+            <tbody id="chamados-tbody"></tbody>
+            </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL ABRIR CHAMADO -->
+<div id="modal-chamado" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">📞 Abrir Chamado de Suporte</div>
+      <button class="modal-close" onclick="closeChamadoModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label>Título *</label><input type="text" id="chamado-titulo" placeholder="Ex: Erro ao finalizar venda no PDV"></div>
+      <div class="form-row"><label>Descrição *</label><textarea id="chamado-descricao" rows="4" placeholder="Descreva detalhadamente o problema ou dúvida..."></textarea></div>
+      <div class="form-row"><label>Categoria</label><select id="chamado-categoria"><option value="Técnico">Técnico - Erro no sistema</option><option value="Funcionalidade">Funcionalidade - Sugestão</option><option value="Dúvida">Dúvida - Como usar</option><option value="PDV">PDV - Problema no caixa</option><option value="Urgente">Urgente - Impacta vendas</option></select></div>
+      <div class="form-row"><label>Prioridade</label><select id="chamado-prioridade"><option value="Baixa">Baixa - Não impacta vendas</option><option value="Média">Média - Impacta parcialmente</option><option value="Alta">Alta - Impacta vendas diárias</option></select></div>
+      <div class="form-row"><label>Anexar imagem (opcional)</label><div class="file-input" onclick="document.getElementById('chamado-anexo').click()">📎 Clique para selecionar arquivo</div><input type="file" id="chamado-anexo" accept="image/*" style="display:none"><div id="anexo-nome" style="font-size:10px;color:var(--muted);margin-top:4px"></div></div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeChamadoModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="salvarChamado()">Enviar Chamado</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== MAPA DE PÁGINAS (Vendedor) ===== */
+var pageMap = {
+  'dashboard': 'visao_geral_vendedor.html',
+  'pdv': 'pdv_vendedor.html',
+  'vendas': 'vendas_vendedor.html',
+  'clientes': 'clientes_vendedor.html',
+  'estoque': 'estoque_vendedor.html',
+  'lembretes': 'lembretes_vendedor.html',
+  'suporte': 'suporte_vendedor.html'
+};
+
+function navigateTo(name) {
+  if (pageMap[name]) {
+    window.location.href = pageMap[name];
+  } else {
+    showToast('Página em desenvolvimento');
+  }
+}
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'login.html';
+}
+
+/* ===== TOAST ===== */
+function showToast(msg) {
+  var t = document.getElementById('sys-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'sys-toast';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--ink);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:all .3s;opacity:0;transform:translateY(8px)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateY(0)';
+  clearTimeout(t._to);
+  t._to = setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(8px)'; }, 2800);
+}
+
+/* ===== PERFIL DO USUÁRIO ===== */
+function carregarPerfilUsuario() {
+  const userName = sessionStorage.getItem('userName');
+  const userRole = sessionStorage.getItem('userRole');
+  
+  if(userRole === 'func') {
+    document.getElementById('sidebar-user-name').innerText = userName || 'Carlos Vendedor';
+    document.getElementById('sidebar-user-role').innerText = 'Vendedor';
+    document.getElementById('sidebar-avatar').innerText = (userName || 'Carlos Vendedor').charAt(0);
+    document.getElementById('company-badge').innerText = 'Vendedor';
+  } else {
+    // Caso não tenha perfil definido, mantém o padrão
+    document.getElementById('sidebar-user-name').innerText = 'Carlos Vendedor';
+    document.getElementById('sidebar-user-role').innerText = 'Vendedor';
+    document.getElementById('sidebar-avatar').innerText = 'C';
+    document.getElementById('company-badge').innerText = 'Vendedor';
+  }
+}
+
+let chamadosData = [
+  { id: 8, titulo: "Erro ao registrar venda no PDV", descricao: "Ao tentar finalizar venda, sistema apresenta erro inesperado. Já tentei reiniciar o sistema.", categoria: "PDV", prioridade: "Alta", abertura: "17/03/2026", fechamento: "-", status: "Em análise", anexo: null, solicitante: "Carlos Vendedor" },
+  { id: 7, titulo: "Impressora não emite cupom", descricao: "Após atualização do sistema, a impressora térmica parou de funcionar.", categoria: "Técnico", prioridade: "Alta", abertura: "15/03/2026", fechamento: "-", status: "Atendimento", anexo: null, solicitante: "Carlos Vendedor" },
+  { id: 6, titulo: "Dúvida sobre cadastro de cliente", descricao: "Como cadastrar cliente com CPF e CNPJ no mesmo cadastro?", categoria: "Dúvida", prioridade: "Média", abertura: "10/03/2026", fechamento: "11/03/2026", status: "Resolvido", anexo: null, solicitante: "Carlos Vendedor" },
+  { id: 5, titulo: "Sugestão: atalhos no PDV", descricao: "Adicionar atalhos no teclado para agilizar as vendas.", categoria: "Funcionalidade", prioridade: "Baixa", abertura: "05/03/2026", fechamento: "08/03/2026", status: "Resolvido", anexo: null, solicitante: "Carlos Vendedor" }
+];
+let nextId = 9;
+
+function getPrioridadeClass(p) { 
+  switch(p){ 
+    case 'Alta': return 'badge-red'; 
+    case 'Média': return 'badge-yellow'; 
+    default: return 'badge-gray'; 
+  } 
+}
+
+function getStatusClass(s) { 
+  switch(s){ 
+    case 'Resolvido': return 'badge-green'; 
+    case 'Em análise': return 'badge-yellow'; 
+    case 'Atendimento': return 'badge-blue'; 
+    default: return 'badge-gray'; 
+  } 
+}
+
+function renderTabelaChamados() { 
+  let tbody = document.getElementById('chamados-tbody'); 
+  if(!tbody) return; 
+  if(chamadosData.length === 0){ 
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">Nenhum chamado registrado</td></tr>'; 
+    return; 
+  } 
+  let html = ''; 
+  chamadosData.forEach(c => { 
+    let pClass = getPrioridadeClass(c.prioridade); 
+    let sClass = getStatusClass(c.status); 
+    html += `<tr>
+      <td>#${c.id.toString().padStart(4,'0')}</td>
+      <td><strong>${c.titulo}</strong></td>
+      <td>${c.categoria}</td>
+      <td><span class="badge ${pClass}">${c.prioridade}</span></td>
+      <td>${c.abertura}</td>
+      <td>${c.fechamento}</td>
+      <td><span class="badge ${sClass}">${c.status}</span></td>
+      <td><button class="action-btn" onclick="visualizarChamado(${c.id})">🔍</button></td>
+    </tr>`; 
+  }); 
+  tbody.innerHTML = html; 
+}
+
+function openChamadoModal() { 
+  document.getElementById('chamado-titulo').value = ''; 
+  document.getElementById('chamado-descricao').value = ''; 
+  document.getElementById('chamado-categoria').value = 'Técnico'; 
+  document.getElementById('chamado-prioridade').value = 'Média'; 
+  document.getElementById('chamado-anexo').value = ''; 
+  document.getElementById('anexo-nome').innerHTML = ''; 
+  document.getElementById('modal-chamado').classList.add('open'); 
+}
+
+function closeChamadoModal() { 
+  document.getElementById('modal-chamado').classList.remove('open'); 
+}
+
+function visualizarChamado(id) { 
+  let c = chamadosData.find(c => c.id === id); 
+  if(!c) return; 
+  let anexo = c.anexo ? `\n📎 Anexo: ${c.anexo}` : ''; 
+  let solicitante = c.solicitante ? `\n👤 Solicitante: ${c.solicitante}` : '';
+  alert(`📋 Detalhes do Chamado #${c.id.toString().padStart(4,'0')}\n\n` +
+    `Título: ${c.titulo}\n` +
+    `Descrição: ${c.descricao}\n` +
+    `Categoria: ${c.categoria}\n` +
+    `Prioridade: ${c.prioridade}\n` +
+    `Abertura: ${c.abertura}\n` +
+    `Fechamento: ${c.fechamento}\n` +
+    `Status: ${c.status}${solicitante}${anexo}`); 
+}
+
+document.getElementById('chamado-anexo').addEventListener('change', function(e){ 
+  let file = e.target.files[0]; 
+  document.getElementById('anexo-nome').innerHTML = file ? `📎 Arquivo selecionado: ${file.name}` : ''; 
+});
+
+function salvarChamado() { 
+  let titulo = document.getElementById('chamado-titulo').value.trim(); 
+  let desc = document.getElementById('chamado-descricao').value.trim(); 
+  let cat = document.getElementById('chamado-categoria').value; 
+  let prioridade = document.getElementById('chamado-prioridade').value; 
+  let anexoFile = document.getElementById('chamado-anexo').files[0]; 
+  let solicitanteNome = document.getElementById('sidebar-user-name').innerText;
+  
+  if(!titulo){ 
+    showToast('Informe o título.'); 
+    return; 
+  } 
+  if(!desc){ 
+    showToast('Descreva o problema.'); 
+    return; 
+  } 
+  
+  let dataAbertura = new Date().toLocaleDateString('pt-BR'); 
+  let anexoNome = anexoFile ? anexoFile.name : null; 
+  let novo = {
+    id: nextId++, 
+    titulo, 
+    descricao: desc, 
+    categoria: cat, 
+    prioridade, 
+    abertura: dataAbertura, 
+    fechamento: "-", 
+    status: "Em análise", 
+    anexo: anexoNome,
+    solicitante: solicitanteNome
+  }; 
+  chamadosData.unshift(novo); 
+  renderTabelaChamados(); 
+  let msg = `✅ Chamado #${novo.id.toString().padStart(4,'0')} aberto!`; 
+  if(anexoNome) msg += `\n📎 Anexo: ${anexoNome}`; 
+  showToast(msg); 
+  closeChamadoModal(); 
+}
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', function() {
+  carregarPerfilUsuario();
+  renderTabelaChamados();
+});
+</script>
+</body>
+</html>

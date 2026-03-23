@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIMPLES HUB – Gestão Inteligente para seu Negócio</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#1f2937;--green-dark:#111827;--green-mid:#374151;
+  --green-light:#f1f5f9;--green-pale:#f8fafc;--green-line:#e2e8f0;
+  --white:#ffffff;--ink:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --accent:#2c3e50;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--white);color:var(--ink);overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--white)}
+::-webkit-scrollbar-thumb{background:var(--green-line);border-radius:3px}
+
+/* HEADER */
+.header{position:fixed;top:0;left:0;right:0;background:rgba(255,255,255,.98);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);z-index:100;padding:16px 32px}
+.header-container{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:40px;height:40px;background:var(--green);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.logo-text{font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.5px}
+.logo-text span{color:var(--green)}
+.nav{display:flex;gap:32px}
+.nav a{text-decoration:none;color:var(--muted);font-weight:500;font-size:14px;transition:color .2s}
+.nav a:hover{color:var(--green)}
+.btn-login{padding:10px 24px;background:var(--green);color:#fff;border:none;border-radius:30px;font-weight:600;font-size:14px;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.btn-login:hover{background:var(--green-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(31,41,55,.2)}
+.btn-outline{padding:10px 24px;background:transparent;border:1.5px solid var(--border);border-radius:30px;font-weight:600;font-size:14px;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;padding:120px 32px 80px;background:linear-gradient(135deg, #f8fafc 0%, #eef2ee 100%)}
+.hero-container{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.hero-content h1{font-size:52px;font-weight:800;line-height:1.2;margin-bottom:24px;background:linear-gradient(135deg, var(--ink) 0%, var(--green) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-content p{font-size:18px;color:var(--muted);line-height:1.6;margin-bottom:32px}
+.hero-buttons{display:flex;gap:16px}
+.hero-image{position:relative}
+.hero-image img{width:100%;border-radius:24px;box-shadow:0 20px 40px rgba(0,0,0,.1)}
+
+/* DIFERENCIAIS */
+.diferenciais{padding:80px 32px;background:var(--white)}
+.section-container{max-width:1280px;margin:0 auto}
+.section-title{text-align:center;font-size:36px;font-weight:800;margin-bottom:16px}
+.section-sub{text-align:center;font-size:16px;color:var(--muted);margin-bottom:60px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:24px;padding:32px;transition:all .3s;text-align:center}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(0,0,0,.08);border-color:var(--green-line)}
+.card-icon{width:64px;height:64px;background:var(--green-light);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 20px}
+.card h3{font-size:20px;font-weight:700;margin-bottom:12px}
+.card p{font-size:14px;color:var(--muted);line-height:1.5}
+
+/* NICHOS */
+.nichos{padding:80px 32px;background:var(--green-light)}
+.nichos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+.nicho-card{background:var(--white);border-radius:20px;padding:28px;display:flex;align-items:center;gap:20px;transition:all .3s;border:1px solid var(--border)}
+.nicho-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.05)}
+.nicho-icon{width:56px;height:56px;background:var(--green-light);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px}
+.nicho-info h4{font-size:18px;font-weight:700;margin-bottom:6px}
+.nicho-info p{font-size:13px;color:var(--muted)}
+
+/* FUNCIONALIDADES */
+.funcionalidades{padding:80px 32px;background:var(--white)}
+.func-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:48px}
+.func-item{text-align:center;padding:24px}
+.func-icon{font-size:40px;margin-bottom:16px}
+.func-item h4{font-size:16px;font-weight:700;margin-bottom:8px}
+.func-item p{font-size:12px;color:var(--muted)}
+
+/* CTA */
+.cta{padding:80px 32px;background:linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);text-align:center}
+.cta h2{font-size:36px;font-weight:800;color:#fff;margin-bottom:16px}
+.cta p{font-size:16px;color:rgba(255,255,255,.8);margin-bottom:32px}
+.cta .btn-login{background:#fff;color:var(--green);padding:14px 36px;font-size:16px}
+.cta .btn-login:hover{background:var(--green-light);transform:translateY(-2px)}
+
+/* FOOTER */
+.footer{background:var(--ink);color:#fff;padding:48px 32px 24px}
+.footer-container{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px}
+.footer-logo .logo-icon{background:rgba(255,255,255,.1);margin-bottom:16px}
+.footer-logo .logo-text{color:#fff}
+.footer-logo p{font-size:13px;color:rgba(255,255,255,.6);margin-top:16px;line-height:1.5}
+.footer-col h4{font-size:14px;font-weight:700;margin-bottom:20px}
+.footer-col a{display:block;text-decoration:none;font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px;transition:color .2s}
+.footer-col a:hover{color:#fff}
+.footer-bottom{text-align:center;padding-top:24px;border-top:1px solid rgba(255,255,255,.1);font-size:12px;color:rgba(255,255,255,.5)}
+
+@media(max-width:1024px){
+  .hero-container{grid-template-columns:1fr;text-align:center}
+  .hero-buttons{justify-content:center}
+  .grid-3{grid-template-columns:repeat(2,1fr)}
+  .nichos-grid{grid-template-columns:repeat(2,1fr)}
+  .func-grid{grid-template-columns:repeat(2,1fr)}
+  .footer-container{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .header-container{flex-direction:column;gap:16px}
+  .nav{flex-wrap:wrap;justify-content:center;gap:20px}
+  .hero h1{font-size:36px}
+  .grid-3{grid-template-columns:1fr}
+  .nichos-grid{grid-template-columns:1fr}
+  .func-grid{grid-template-columns:1fr}
+  .footer-container{grid-template-columns:1fr;text-align:center}
+  .section-title{font-size:28px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-container">
+    <div class="logo">
+      <div class="logo-icon">🛍️</div>
+      <div class="logo-text">SIMPLES <span>HUB</span></div>
+    </div>
+    <nav class="nav">
+      <a href="#">Início</a>
+      <a href="#diferenciais">Solução</a>
+      <a href="#nichos">Segmentos</a>
+      <a href="#funcionalidades">Funcionalidades</a>
+      <a href="#contato">Contato</a>
+    </nav>
+    <button class="btn-login" onclick="window.location.href='login.html'">Acessar Sistema →</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-container">
+    <div class="hero-content">
+      <h1>Gestão simples que<br>faz seu negócio crescer</h1>
+      <p>Plataforma SaaS completa para lojas, barbearias e ferragens. Controle de vendas, estoque, financeiro e agendamentos em um só lugar.</p>
+      <div class="hero-buttons">
+        <button class="btn-login" onclick="window.location.href='login.html'">Começar Agora</button>
+        <button class="btn-outline" onclick="document.getElementById('diferenciais').scrollIntoView({behavior:'smooth'})">Conhecer Solução</button>
+      </div>
+    </div>
+    <div class="hero-image">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23eef2ee' rx='24'/%3E%3Crect x='80' y='120' width='120' height='160' fill='%231f2937' rx='12'/%3E%3Crect x='240' y='80' width='120' height='200' fill='%23374151' rx='12'/%3E%3Crect x='400' y='150' width='120' height='130' fill='%234b5563' rx='12'/%3E%3Ccircle cx='140' cy='320' r='8' fill='%2394a3b8'/%3E%3Ccircle cx='300' cy='320' r='8' fill='%2394a3b8'/%3E%3Ccircle cx='460' cy='320' r='8' fill='%2394a3b8'/%3E%3C/svg%3E" alt="Dashboard Preview">
+    </div>
+  </div>
+</section>
+
+<!-- DIFERENCIAIS -->
+<section id="diferenciais" class="diferenciais">
+  <div class="section-container">
+    <h2 class="section-title">Por que escolher o SIMPLES HUB?</h2>
+    <p class="section-sub">Uma plataforma que se adapta ao seu negócio, não o contrário</p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-icon">🎯</div>
+        <h3>Multi-nicho</h3>
+        <p>Atende lojas, barbearias e ferragens com módulos específicos para cada segmento.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Autonomia Operacional</h3>
+        <p>Funcionários podem dar descontos, ajustar estoque e consultar outras filiais sem depender do dono.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h3>Relatórios Simples</h3>
+        <p>Informações claras em linguagem natural, sem jargões técnicos. Exporte para PDF, Excel ou CSV.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏢</div>
+        <h3>Multi-filial</h3>
+        <p>Controle centralizado de estoque e vendas de todas as suas unidades em um só lugar.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔒</div>
+        <h3>Segurança e LGPD</h3>
+        <p>Dados criptografados e isolamento entre empresas para garantir a privacidade das informações.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📱</div>
+        <h3>Acesso Remoto</h3>
+        <p>Gerencie seu negócio de qualquer lugar, direto do navegador, sem instalações.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NICHOS ATENDIDOS -->
+<section id="nichos" class="nichos">
+  <div class="section-container">
+    <h2 class="section-title">Soluções por segmento</h2>
+    <p class="section-sub">Funcionalidades específicas para cada tipo de negócio</p>
+    <div class="nichos-grid">
+      <div class="nicho-card">
+        <div class="nicho-icon">🏪</div>
+        <div class="nicho-info">
+          <h4>Loja</h4>
+          <p>PDV completo, controle de estoque por filial, gestão de clientes e vendas rápidas.</p>
+        </div>
+      </div>
+      <div class="nicho-card">
+        <div class="nicho-icon">✂️</div>
+        <div class="nicho-info">
+          <h4>Barbearia</h4>
+          <p>Agendamento online, gestão de profissionais, comissões e controle de serviços.</p>
+        </div>
+      </div>
+      <div class="nicho-card">
+        <div class="nicho-icon">🔩</div>
+        <div class="nicho-info">
+          <h4>Ferragem</h4>
+          <p>Controle de produtos fracionados (metro, quilo), estoque preciso e vendas por unidade de medida.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FUNCIONALIDADES PRINCIPAIS -->
+<section id="funcionalidades" class="funcionalidades">
+  <div class="section-container">
+    <h2 class="section-title">Tudo que você precisa</h2>
+    <p class="section-sub">Módulos completos para gestão total do seu negócio</p>
+    <div class="func-grid">
+      <div class="func-item"><div class="func-icon">🛒</div><h4>PDV</h4><p>Ponto de venda rápido e intuitivo</p></div>
+      <div class="func-item"><div class="func-icon">📦</div><h4>Estoque</h4><p>Controle com alertas e ajustes autônomos</p></div>
+      <div class="func-item"><div class="func-icon">💰</div><h4>Financeiro</h4><p>Fluxo de caixa e DRE simplificada</p></div>
+      <div class="func-item"><div class="func-icon">👥</div><h4>Clientes</h4><p>Histórico de compras e gestão de contatos</p></div>
+      <div class="func-item"><div class="func-icon">👤</div><h4>Funcionários</h4><p>Controle de acesso e permissões</p></div>
+      <div class="func-item"><div class="func-icon">🔔</div><h4>Lembretes</h4><p>Tarefas e avisos internos</p></div>
+      <div class="func-item"><div class="func-icon">📊</div><h4>Relatórios</h4><p>Exportação em PDF, Excel e CSV</p></div>
+      <div class="func-item"><div class="func-icon">🎧</div><h4>Suporte</h4><p>Chamados com anexo de imagem</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="section-container">
+    <h2>Pronto para transformar sua gestão?</h2>
+    <p>Junte-se a centenas de empreendedores que já simplificaram seu dia a dia com o SIMPLES HUB</p>
+    <button class="btn-login" onclick="window.location.href='login.html'">Começar Agora →</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer" id="contato">
+  <div class="footer-container">
+    <div class="footer-logo">
+      <div class="logo-icon">🛍️</div>
+      <div class="logo-text" style="color:#fff">SIMPLES HUB</div>
+      <p>Plataforma SaaS de gestão empresarial para pequenos negócios. Simples, completo e acessível.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Produto</h4>
+      <a href="#">Funcionalidades</a>
+      <a href="#">Preços</a>
+      <a href="#">Segmentos</a>
+      <a href="#">Integrações</a>
+    </div>
+    <div class="footer-col">
+      <h4>Suporte</h4>
+      <a href="#">Central de Ajuda</a>
+      <a href="#">Documentação</a>
+      <a href="#">Status do Sistema</a>
+      <a href="#">Contato</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="#">Termos de Uso</a>
+      <a href="#">Política de Privacidade</a>
+      <a href="#">LGPD</a>
+      <a href="#">Segurança</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 SIMPLES HUB · Todos os direitos reservados · Feito para pequenos negócios</p>
+  </div>
+</footer>
+
+<script>
+// Smooth scroll para links internos
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if(target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// Animação simples ao scroll
+const observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting) entry.target.style.opacity = '1';
+  });
+}, observerOptions);
+
+document.querySelectorAll('.card, .nicho-card, .func-item').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transition = 'opacity 0.6s ease';
+  observer.observe(el);
+});
+
+// Aplicar opacidade inicial
+setTimeout(() => {
+  document.querySelectorAll('.card, .nicho-card, .func-item').forEach(el => {
+    if(el.getBoundingClientRect().top < window.innerHeight) el.style.opacity = '1';
+  });
+}, 100);
+</script>
+</body>
+</html>

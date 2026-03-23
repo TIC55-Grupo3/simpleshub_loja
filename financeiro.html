@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIMPLES HUB – Financeiro</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --green:#1f2937;--green-dark:#111827;--green-mid:#374151;
+  --green-light:#f1f5f9;--green-pale:#f8fafc;--green-line:#e2e8f0;
+  --white:#ffffff;--ink:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --sidebar-width: 260px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--white)}
+::-webkit-scrollbar-thumb{background:var(--green-line);border-radius:3px}
+@keyframes heroIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== SIDEBAR LAYOUT ===== */
+.sys-layout{display:flex;min-height:100vh}
+.sys-sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--ink);color:#fff;display:flex;flex-direction:column;z-index:100}
+.sys-sidebar-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:24px}
+.sys-sidebar-brand-icon{width:40px;height:40px;border-radius:10px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px}
+.sys-sidebar-brand-name{font-size:18px;font-weight:800;letter-spacing:.05em}
+.sys-sidebar-brand-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:4px}
+.sys-sidebar-nav{flex:1;display:flex;flex-direction:column;gap:4px;padding:0 12px}
+.sys-sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);font-size:14px;font-weight:500;text-decoration:none}
+.sys-sidebar-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.sys-sidebar-item.active{background:var(--green);color:#fff}
+.sys-sidebar-item-icon{font-size:18px;width:24px;text-align:center}
+.sys-sidebar-footer{padding:20px;border-top:1px solid rgba(255,255,255,.1);margin-top:auto}
+.sys-sidebar-user{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sys-sidebar-avatar{width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+.sys-sidebar-user-info{flex:1}
+.sys-sidebar-user-name{font-size:13px;font-weight:700}
+.sys-sidebar-user-role{font-size:10px;color:rgba(255,255,255,.5)}
+.sys-logout-btn{width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.sys-logout-btn:hover{background:rgba(255,100,100,.2);color:#ff7878;border-color:rgba(255,100,100,.3)}
+
+/* MAIN CONTENT */
+.sys-main{margin-left:var(--sidebar-width);flex:1;min-width:0}
+.sys-top-header{background:var(--white);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.sys-page-title{font-size:18px;font-weight:700;color:var(--ink)}
+.sys-company-info{display:flex;align-items:center;gap:12px}
+.sys-company-pill{display:flex;align-items:center;gap:6px;background:var(--green-light);border:1px solid var(--border);border-radius:20px;padding:5px 12px}
+.sys-company-name{font-size:11px;font-weight:700;color:var(--ink)}
+.sys-company-badge{font-size:9px;font-weight:700;background:var(--green);color:#fff;border-radius:20px;padding:1px 7px}
+.sys-content{padding:24px 28px;min-height:calc(100vh - 60px)}
+
+/* Financeiro */
+.fin-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.fin-card{border-radius:12px;padding:18px 20px}
+.fin-card.receita{background:var(--green-light);border:1px solid var(--green-line)}
+.fin-card.despesa{background:#fff0f0;border:1px solid #ffcccc}
+.fin-card.saldo{background:var(--white);border:2px solid var(--green)}
+.fin-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.fin-val{font-size:24px;font-weight:800;color:var(--ink)}
+.fin-val.green{color:var(--green)}.fin-val.red{color:#c0392b}
+
+/* Tables */
+.table-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:var(--white)}
+.table-title{font-size:14px;font-weight:700;color:var(--ink)}
+.table-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.table-actions{display:flex;gap:8px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:9px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--green-pale);border-bottom:1px solid var(--border)}
+.tbl td{padding:11px 14px;font-size:13px;color:var(--ink);border-bottom:1px solid var(--border)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--green-pale)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-green{background:var(--green-light);color:var(--green);border:1px solid var(--green-line)}
+.badge-yellow{background:#fffde7;color:#856404;border:1px solid #fff176}
+.badge-red{background:#fff0f0;color:#c0392b;border:1px solid #ffcccc}
+.badge-blue{background:#e3f2fd;color:#1565c0;border:1px solid #bbdefb}
+.badge-gray{background:#f5f5f5;color:#666;border:1px solid #e0e0e0}
+.action-btn{background:none;border:none;cursor:pointer;padding:5px 8px;border-radius:6px;font-size:13px;transition:background .15s;color:var(--muted)}
+.action-btn:hover{background:var(--green-light);color:var(--green)}
+
+/* Topbar btn */
+.topbar-btn{padding:9px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif}
+.topbar-btn.primary{background:var(--green);color:#fff}
+.topbar-btn.primary:hover{background:var(--green-dark)}
+.topbar-btn.ghost{background:var(--white);color:var(--muted);border:1.5px solid var(--border)}
+.topbar-btn.ghost:hover{border-color:var(--green);color:var(--green)}
+
+/* Form */
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.06em;text-transform:uppercase}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);outline:none;transition:border-color .2s;font-family:'Inter',sans-serif;background:var(--white)}
+.form-row input:focus,.form-row select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(31,41,55,.08)}
+.form-section-title{font-size:12px;font-weight:700;color:var(--green);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:14px;letter-spacing:.06em;text-transform:uppercase}
+.form-radio-group{display:flex;gap:16px;margin-top:8px}
+.form-radio-group label{display:flex;align-items:center;gap:6px;font-weight:500;font-size:13px;text-transform:none}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:16px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.2)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:15px;font-weight:800;color:var(--ink)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);transition:color .2s;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.modal-close:hover{color:var(--ink);background:var(--green-light)}
+.modal-body{padding:22px}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.modal-btn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif}
+.modal-btn.primary{background:var(--green);color:#fff}
+.modal-btn.primary:hover{background:var(--green-dark)}
+.modal-btn.ghost{background:var(--white);color:var(--muted);border:1.5px solid var(--border)}
+.modal-btn.ghost:hover{border-color:var(--green);color:var(--green)}
+
+@media(max-width:900px){
+  .sys-sidebar{width:70px}
+  .sys-sidebar-brand{padding:16px 12px}
+  .sys-sidebar-brand-icon{margin:0 auto}
+  .sys-sidebar-brand-name,.sys-sidebar-brand-sub{display:none}
+  .sys-sidebar-item span:last-child{display:none}
+  .sys-sidebar-item{padding:12px;justify-content:center}
+  .sys-sidebar-user-info{display:none}
+  .sys-sidebar-user{justify-content:center}
+  .sys-main{margin-left:70px}
+  .fin-summary{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .sys-sidebar{display:none}
+  .sys-main{margin-left:0}
+}
+</style>
+</head>
+<body>
+<div class="sys-layout">
+  <!-- SIDEBAR ESQUERDA -->
+  <aside class="sys-sidebar">
+    <div class="sys-sidebar-brand">
+      <div class="sys-sidebar-brand-icon">🛍️</div>
+      <div class="sys-sidebar-brand-name">SIMPLES HUB</div>
+      <div class="sys-sidebar-brand-sub">Sistema de Gestão</div>
+    </div>
+    <nav class="sys-sidebar-nav">
+      <a class="sys-sidebar-item" onclick="navigateTo('dashboard')"><span class="sys-sidebar-item-icon">📊</span><span>Visão Geral</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('pdv')"><span class="sys-sidebar-item-icon">🛒</span><span>PDV</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('vendas')"><span class="sys-sidebar-item-icon">💳</span><span>Vendas</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('clientes')"><span class="sys-sidebar-item-icon">👥</span><span>Clientes</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('funcionarios')"><span class="sys-sidebar-item-icon">👤</span><span>Funcionários</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('produtos')"><span class="sys-sidebar-item-icon">📦</span><span>Produtos</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('estoque')"><span class="sys-sidebar-item-icon">📋</span><span>Estoque</span></a>
+      <a class="sys-sidebar-item active" onclick="navigateTo('financeiro')"><span class="sys-sidebar-item-icon">💰</span><span>Financeiro</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('lembretes')"><span class="sys-sidebar-item-icon">🔔</span><span>Lembretes</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('suporte')"><span class="sys-sidebar-item-icon">🎧</span><span>Suporte</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('configuracoes')"><span class="sys-sidebar-item-icon">⚙️</span><span>Config</span></a>
+    </nav>
+    <div class="sys-sidebar-footer">
+      <div class="sys-sidebar-user">
+        <div class="sys-sidebar-avatar">A</div>
+        <div class="sys-sidebar-user-info">
+          <div class="sys-sidebar-user-name">Gerente da Loja</div>
+          <div class="sys-sidebar-user-role">Administrador</div>
+        </div>
+      </div>
+      <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="sys-main">
+    <div class="sys-top-header">
+      <div class="sys-page-title">💰 Financeiro</div>
+      <div class="sys-company-info">
+        <div class="sys-company-pill">
+          <span class="sys-company-name">Loja Modelo</span>
+          <span class="sys-company-badge">Loja</span>
+        </div>
+      </div>
+    </div>
+    <div class="sys-content">
+      <div class="sys-panel-page" id="panel-financeiro">
+        <div class="fin-summary" id="fin-summary">
+          <div class="fin-card receita"><div class="fin-label">Total de Receitas</div><div class="fin-val green" id="total-receitas">R$ 0,00</div><div style="font-size:11px;color:var(--muted);margin-top:4px" id="qtd-receitas">0 lançamentos de entrada</div></div>
+          <div class="fin-card despesa"><div class="fin-label">Total de Despesas</div><div class="fin-val red" id="total-despesas">R$ 0,00</div><div style="font-size:11px;color:#c0392b;margin-top:4px" id="qtd-despesas">0 lançamentos de saída</div></div>
+          <div class="fin-card saldo"><div class="fin-label">Lucro Líquido</div><div class="fin-val green" id="lucro-liquido">R$ 0,00</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Resultado atual</div></div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div><div class="table-title">Lançamentos financeiros</div><div class="table-sub">Receitas e despesas do período</div></div>
+            <div class="table-actions">
+              <button class="topbar-btn ghost" onclick="openExportModal()">📤 Exportar</button>
+              <button class="topbar-btn primary" onclick="openLancamentoModal()">+ Novo lançamento</button>
+            </div>
+          </div>
+          <table class="tbl">
+            <thead> <th>Tipo</th><th>Descrição</th><th>Valor</th><th>Lançamento</th><th>Vencimento</th><th>Pagamento</th><th>Status</th><th>Ações</th> </thead>
+            <tbody id="lancamentos-tbody"></tbody>
+            </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL NOVO LANÇAMENTO -->
+<div id="modal-lancamento" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-lancamento-title">➕ Novo Lançamento Financeiro</div>
+      <button class="modal-close" onclick="closeLancamentoModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label>Tipo de lançamento *</label><div class="form-radio-group"><label><input type="radio" name="lancamento-tipo" value="Receita" checked> 💰 Receita (Entrada)</label><label><input type="radio" name="lancamento-tipo" value="Despesa"> 💸 Despesa (Saída)</label></div></div>
+      <div class="form-row"><label>Descrição *</label><input type="text" id="lancamento-descricao" placeholder="Ex: Venda #0346, Compra de mercadoria, Aluguel..."></div>
+      <div class="form-row"><label>Valor *</label><input type="text" id="lancamento-valor" placeholder="0,00"></div>
+      <div class="form-row"><label>Data de lançamento *</label><input type="date" id="lancamento-data"></div>
+      <div class="form-row"><label>Data de vencimento</label><input type="date" id="lancamento-vencimento"></div>
+      <div class="form-row"><label>Forma de pagamento</label><select id="lancamento-pagamento"><option value="PIX">PIX</option><option value="Cartão de Crédito">Cartão de Crédito</option><option value="Cartão de Débito">Cartão de Débito</option><option value="Dinheiro">Dinheiro</option><option value="Boleto">Boleto</option><option value="Transferência">Transferência</option></select></div>
+      <div class="form-row"><label>Status</label><select id="lancamento-status"><option value="Pago">Pago</option><option value="Pendente">Pendente</option><option value="Atrasado">Atrasado</option></select></div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeLancamentoModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="salvarLancamento()">Salvar Lançamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EXPORTAÇÃO -->
+<div class="modal-overlay" id="modal-export">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">📤 Exportar Extrato Financeiro</div>
+      <button class="modal-close" onclick="closeExportModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label>Formato do Arquivo</label><div class="form-radio-group"><label><input type="radio" name="export-format" value="excel" checked> 📊 Excel (.xlsx)</label><label><input type="radio" name="export-format" value="csv"> 📄 CSV</label><label><input type="radio" name="export-format" value="pdf"> 📑 PDF</label></div></div>
+      <div class="form-row"><label>Período</label><select id="export-period"><option value="all">Todos os lançamentos</option><option value="month">Este mês</option><option value="receita">Apenas Receitas</option><option value="despesa">Apenas Despesas</option></select></div>
+      <div class="form-row"><label>Nome do arquivo</label><input type="text" id="export-filename" placeholder="extrato_financeiro" value="extrato_financeiro"><div style="font-size:10px;color:var(--muted);margin-top:4px">Extensão será adicionada automaticamente</div></div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeExportModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="confirmExport()">📥 Exportar Agora</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var pageMap = {'dashboard':'visao_geral.html','pdv':'pdv.html','vendas':'vendas.html','clientes':'clientes.html','funcionarios':'funcionarios.html','produtos':'produtos.html','estoque':'estoque.html','financeiro':'financeiro.html','lembretes':'lembretes.html','suporte':'suporte.html','configuracoes':'configuracoes.html'};
+
+function navigateTo(name) { if(pageMap[name]) window.location.href = pageMap[name]; else showToast('Página em desenvolvimento'); }
+function logout() { sessionStorage.clear(); window.location.href = 'login.html'; }
+function showToast(msg) { var t = document.getElementById('sys-toast'); if(!t){ t=document.createElement('div'); t.id='sys-toast'; t.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--ink);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:all .3s;opacity:0;transform:translateY(8px)'; document.body.appendChild(t); } t.textContent=msg; t.style.opacity='1'; t.style.transform='translateY(0)'; clearTimeout(t._to); t._to=setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(8px)'; },2800); }
+
+let lancamentosData = [
+  { id: 1, tipo: "Receita", descricao: "Venda #0345 — Smartwatch", valor: 199.00, dataLancamento: "18/03/2026", dataVencimento: "18/03/2026", pagamento: "PIX", status: "Pago" },
+  { id: 2, tipo: "Receita", descricao: "Venda #0344 — Fone + Cabo", valor: 127.00, dataLancamento: "18/03/2026", dataVencimento: "18/03/2026", pagamento: "Cartão de Crédito", status: "Pago" },
+  { id: 3, tipo: "Despesa", descricao: "Compra de mercadoria — Fone Bluetooth", valor: 1260.00, dataLancamento: "15/03/2026", dataVencimento: "20/03/2026", pagamento: "Boleto", status: "Pendente" },
+  { id: 4, tipo: "Despesa", descricao: "Aluguel — Março/2026", valor: 3200.00, dataLancamento: "01/03/2026", dataVencimento: "10/03/2026", pagamento: "Transferência", status: "Pago" },
+  { id: 5, tipo: "Receita", descricao: "Venda #0341 — Pacote completo", valor: 256.00, dataLancamento: "16/03/2026", dataVencimento: "16/03/2026", pagamento: "Cartão de Crédito", status: "Pago" }
+];
+let nextId = 6;
+
+function formatarMoeda(valor) { return 'R$ ' + valor.toFixed(2).replace('.', ','); }
+function getStatusClass(status) { switch(status){ case'Pago':return'badge-green'; case'Pendente':return'badge-yellow'; case'Atrasado':return'badge-red'; default:return'badge-gray'; } }
+function getTipoClass(tipo) { return tipo==='Receita'?'badge-green':'badge-red'; }
+function atualizarResumo() { let receitas=lancamentosData.filter(l=>l.tipo==='Receita').reduce((s,l)=>s+l.valor,0); let despesas=lancamentosData.filter(l=>l.tipo==='Despesa').reduce((s,l)=>s+l.valor,0); let qtdReceitas=lancamentosData.filter(l=>l.tipo==='Receita').length; let qtdDespesas=lancamentosData.filter(l=>l.tipo==='Despesa').length; let lucro=receitas-despesas; document.getElementById('total-receitas').innerHTML=formatarMoeda(receitas); document.getElementById('total-despesas').innerHTML=formatarMoeda(despesas); document.getElementById('lucro-liquido').innerHTML=formatarMoeda(lucro); document.getElementById('qtd-receitas').innerHTML=qtdReceitas+' lançamentos de entrada'; document.getElementById('qtd-despesas').innerHTML=qtdDespesas+' lançamentos de saída'; }
+function renderTabelaLancamentos() { let tbody=document.getElementById('lancamentos-tbody'); if(!tbody) return; if(lancamentosData.length===0){ tbody.innerHTML='<td colspan="8" style="text-align:center">Nenhum lançamento registrado</td>'; atualizarResumo(); return; } let html=''; lancamentosData.forEach(l=>{ let tipoClass=getTipoClass(l.tipo); let statusClass=getStatusClass(l.status); html+=`<tr><td><span class="badge ${tipoClass}">${l.tipo}</span></td><td>${l.descricao}</td><td>${formatarMoeda(l.valor)}</td><td>${l.dataLancamento}</td><td>${l.dataVencimento}</td><td>${l.pagamento}</td><td><span class="badge ${statusClass}">${l.status}</span></td><td><button class="action-btn" onclick="editarLancamento(${l.id})">✏️</button></td></tr>`; }); tbody.innerHTML=html; atualizarResumo(); }
+
+let editandoLancamentoId=null;
+function openLancamentoModal() { editandoLancamentoId=null; document.getElementById('modal-lancamento-title').innerHTML='➕ Novo Lançamento Financeiro'; document.querySelector('input[name="lancamento-tipo"][value="Receita"]').checked=true; document.getElementById('lancamento-descricao').value=''; document.getElementById('lancamento-valor').value=''; document.getElementById('lancamento-data').value=new Date().toISOString().split('T')[0]; document.getElementById('lancamento-vencimento').value=''; document.getElementById('lancamento-pagamento').value='PIX'; document.getElementById('lancamento-status').value='Pago'; document.getElementById('modal-lancamento').classList.add('open'); }
+function editarLancamento(id) { let l=lancamentosData.find(l=>l.id===id); if(!l) return; editandoLancamentoId=id; document.getElementById('modal-lancamento-title').innerHTML='✏️ Editar Lançamento'; document.querySelector(`input[name="lancamento-tipo"][value="${l.tipo}"]`).checked=true; document.getElementById('lancamento-descricao').value=l.descricao; document.getElementById('lancamento-valor').value=l.valor.toString().replace('.',','); let [dia,mes,ano]=l.dataLancamento.split('/'); document.getElementById('lancamento-data').value=`${ano}-${mes}-${dia}`; if(l.dataVencimento&&l.dataVencimento!=='-'){ let[d,m,a]=l.dataVencimento.split('/'); document.getElementById('lancamento-vencimento').value=`${a}-${m}-${d}`; }else{ document.getElementById('lancamento-vencimento').value=''; } document.getElementById('lancamento-pagamento').value=l.pagamento; document.getElementById('lancamento-status').value=l.status; document.getElementById('modal-lancamento').classList.add('open'); }
+function closeLancamentoModal() { document.getElementById('modal-lancamento').classList.remove('open'); }
+function salvarLancamento() { let tipo=document.querySelector('input[name="lancamento-tipo"]:checked').value; let desc=document.getElementById('lancamento-descricao').value.trim(); let valorStr=document.getElementById('lancamento-valor').value; let dataLanc=document.getElementById('lancamento-data').value; let dataVenc=document.getElementById('lancamento-vencimento').value; let pagamento=document.getElementById('lancamento-pagamento').value; let status=document.getElementById('lancamento-status').value; if(!desc){ showToast('Informe a descrição.'); return; } valorStr=valorStr.replace(/\./g,'').replace(',','.'); let valor=parseFloat(valorStr); if(isNaN(valor)||valor<=0){ showToast('Valor inválido.'); return; } if(!dataLanc){ showToast('Informe a data de lançamento.'); return; } let dataLancFormatada=new Date(dataLanc).toLocaleDateString('pt-BR'); let dataVencFormatada=dataVenc?new Date(dataVenc).toLocaleDateString('pt-BR'):'-'; if(editandoLancamentoId!==null){ let idx=lancamentosData.findIndex(l=>l.id===editandoLancamentoId); if(idx!==-1){ lancamentosData[idx]={...lancamentosData[idx], tipo, descricao:desc, valor, dataLancamento:dataLancFormatada, dataVencimento:dataVencFormatada, pagamento, status}; showToast(`✅ Lançamento atualizado!`); } }else{ lancamentosData.push({id:nextId++, tipo, descricao:desc, valor, dataLancamento:dataLancFormatada, dataVencimento:dataVencFormatada, pagamento, status}); showToast(`✅ Lançamento adicionado!`); } renderTabelaLancamentos(); closeLancamentoModal(); }
+
+function openExportModal() { document.getElementById('modal-export').classList.add('open'); }
+function closeExportModal() { document.getElementById('modal-export').classList.remove('open'); }
+function getFilteredLancamentos() { let period=document.getElementById('export-period').value; let filtered=[...lancamentosData]; if(period==='receita') filtered=filtered.filter(l=>l.tipo==='Receita'); else if(period==='despesa') filtered=filtered.filter(l=>l.tipo==='Despesa'); else if(period==='month'){ let now=new Date(); let month=now.getMonth(); let year=now.getFullYear(); filtered=filtered.filter(l=>{ let[mes,ano]=l.dataLancamento.split('/'); return parseInt(mes)-1===month&&parseInt(ano)===year; }); } return filtered; }
+function confirmExport() { let format=document.querySelector('input[name="export-format"]:checked').value; let filename=document.getElementById('export-filename').value.trim()||'extrato_financeiro'; let filtered=getFilteredLancamentos(); if(filtered.length===0){ showToast('Nenhum lançamento encontrado.'); closeExportModal(); return; } closeExportModal(); showToast('Gerando arquivo...'); setTimeout(()=>{ let headers=['Tipo','Descrição','Valor','Data Lançamento','Vencimento','Pagamento','Status']; let rows=filtered.map(l=>[l.tipo,l.descricao,formatarMoeda(l.valor),l.dataLancamento,l.dataVencimento,l.pagamento,l.status]); if(format==='pdf'){ let {jsPDF}=window.jspdf; let doc=new jsPDF(); doc.setFontSize(18); doc.text('Extrato Financeiro - SIMPLES HUB',14,22); doc.setFontSize(11); doc.setTextColor(100); doc.text('Gerado em: '+new Date().toLocaleString(),14,30); doc.autoTable({head:[headers],body:rows,startY:40,theme:'grid',headStyles:{fillColor:[31,41,55]},styles:{fontSize:9}}); doc.save(filename+'.pdf'); }else if(format==='excel'){ let data=[headers,...rows]; let ws=XLSX.utils.aoa_to_sheet(data); let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Extrato Financeiro"); XLSX.writeFile(wb,filename+".xlsx"); }else if(format==='csv'){ let data=[headers,...rows]; let csv=data.map(row=>row.map(cell=>`"${cell}"`).join(",")).join("\n"); let blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'}); let link=document.createElement('a'); let url=URL.createObjectURL(blob); link.href=url; link.download=filename+".csv"; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); } showToast('✅ Download iniciado!'); },500); }
+
+renderTabelaLancamentos();
+</script>
+</body>
+</html>

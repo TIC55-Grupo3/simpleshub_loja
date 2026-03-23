@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIMPLES HUB – Início</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#1f2937;--green-dark:#111827;--green-mid:#374151;
+  --green-light:#f1f5f9;--green-pale:#f8fafc;--green-line:#e2e8f0;
+  --white:#ffffff;--ink:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --sidebar-width: 260px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--white)}
+::-webkit-scrollbar-thumb{background:var(--green-line);border-radius:3px}
+@keyframes heroIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== SIDEBAR LAYOUT ===== */
+.sys-layout{display:flex;min-height:100vh}
+.sys-sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--ink);color:#fff;display:flex;flex-direction:column;z-index:100}
+.sys-sidebar-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:24px}
+.sys-sidebar-brand-icon{width:40px;height:40px;border-radius:10px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px}
+.sys-sidebar-brand-name{font-size:18px;font-weight:800;letter-spacing:.05em}
+.sys-sidebar-brand-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:4px}
+.sys-sidebar-nav{flex:1;display:flex;flex-direction:column;gap:4px;padding:0 12px}
+.sys-sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);font-size:14px;font-weight:500;text-decoration:none}
+.sys-sidebar-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.sys-sidebar-item.active{background:var(--green);color:#fff}
+.sys-sidebar-item-icon{font-size:18px;width:24px;text-align:center}
+.sys-sidebar-footer{padding:20px;border-top:1px solid rgba(255,255,255,.1);margin-top:auto}
+.sys-sidebar-user{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sys-sidebar-avatar{width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+.sys-sidebar-user-info{flex:1}
+.sys-sidebar-user-name{font-size:13px;font-weight:700}
+.sys-sidebar-user-role{font-size:10px;color:rgba(255,255,255,.5)}
+.sys-logout-btn{width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.sys-logout-btn:hover{background:rgba(255,100,100,.2);color:#ff7878;border-color:rgba(255,100,100,.3)}
+
+/* MAIN CONTENT */
+.sys-main{margin-left:var(--sidebar-width);flex:1;min-width:0}
+.sys-top-header{background:var(--white);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.sys-page-title{font-size:18px;font-weight:700;color:var(--ink)}
+.sys-company-info{display:flex;align-items:center;gap:12px}
+.sys-company-pill{display:flex;align-items:center;gap:6px;background:var(--green-light);border:1px solid var(--border);border-radius:20px;padding:5px 12px}
+.sys-company-name{font-size:11px;font-weight:700;color:var(--ink)}
+.sys-company-badge{font-size:9px;font-weight:700;background:var(--green);color:#fff;border-radius:20px;padding:1px 7px}
+.sys-content{padding:24px 28px;min-height:calc(100vh - 60px)}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 20px;transition:all .2s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--green-line);transition:background .2s}
+.stat-card:hover::before{background:var(--green)}
+.stat-card:hover{box-shadow:0 4px 16px rgba(31,41,55,.08);transform:translateY(-1px)}
+.stat-card-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.stat-card-num{font-size:26px;font-weight:800;color:var(--ink);line-height:1;margin-bottom:6px}
+.stat-card-num.green{color:var(--green)}
+.stat-card-trend{font-size:11px;font-weight:600}
+.trend-up{color:#1f2937}.trend-down{color:#c0392b}
+
+/* Cards */
+.cards-2col{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px}
+.cards-equal{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.inner-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.inner-card-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:14px}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-green{background:var(--green-light);color:var(--green);border:1px solid var(--green-line)}
+.badge-red{background:#fff0f0;color:#c0392b;border:1px solid #ffcccc}
+.badge-yellow{background:#fffde7;color:#856404;border:1px solid #fff176}
+.badge-blue{background:#e3f2fd;color:#1565c0;border:1px solid #bbdefb}
+
+/* Início (Acessos Rápidos) */
+.ar-welcome{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+.ar-welcome-title{font-size:20px;font-weight:800;color:var(--ink);margin-bottom:4px}
+.ar-welcome-sub{font-size:12px;color:var(--muted)}
+.ar-shortcuts-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px}
+.ar-shortcut{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;position:relative}
+.ar-shortcut:hover{border-color:var(--green);box-shadow:0 4px 14px rgba(31,41,55,.08);transform:translateY(-2px)}
+.ar-shortcut-icon{font-size:24px}
+.ar-shortcut-label{font-size:11px;font-weight:700;color:var(--ink)}
+.ar-shortcut-badge{position:absolute;top:8px;right:8px;background:#e74c3c;color:#fff;border-radius:20px;font-size:9px;font-weight:800;padding:1px 6px}
+.ar-two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.ar-reminder-list{display:flex;flex-direction:column;gap:10px}
+.ar-reminder-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:var(--green-pale);border:1px solid var(--border)}
+.ar-reminder-dot{width:8px;height:8px;border-radius:50%;background:var(--green-line);flex-shrink:0}
+.ar-reminder-high .ar-reminder-dot{background:#c0392b}
+.ar-dot-mid{background:#e67e22!important}
+.ar-dot-low{background:var(--green)!important}
+.ar-reminder-content{flex:1}
+.ar-reminder-name{font-size:12px;font-weight:700;color:var(--ink)}
+.ar-reminder-time{font-size:10px;color:var(--muted);margin-top:2px}
+.ar-see-all{width:100%;margin-top:12px;padding:8px;background:transparent;border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.ar-see-all:hover{border-color:var(--green);color:var(--green);background:var(--green-light)}
+.ar-fav-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.ar-fav-item{background:var(--green-pale);border:1px solid var(--border);border-radius:10px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px;font-weight:700;color:var(--ink);cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.ar-fav-item:hover{border-color:var(--green);background:var(--green-light)}
+.ar-hist-tab{padding:5px 14px;border-radius:7px;font-size:11px;font-weight:700;border:1px solid var(--border);background:transparent;cursor:pointer;color:var(--muted);font-family:'Inter',sans-serif;transition:all .2s}
+.ar-hist-tab.active{background:var(--green);color:#fff;border-color:var(--green)}
+.ar-history-list{display:flex;flex-direction:column;gap:6px}
+.ar-hist-entry{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;background:var(--green-pale);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s}
+.ar-hist-entry:hover{background:var(--green-light);border-color:var(--green)}
+.ar-hist-time{font-size:10px;color:var(--muted);font-weight:500}
+.recent-list{display:flex;flex-direction:column;gap:0}
+.recent-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.recent-item:last-child{border-bottom:none}
+.recent-avatar{width:34px;height:34px;border-radius:50%;background:var(--green-light);border:1px solid var(--green-line);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--green);flex-shrink:0}
+.recent-info{flex:1;min-width:0}
+.recent-name{font-size:12px;font-weight:700;color:var(--ink)}
+.recent-detail{font-size:11px;color:var(--muted);margin-top:1px}
+.recent-value{font-size:12px;font-weight:700;color:var(--green);flex-shrink:0}
+
+@media(max-width:900px){
+  .sys-sidebar{width:70px}
+  .sys-sidebar-brand{padding:16px 12px}
+  .sys-sidebar-brand-icon{margin:0 auto}
+  .sys-sidebar-brand-name,.sys-sidebar-brand-sub{display:none}
+  .sys-sidebar-item span:last-child{display:none}
+  .sys-sidebar-item{padding:12px;justify-content:center}
+  .sys-sidebar-user-info{display:none}
+  .sys-sidebar-user{justify-content:center}
+  .sys-main{margin-left:70px}
+  .ar-shortcuts-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:700px){
+  .sys-sidebar{display:none}
+  .sys-main{margin-left:0}
+  .ar-shortcuts-grid{grid-template-columns:repeat(2,1fr)}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .ar-two-col{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="sys-layout">
+  <!-- SIDEBAR ESQUERDA -->
+  <aside class="sys-sidebar">
+    <div class="sys-sidebar-brand">
+      <div class="sys-sidebar-brand-icon">🛍️</div>
+      <div class="sys-sidebar-brand-name">SIMPLES HUB</div>
+      <div class="sys-sidebar-brand-sub">Sistema de Gestão</div>
+    </div>
+    <nav class="sys-sidebar-nav">
+      <a class="sys-sidebar-item active" onclick="navigateTo('inicio')">
+        <span class="sys-sidebar-item-icon">⚡</span>
+        <span>Início</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('dashboard')">
+        <span class="sys-sidebar-item-icon">📊</span>
+        <span>Visão Geral</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('pdv')">
+        <span class="sys-sidebar-item-icon">🛒</span>
+        <span>PDV</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('vendas')">
+        <span class="sys-sidebar-item-icon">💳</span>
+        <span>Vendas</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('clientes')">
+        <span class="sys-sidebar-item-icon">👥</span>
+        <span>Clientes</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('funcionarios')">
+        <span class="sys-sidebar-item-icon">👤</span>
+        <span>Funcionários</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('produtos')">
+        <span class="sys-sidebar-item-icon">📦</span>
+        <span>Produtos</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('estoque')">
+        <span class="sys-sidebar-item-icon">📋</span>
+        <span>Estoque</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('financeiro')">
+        <span class="sys-sidebar-item-icon">💰</span>
+        <span>Financeiro</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('lembretes')">
+        <span class="sys-sidebar-item-icon">🔔</span>
+        <span>Lembretes</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('suporte')">
+        <span class="sys-sidebar-item-icon">🎧</span>
+        <span>Suporte</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('configuracoes')">
+        <span class="sys-sidebar-item-icon">⚙️</span>
+        <span>Config</span>
+      </a>
+    </nav>
+    <div class="sys-sidebar-footer">
+      <div class="sys-sidebar-user">
+        <div class="sys-sidebar-avatar">A</div>
+        <div class="sys-sidebar-user-info">
+          <div class="sys-sidebar-user-name">Gerente da Loja</div>
+          <div class="sys-sidebar-user-role">Administrador</div>
+        </div>
+      </div>
+      <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="sys-main">
+    <div class="sys-top-header">
+      <div class="sys-page-title">⚡ Início</div>
+      <div class="sys-company-info">
+        <div class="sys-company-pill">
+          <span class="sys-company-name">Loja Modelo</span>
+          <span class="sys-company-badge">Loja</span>
+        </div>
+      </div>
+    </div>
+    <div class="sys-content">
+      <div class="sys-panel-page" id="panel-inicio">
+        <div class="ar-welcome">
+          <div class="ar-welcome-text">
+            <div class="ar-welcome-title">Bom dia, Gerente 👋</div>
+            <div class="ar-welcome-sub">Loja Modelo · <span id="ar-date-today"></span></div>
+          </div>
+        </div>
+        <div class="ar-shortcuts-grid">
+          <button class="ar-shortcut" onclick="showPanel('pdv')">
+            <div class="ar-shortcut-icon">🛒</div>
+            <div class="ar-shortcut-label">Abrir PDV</div>
+          </button>
+          <button class="ar-shortcut" onclick="showPanel('vendas')">
+            <div class="ar-shortcut-icon">💳</div>
+            <div class="ar-shortcut-label">Vendas</div>
+          </button>
+          <button class="ar-shortcut" onclick="showPanel('clientes')">
+            <div class="ar-shortcut-icon">👥</div>
+            <div class="ar-shortcut-label">Clientes</div>
+          </button>
+          <button class="ar-shortcut" onclick="showPanel('estoque')">
+            <div class="ar-shortcut-icon">📦</div>
+            <div class="ar-shortcut-label">Estoque</div>
+            <span class="ar-shortcut-badge">2</span>
+          </button>
+          <button class="ar-shortcut" onclick="showPanel('financeiro')">
+            <div class="ar-shortcut-icon">💰</div>
+            <div class="ar-shortcut-label">Financeiro</div>
+          </button>
+          <button class="ar-shortcut" onclick="showPanel('lembretes')">
+            <div class="ar-shortcut-icon">🔔</div>
+            <div class="ar-shortcut-label">Lembretes</div>
+            <span class="ar-shortcut-badge">3</span>
+          </button>
+        </div>
+        <div class="ar-two-col">
+          <!-- Lembretes -->
+          <div class="inner-card">
+            <div class="inner-card-title">🔔 Lembretes do dia</div>
+            <div class="ar-reminder-list">
+              <div class="ar-reminder-item ar-reminder-high">
+                <div class="ar-reminder-dot"></div>
+                <div class="ar-reminder-content">
+                  <div class="ar-reminder-name">Repor estoque — Fone Bluetooth</div>
+                  <div class="ar-reminder-time">Hoje · Alta prioridade</div>
+                </div>
+                <span class="badge badge-red">Urgente</span>
+              </div>
+              <div class="ar-reminder-item">
+                <div class="ar-reminder-dot ar-dot-mid"></div>
+                <div class="ar-reminder-content">
+                  <div class="ar-reminder-name">Reunião com fornecedor</div>
+                  <div class="ar-reminder-time">Hoje 16:00 · Média prioridade</div>
+                </div>
+                <span class="badge badge-blue">Agendado</span>
+              </div>
+              <div class="ar-reminder-item">
+                <div class="ar-reminder-dot ar-dot-low"></div>
+                <div class="ar-reminder-content">
+                  <div class="ar-reminder-name">Revisar precificação de eletrônicos</div>
+                  <div class="ar-reminder-time">Amanhã · Baixa prioridade</div>
+                </div>
+                <span class="badge badge-green">OK</span>
+              </div>
+            </div>
+            <button class="ar-see-all" onclick="showPanel('lembretes')">Ver todos →</button>
+          </div>
+          <!-- Últimas vendas -->
+          <div class="inner-card">
+            <div class="inner-card-title">💳 Últimas vendas hoje</div>
+            <div class="recent-list">
+              <div class="recent-item">
+                <div class="recent-avatar">AC</div>
+                <div class="recent-info">
+                  <div class="recent-name">Ana Carvalho</div>
+                  <div class="recent-detail">Smartwatch · Carlos · PIX</div>
+                </div>
+                <span class="badge badge-green">Pago</span>
+              </div>
+              <div class="recent-item">
+                <div class="recent-avatar">JF</div>
+                <div class="recent-info">
+                  <div class="recent-name">João Ferreira</div>
+                  <div class="recent-detail">Fone BT + Cabo · Mariana · Cartão</div>
+                </div>
+                <span class="badge badge-green">Pago</span>
+              </div>
+              <div class="recent-item">
+                <div class="recent-avatar">PL</div>
+                <div class="recent-info">
+                  <div class="recent-name">Paula Lima</div>
+                  <div class="recent-detail">Carregador portátil · Carlos</div>
+                </div>
+                <span class="badge badge-yellow">Pendente</span>
+              </div>
+            </div>
+            <button class="ar-see-all" onclick="showPanel('vendas')">Ver todas as vendas →</button>
+          </div>
+        </div>
+        <div class="inner-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div class="inner-card-title" style="margin:0">⭐ Favoritos &amp; Histórico</div>
+            <div style="display:flex;gap:6px">
+              <button class="ar-hist-tab active" id="hbtn-fav" onclick="switchHistory('fav')">Favoritos</button>
+              <button class="ar-hist-tab" id="hbtn-hist" onclick="switchHistory('hist')">Histórico</button>
+            </div>
+          </div>
+          <div id="ar-favs">
+            <div class="ar-fav-grid">
+              <button class="ar-fav-item" onclick="showPanel('dashboard')"><span style="font-size:18px">📊</span><span>Visão Geral</span></button>
+              <button class="ar-fav-item" onclick="showPanel('pdv')"><span style="font-size:18px">🛒</span><span>PDV</span></button>
+              <button class="ar-fav-item" onclick="showPanel('financeiro')"><span style="font-size:18px">💰</span><span>Financeiro</span></button>
+              <button class="ar-fav-item" onclick="showToast('Em breve: personalizar favoritos!')"><span style="font-size:18px">＋</span><span>Adicionar</span></button>
+            </div>
+          </div>
+          <div id="ar-hist" style="display:none">
+            <div class="ar-history-list" id="ar-history-items">
+              <div style="color:var(--muted);font-size:13px;padding:8px 0">Nenhuma aba visitada ainda nesta sessão.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+
+/* ===== MAPA DE PÁGINAS ===== */
+var pageMap = {
+  'inicio':'inicio.html','dashboard':'visao_geral.html','pdv':'pdv.html',
+  'vendas':'vendas.html','clientes':'clientes.html','funcionarios':'funcionarios.html',
+  'produtos':'produtos.html','estoque':'estoque.html','financeiro':'financeiro.html',
+  'lembretes':'lembretes.html','suporte':'suporte.html','configuracoes':'configuracoes.html'
+};
+
+function navigateTo(name) {
+  if (pageMap[name]) {
+    window.location.href = pageMap[name];
+  } else {
+    showToast('Página em desenvolvimento');
+  }
+}
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'login.html';
+}
+
+var showPanel = navigateTo;
+
+/* ===== TOAST ===== */
+function showToast(msg) {
+  var t = document.getElementById('sys-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'sys-toast';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--ink);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:all .3s;opacity:0;transform:translateY(8px)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateY(0)';
+  clearTimeout(t._to);
+  t._to = setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(8px)'; }, 2800);
+}
+
+/* ===== FAVORITOS / HISTÓRICO ===== */
+function switchHistory(tab) {
+  document.getElementById('ar-favs').style.display = tab === 'fav' ? '' : 'none';
+  document.getElementById('ar-hist').style.display = tab === 'hist' ? '' : 'none';
+  document.getElementById('hbtn-fav').classList.toggle('active', tab === 'fav');
+  document.getElementById('hbtn-hist').classList.toggle('active', tab === 'hist');
+}
+
+/* Data atual */
+window.addEventListener('load', function(){
+  var el = document.getElementById('ar-date-today');
+  if (el) {
+    var d = new Date();
+    el.textContent = d.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  }
+});
+
+</script>
+</body>
+</html>
