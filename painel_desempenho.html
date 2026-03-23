@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>SIMPLES HUB – Painel de Desempenho</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<!-- Chart.js para gráficos profissionais -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --green:#1f2937;--green-dark:#111827;--green-mid:#374151;
+  --green-light:#f1f5f9;--green-pale:#f8fafc;--green-line:#e2e8f0;
+  --white:#ffffff;--ink:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --sidebar-width: 260px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--white)}
+::-webkit-scrollbar-thumb{background:var(--green-line);border-radius:3px}
+@keyframes heroIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== SIDEBAR LAYOUT - COM ROLAGEM CORRIGIDA ===== */
+.sys-layout{display:flex;min-height:100vh}
+.sys-sidebar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:var(--sidebar-width);
+  height:100vh;
+  background:var(--ink);
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  z-index:100;
+  overflow-y:auto;
+  overflow-x:hidden;
+}
+/* Scrollbar estilizada para o sidebar */
+.sys-sidebar::-webkit-scrollbar{
+  width:4px;
+}
+.sys-sidebar::-webkit-scrollbar-track{
+  background:rgba(255,255,255,.1);
+  border-radius:4px;
+}
+.sys-sidebar::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,.3);
+  border-radius:4px;
+}
+.sys-sidebar::-webkit-scrollbar-thumb:hover{
+  background:rgba(255,255,255,.5);
+}
+
+.sys-sidebar-brand{
+  padding:24px 20px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  margin-bottom:16px;
+  flex-shrink:0;
+}
+.sys-sidebar-brand-icon{
+  width:40px;
+  height:40px;
+  border-radius:10px;
+  background:var(--green);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  margin-bottom:12px;
+}
+.sys-sidebar-brand-name{
+  font-size:18px;
+  font-weight:800;
+  letter-spacing:.05em;
+}
+.sys-sidebar-brand-sub{
+  font-size:11px;
+  color:rgba(255,255,255,.5);
+  margin-top:4px;
+}
+.sys-sidebar-nav{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  padding:0 12px 20px 12px;
+}
+.sys-sidebar-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 16px;
+  border-radius:10px;
+  cursor:pointer;
+  transition:all .2s;
+  color:rgba(255,255,255,.7);
+  font-size:14px;
+  font-weight:500;
+  text-decoration:none;
+  flex-shrink:0;
+}
+.sys-sidebar-item:hover{
+  background:rgba(255,255,255,.08);
+  color:#fff;
+}
+.sys-sidebar-item.active{
+  background:var(--green);
+  color:#fff;
+}
+.sys-sidebar-item-icon{
+  font-size:18px;
+  width:24px;
+  text-align:center;
+  flex-shrink:0;
+}
+.sys-sidebar-item span:last-child{
+  white-space:nowrap;
+}
+.sys-sidebar-footer{
+  padding:20px;
+  border-top:1px solid rgba(255,255,255,.1);
+  margin-top:auto;
+  flex-shrink:0;
+}
+.sys-sidebar-user{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+}
+.sys-sidebar-avatar{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:var(--green);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  font-weight:800;
+  flex-shrink:0;
+}
+.sys-sidebar-user-info{
+  flex:1;
+  min-width:0;
+}
+.sys-sidebar-user-name{
+  font-size:13px;
+  font-weight:700;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.sys-sidebar-user-role{
+  font-size:10px;
+  color:rgba(255,255,255,.5);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.sys-logout-btn{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.7);
+  cursor:pointer;
+  font-size:12px;
+  font-weight:600;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+.sys-logout-btn:hover{
+  background:rgba(255,100,100,.2);
+  color:#ff7878;
+  border-color:rgba(255,100,100,.3);
+}
+
+/* MAIN CONTENT */
+.sys-main{
+  margin-left:var(--sidebar-width);
+  flex:1;
+  min-width:0;
+}
+.sys-top-header{
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  padding:12px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  z-index:50;
+  flex-wrap:wrap;
+  gap:12px;
+}
+.sys-page-title{
+  font-size:18px;
+  font-weight:700;
+  color:var(--ink);
+}
+.sys-company-info{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.sys-company-pill{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:var(--green-light);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:5px 12px;
+}
+.sys-company-name{
+  font-size:11px;
+  font-weight:700;
+  color:var(--ink);
+}
+.sys-company-badge{
+  font-size:9px;
+  font-weight:700;
+  background:var(--green);
+  color:#fff;
+  border-radius:20px;
+  padding:1px 7px;
+}
+.sys-content{
+  padding:24px 28px;
+  min-height:calc(100vh - 60px);
+}
+
+/* Stats row */
+.stats-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+  margin-bottom:20px;
+}
+.stat-card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:18px 20px;
+  transition:all .2s;
+  position:relative;
+  overflow:hidden;
+}
+.stat-card::before{
+  content:'';
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:3px;
+  background:var(--green-line);
+  transition:background .2s;
+}
+.stat-card:hover::before{
+  background:var(--green);
+}
+.stat-card:hover{
+  box-shadow:0 4px 16px rgba(31,41,55,.08);
+  transform:translateY(-1px);
+}
+.stat-card-label{
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:10px;
+}
+.stat-card-num{
+  font-size:26px;
+  font-weight:800;
+  color:var(--ink);
+  line-height:1;
+  margin-bottom:6px;
+}
+.stat-card-num.green{
+  color:var(--green);
+}
+.stat-card-trend{
+  font-size:11px;
+  font-weight:600;
+}
+.trend-up{color:#1f2937}
+.trend-down{color:#c0392b}
+
+/* Cards */
+.cards-2col{
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:16px;
+  margin-bottom:20px;
+}
+.cards-equal{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin-bottom:20px;
+}
+.inner-card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:18px 20px;
+}
+.inner-card-title{
+  font-size:13px;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:14px;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  padding:3px 10px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:700;
+}
+.badge-green{
+  background:var(--green-light);
+  color:var(--green);
+  border:1px solid var(--green-line);
+}
+.badge-red{
+  background:#fff0f0;
+  color:#c0392b;
+  border:1px solid #ffcccc;
+}
+.badge-yellow{
+  background:#fffde7;
+  color:#856404;
+  border:1px solid #fff176;
+}
+.badge-blue{
+  background:#e3f2fd;
+  color:#1565c0;
+  border:1px solid #bbdefb;
+}
+.badge-gray{
+  background:#f5f5f5;
+  color:#666;
+  border:1px solid #e0e0e0;
+}
+.action-btn{
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:5px 8px;
+  border-radius:6px;
+  font-size:13px;
+  transition:background .15s;
+  color:var(--muted);
+}
+.action-btn:hover{
+  background:var(--green-light);
+  color:var(--green);
+}
+
+/* Recent list */
+.recent-list{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+.recent-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 0;
+  border-bottom:1px solid var(--border);
+}
+.recent-item:last-child{
+  border-bottom:none;
+}
+.recent-avatar{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:var(--green-light);
+  border:1px solid var(--green-line);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:800;
+  color:var(--green);
+  flex-shrink:0;
+}
+.recent-info{
+  flex:1;
+  min-width:0;
+}
+.recent-name{
+  font-size:12px;
+  font-weight:700;
+  color:var(--ink);
+}
+.recent-detail{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:1px;
+}
+.recent-value{
+  font-size:12px;
+  font-weight:700;
+  color:var(--green);
+  flex-shrink:0;
+}
+
+/* Tabela de ranking */
+.ranking-table{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  margin-bottom:16px;
+}
+.table-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+  background:var(--white);
+}
+.table-title{
+  font-size:14px;
+  font-weight:700;
+  color:var(--ink);
+}
+.rank-tbl{
+  width:100%;
+  border-collapse:collapse;
+}
+.rank-tbl th{
+  padding:9px 14px;
+  text-align:left;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+  background:var(--green-pale);
+  border-bottom:1px solid var(--border);
+}
+.rank-tbl td{
+  padding:11px 14px;
+  font-size:13px;
+  color:var(--ink);
+  border-bottom:1px solid var(--border);
+}
+.rank-tbl tr:last-child td{
+  border-bottom:none;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media(max-width: 1024px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .cards-2col{grid-template-columns:1fr}
+  .cards-equal{grid-template-columns:1fr}
+}
+
+@media(max-width: 900px){
+  .sys-sidebar{width:220px}
+  .sys-main{margin-left:220px}
+  .sys-sidebar-item{padding:10px 14px;font-size:13px}
+  .sys-sidebar-item-icon{font-size:16px;width:22px}
+  .sys-sidebar-brand{padding:20px 16px}
+  .sys-sidebar-brand-name{font-size:16px}
+  .sys-sidebar-brand-sub{font-size:10px}
+  .sys-sidebar-user-name{font-size:12px}
+  .sys-sidebar-user-role{font-size:9px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width: 768px){
+  .sys-sidebar{width:200px}
+  .sys-main{margin-left:200px}
+  .sys-sidebar-item span:last-child{font-size:12px}
+  .sys-sidebar-item-icon{font-size:15px;width:20px}
+  .sys-sidebar-brand{padding:16px 12px}
+  .sys-sidebar-brand-name{font-size:14px}
+  .sys-sidebar-brand-sub{font-size:9px}
+  .sys-page-title{font-size:16px}
+  .stat-card-num{font-size:22px}
+}
+
+@media(max-width: 640px){
+  .sys-sidebar{width:180px}
+  .sys-main{margin-left:180px}
+  .sys-sidebar-item{padding:8px 12px;gap:8px}
+  .sys-sidebar-item span:last-child{font-size:11px}
+  .sys-sidebar-item-icon{font-size:14px;width:18px}
+  .sys-sidebar-brand{padding:12px 10px}
+  .sys-sidebar-brand-name{font-size:12px}
+  .sys-sidebar-brand-sub{font-size:8px}
+  .sys-sidebar-user{padding:0 4px}
+  .sys-sidebar-user-name{font-size:10px}
+  .sys-sidebar-user-role{font-size:8px}
+  .sys-logout-btn{font-size:10px;padding:8px}
+  .sys-top-header{flex-direction:column;align-items:flex-start}
+  .sys-content{padding:16px}
+  .stats-row{grid-template-columns:1fr}
+  .stat-card{padding:14px 16px}
+}
+</style>
+</head>
+<body>
+<div class="sys-layout">
+  <!-- SIDEBAR ESQUERDA - COM ROLAGEM CORRIGIDA -->
+  <aside class="sys-sidebar">
+    <div class="sys-sidebar-brand">
+      <div class="sys-sidebar-brand-icon">🛍️</div>
+      <div class="sys-sidebar-brand-name">SIMPLES HUB</div>
+      <div class="sys-sidebar-brand-sub">Sistema de Gestão</div>
+    </div>
+    <nav class="sys-sidebar-nav">
+      <a class="sys-sidebar-item" onclick="navigateTo('dashboard')">
+        <span class="sys-sidebar-item-icon">📊</span>
+        <span>Visão Geral</span>
+      </a>
+      <a class="sys-sidebar-item active" onclick="navigateTo('desempenho')">
+        <span class="sys-sidebar-item-icon">📈</span>
+        <span>Desempenho</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('pdv')">
+        <span class="sys-sidebar-item-icon">🛒</span>
+        <span>PDV</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('vendas')">
+        <span class="sys-sidebar-item-icon">💳</span>
+        <span>Vendas</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('clientes')">
+        <span class="sys-sidebar-item-icon">👥</span>
+        <span>Clientes</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('funcionarios')">
+        <span class="sys-sidebar-item-icon">👤</span>
+        <span>Funcionários</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('produtos')">
+        <span class="sys-sidebar-item-icon">📦</span>
+        <span>Produtos</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('estoque')">
+        <span class="sys-sidebar-item-icon">📋</span>
+        <span>Estoque</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('financeiro')">
+        <span class="sys-sidebar-item-icon">💰</span>
+        <span>Financeiro</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('lembretes')">
+        <span class="sys-sidebar-item-icon">🔔</span>
+        <span>Lembretes</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('suporte')">
+        <span class="sys-sidebar-item-icon">🎧</span>
+        <span>Suporte</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('configuracoes')">
+        <span class="sys-sidebar-item-icon">⚙️</span>
+        <span>Config</span>
+      </a>
+    </nav>
+    <div class="sys-sidebar-footer">
+      <div class="sys-sidebar-user">
+        <div class="sys-sidebar-avatar">A</div>
+        <div class="sys-sidebar-user-info">
+          <div class="sys-sidebar-user-name">Gerente da Loja</div>
+          <div class="sys-sidebar-user-role">Administrador</div>
+        </div>
+      </div>
+      <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL: PAINEL DE DESEMPENHO -->
+  <main class="sys-main">
+    <div class="sys-top-header">
+      <div class="sys-page-title">📈 Painel de Desempenho</div>
+      <div class="sys-company-info">
+        <div class="sys-company-pill">
+          <span class="sys-company-name">Loja Modelo</span>
+          <span class="sys-company-badge">Loja</span>
+        </div>
+      </div>
+    </div>
+    <div class="sys-content">
+      <!-- KPIs principais -->
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-card-label">Faturamento (mês)</div><div class="stat-card-num green" id="kpi-faturamento">R$ 32.480</div><div class="stat-card-trend trend-up">↑ +18% vs mês anterior</div></div>
+        <div class="stat-card"><div class="stat-card-label">Vendas realizadas</div><div class="stat-card-num" id="kpi-vendas">345</div><div class="stat-card-trend trend-up">↑ +42 vendas</div></div>
+        <div class="stat-card"><div class="stat-card-label">Ticket médio</div><div class="stat-card-num" id="kpi-ticket">R$ 94,15</div><div class="stat-card-trend trend-up">↑ +R$ 8,20</div></div>
+        <div class="stat-card"><div class="stat-card-label">Clientes ativos</div><div class="stat-card-num" id="kpi-clientes">218</div><div class="stat-card-trend trend-up">↑ +14 esta semana</div></div>
+      </div>
+
+      <!-- Gráficos -->
+      <div class="cards-2col">
+        <div class="inner-card">
+          <div class="inner-card-title">📊 Evolução de Vendas (últimos 7 dias)</div>
+          <canvas id="vendasSemanaChart" style="max-height:200px; width:100%"></canvas>
+        </div>
+        <div class="inner-card">
+          <div class="inner-card-title">🏆 Produtos mais vendidos (participação)</div>
+          <canvas id="produtosPizzaChart" style="max-height:200px; width:100%"></canvas>
+        </div>
+      </div>
+
+      <!-- Ranking -->
+      <div class="cards-equal">
+        <div class="inner-card">
+          <div class="inner-card-title">⭐ Top Vendedores (mês)</div>
+          <div style="overflow-x:auto">
+            <table class="rank-tbl" style="width:100%">
+              <thead> <th>Vendedor</th><th>Vendas</th><th>Faturamento</th><th>Meta</th> </thead>
+              <tbody id="topVendedoresBody"></tbody>
+             </table>
+          </div>
+        </div>
+        <div class="inner-card">
+          <div class="inner-card-title">🔥 Produtos Destaque (volume)</div>
+          <div style="overflow-x:auto">
+            <table class="rank-tbl" style="width:100%">
+              <thead> <th>Produto</th><th>Unidades</th><th>Receita</th><th>% total</th> </thead>
+              <tbody id="topProdutosBody"></tbody>
+             </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Indicadores operacionais -->
+      <div class="inner-card">
+        <div class="inner-card-title">📋 Indicadores operacionais & saúde da loja</div>
+        <div class="recent-list">
+          <div class="recent-item"><div class="recent-avatar" style="background:#fff0f0;color:#c0392b">⚠️</div><div class="recent-info"><div class="recent-name">Produtos em estoque baixo</div><div class="recent-detail">Fone Bluetooth (Centro) / Cabo USB-C (Shopping)</div></div><div class="recent-value">2 itens</div></div>
+          <div class="recent-item"><div class="recent-avatar" style="background:var(--green-light);color:var(--green)">📊</div><div class="recent-info"><div class="recent-name">Margem média bruta</div><div class="recent-detail">Acima da meta (35%)</div></div><div class="recent-value">38,2%</div></div>
+          <div class="recent-item"><div class="recent-avatar" style="background:var(--green-light);color:var(--green)">🔄</div><div class="recent-info"><div class="recent-name">Taxa de conversão PDV</div><div class="recent-detail">Clientes que finalizaram compra</div></div><div class="recent-value">72% (+5%)</div></div>
+          <div class="recent-item"><div class="recent-avatar" style="background:var(--green-light);color:var(--green)">📉</div><div class="recent-info"><div class="recent-name">Cancelamentos (agendamentos/vendas)</div><div class="recent-detail">Meta < 5%</div></div><div class="recent-value">3,1%</div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// Mapeamento de páginas
+var pageMap = {
+  'dashboard':'visao_geral.html',
+  'desempenho':'painel_desempenho.html',
+  'pdv':'pdv.html',
+  'vendas':'vendas.html',
+  'clientes':'clientes.html',
+  'funcionarios':'funcionarios.html',
+  'produtos':'produtos.html',
+  'estoque':'estoque.html',
+  'financeiro':'financeiro.html',
+  'lembretes':'lembretes.html',
+  'suporte':'suporte.html',
+  'configuracoes':'configuracoes.html'
+};
+
+function navigateTo(name) {
+  if (pageMap[name] && pageMap[name] !== window.location.pathname.split('/').pop()) {
+    window.location.href = pageMap[name];
+  } else if (name === 'desempenho') {
+    if (window.location.pathname.indexOf('painel_desempenho.html') === -1) {
+      window.location.href = 'painel_desempenho.html';
+    }
+  } else {
+    showToast('Página em desenvolvimento');
+  }
+}
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'login.html';
+}
+
+function showToast(msg) {
+  var t = document.getElementById('sys-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'sys-toast';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--ink);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:all .3s;opacity:0;transform:translateY(8px)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateY(0)';
+  clearTimeout(t._to);
+  t._to = setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(8px)'; }, 2800);
+}
+
+// Dados de desempenho
+const desempenhoData = {
+  faturamentoMes: 32480,
+  totalVendas: 345,
+  ticketMedio: 94.15,
+  clientesAtivos: 218,
+  vendasSemana: [24, 32, 28, 41, 58, 62, 18],
+  produtos: [
+    { nome: "Smartwatch", qtd: 132, receita: 26268, percentual: 38 },
+    { nome: "Fone Bluetooth", qtd: 94, receita: 8366, percentual: 27 },
+    { nome: "Carregador Portátil", qtd: 69, receita: 4692, percentual: 20 },
+    { nome: "Cabo USB-C", qtd: 51, receita: 1734, percentual: 15 }
+  ],
+  vendedores: [
+    { nome: "Carlos Vendedor", vendas: 142, faturamento: 15820, meta: 18000 },
+    { nome: "Mariana Oliveira", vendas: 98, faturamento: 10430, meta: 12000 },
+    { nome: "Diego Estoque", vendas: 55, faturamento: 4120, meta: 7000 },
+    { nome: "Renata Caixa", vendas: 50, faturamento: 4110, meta: 6000 }
+  ]
+};
+
+function formatMoney(value) {
+  return 'R$ ' + value.toFixed(2).replace('.', ',');
+}
+
+// Atualizar KPIs
+document.getElementById('kpi-faturamento').innerText = formatMoney(desempenhoData.faturamentoMes);
+document.getElementById('kpi-vendas').innerText = desempenhoData.totalVendas;
+document.getElementById('kpi-ticket').innerText = formatMoney(desempenhoData.ticketMedio);
+document.getElementById('kpi-clientes').innerText = desempenhoData.clientesAtivos;
+
+// Gráfico de linha
+const ctxLinha = document.getElementById('vendasSemanaChart').getContext('2d');
+new Chart(ctxLinha, {
+  type: 'line',
+  data: {
+    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+    datasets: [{
+      label: 'Vendas (unidades)',
+      data: desempenhoData.vendasSemana,
+      borderColor: '#1f2937',
+      backgroundColor: 'rgba(31,41,55,0.05)',
+      borderWidth: 2.5,
+      pointBackgroundColor: '#1f2937',
+      pointBorderColor: '#fff',
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      tension: 0.2,
+      fill: true
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { position: 'top', labels: { font: { size: 10 } } }, tooltip: { callbacks: { label: (ctx) => `${ctx.raw} vendas` } } },
+    scales: { y: { beginAtZero: true, grid: { color: '#e2e8f0' } } }
+  }
+});
+
+// Gráfico de rosca
+const ctxPizza = document.getElementById('produtosPizzaChart').getContext('2d');
+new Chart(ctxPizza, {
+  type: 'doughnut',
+  data: {
+    labels: desempenhoData.produtos.map(p => p.nome),
+    datasets: [{
+      data: desempenhoData.produtos.map(p => p.qtd),
+      backgroundColor: ['#1f2937', '#2c3e50', '#3b5c7a', '#6c8eae'],
+      borderWidth: 0,
+      cutout: '55%'
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } }, tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw} unidades (${desempenhoData.produtos[ctx.dataIndex].percentual}%)` } } }
+  }
+});
+
+// Preencher tabela de top vendedores
+const tbodyVendedores = document.getElementById('topVendedoresBody');
+desempenhoData.vendedores.forEach(v => {
+  const percentualMeta = ((v.faturamento / v.meta) * 100).toFixed(0);
+  const statusMeta = percentualMeta >= 80 ? `✅ ${percentualMeta}%` : `⚠️ ${percentualMeta}%`;
+  const row = `<tr>
+    <td style="font-weight:600">${v.nome}</td>
+    <td>${v.vendas}</td>
+    <td>${formatMoney(v.faturamento)}</td>
+    <td><span class="badge badge-green">${statusMeta}</span></td>
+  </tr>`;
+  tbodyVendedores.insertAdjacentHTML('beforeend', row);
+});
+
+// Preencher tabela de top produtos
+const tbodyProdutos = document.getElementById('topProdutosBody');
+desempenhoData.produtos.forEach(p => {
+  const row = `<tr>
+    <td><strong>${p.nome}</strong></td>
+    <td>${p.qtd} un.</td>
+    <td>${formatMoney(p.receita)}</td>
+    <td><span class="badge badge-green">${p.percentual}%</span></td>
+  </tr>`;
+  tbodyProdutos.insertAdjacentHTML('beforeend', row);
+});
+
+// Garantir que o menu tenha rolagem correta em todas as resoluções
+window.addEventListener('load', function() {
+  const sidebar = document.querySelector('.sys-sidebar');
+  if (sidebar) {
+    // Força que todos os textos fiquem visíveis
+    const allSpans = sidebar.querySelectorAll('.sys-sidebar-item span:last-child');
+    allSpans.forEach(span => {
+      span.style.display = 'inline-block';
+      span.style.whiteSpace = 'nowrap';
+    });
+  }
+});
+
+window.addEventListener('resize', function() {
+  const sidebar = document.querySelector('.sys-sidebar');
+  if (sidebar) {
+    const allSpans = sidebar.querySelectorAll('.sys-sidebar-item span:last-child');
+    allSpans.forEach(span => {
+      span.style.display = 'inline-block';
+      span.style.whiteSpace = 'nowrap';
+    });
+  }
+});
+</script>
+</body>
+</html>

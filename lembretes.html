@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>SIMPLES HUB – Lembretes</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#1f2937;--green-dark:#111827;--green-mid:#374151;
+  --green-light:#f1f5f9;--green-pale:#f8fafc;--green-line:#e2e8f0;
+  --white:#ffffff;--ink:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --sidebar-width: 260px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--white)}
+::-webkit-scrollbar-thumb{background:var(--green-line);border-radius:3px}
+@keyframes heroIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== SIDEBAR LAYOUT - NUNCA RECOLHE, SEMPRE COM TEXTO VISÍVEL ===== */
+.sys-layout{display:flex;min-height:100vh}
+.sys-sidebar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:var(--sidebar-width);
+  height:100vh;
+  background:var(--ink);
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  z-index:100;
+  overflow-y:auto;
+  overflow-x:hidden;
+}
+.sys-sidebar::-webkit-scrollbar{width:4px}
+.sys-sidebar::-webkit-scrollbar-track{background:rgba(255,255,255,.1);border-radius:4px}
+.sys-sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:4px}
+.sys-sidebar-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:16px;flex-shrink:0}
+.sys-sidebar-brand-icon{width:40px;height:40px;border-radius:10px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px}
+.sys-sidebar-brand-name{font-size:18px;font-weight:800;letter-spacing:.05em}
+.sys-sidebar-brand-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:4px}
+.sys-sidebar-nav{flex:1;display:flex;flex-direction:column;gap:4px;padding:0 12px 20px 12px}
+.sys-sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);font-size:14px;font-weight:500;text-decoration:none;flex-shrink:0}
+.sys-sidebar-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.sys-sidebar-item.active{background:var(--green);color:#fff}
+.sys-sidebar-item-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.sys-sidebar-item span:last-child{white-space:nowrap}
+.sys-sidebar-footer{padding:20px;border-top:1px solid rgba(255,255,255,.1);margin-top:auto;flex-shrink:0}
+.sys-sidebar-user{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sys-sidebar-avatar{width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.sys-sidebar-user-info{flex:1;min-width:0}
+.sys-sidebar-user-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sys-sidebar-user-role{font-size:10px;color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sys-logout-btn{width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.sys-logout-btn:hover{background:rgba(255,100,100,.2);color:#ff7878;border-color:rgba(255,100,100,.3)}
+
+/* MAIN CONTENT */
+.sys-main{margin-left:var(--sidebar-width);flex:1;min-width:0}
+.sys-top-header{background:var(--white);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-wrap:wrap;gap:12px}
+.sys-page-title{font-size:18px;font-weight:700;color:var(--ink)}
+.sys-company-info{display:flex;align-items:center;gap:12px}
+.sys-company-pill{display:flex;align-items:center;gap:6px;background:var(--green-light);border:1px solid var(--border);border-radius:20px;padding:5px 12px}
+.sys-company-name{font-size:11px;font-weight:700;color:var(--ink)}
+.sys-company-badge{font-size:9px;font-weight:700;background:var(--green);color:#fff;border-radius:20px;padding:1px 7px}
+.sys-content{padding:24px 28px;min-height:calc(100vh - 60px)}
+
+/* Search bar */
+.search-container{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.search-icon{font-size:18px;color:var(--muted)}
+.search-input{flex:1;min-width:200px;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;outline:none;transition:all .2s;font-family:'Inter',sans-serif}
+.search-input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(31,41,55,.08)}
+.search-clear{background:var(--green-light);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .2s}
+.search-clear:hover{background:var(--green-line);border-color:var(--green);color:var(--green)}
+.search-results-info{font-size:11px;color:var(--muted);margin-left:auto}
+
+/* Tables */
+.table-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:var(--white)}
+.table-title{font-size:14px;font-weight:700;color:var(--ink)}
+.table-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.table-actions{display:flex;gap:8px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:9px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--green-pale);border-bottom:1px solid var(--border)}
+.tbl td{padding:11px 14px;font-size:13px;color:var(--ink);border-bottom:1px solid var(--border)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--green-pale)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-green{background:var(--green-light);color:var(--green);border:1px solid var(--green-line)}
+.badge-yellow{background:#fffde7;color:#856404;border:1px solid #fff176}
+.badge-red{background:#fff0f0;color:#c0392b;border:1px solid #ffcccc}
+.badge-blue{background:#e3f2fd;color:#1565c0;border:1px solid #bbdefb}
+.badge-gray{background:#f5f5f5;color:#666;border:1px solid #e0e0e0}
+.action-btn{background:none;border:none;cursor:pointer;padding:5px 8px;border-radius:6px;font-size:13px;transition:background .15s;color:var(--muted)}
+.action-btn:hover{background:var(--green-light);color:var(--green)}
+
+/* Topbar btn */
+.topbar-btn{padding:9px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif}
+.topbar-btn.primary{background:var(--green);color:#fff}
+.topbar-btn.primary:hover{background:var(--green-dark)}
+.topbar-btn.ghost{background:var(--white);color:var(--muted);border:1.5px solid var(--border)}
+.topbar-btn.ghost:hover{border-color:var(--green);color:var(--green)}
+
+/* Form */
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.06em;text-transform:uppercase}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);outline:none;transition:border-color .2s;font-family:'Inter',sans-serif;background:var(--white)}
+.form-row input:focus,.form-row select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(31,41,55,.08)}
+.form-section-title{font-size:12px;font-weight:700;color:var(--green);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:14px;letter-spacing:.06em;text-transform:uppercase}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:16px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.2)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:15px;font-weight:800;color:var(--ink)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);transition:color .2s;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.modal-close:hover{color:var(--ink);background:var(--green-light)}
+.modal-body{padding:22px}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.modal-btn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif}
+.modal-btn.primary{background:var(--green);color:#fff}
+.modal-btn.primary:hover{background:var(--green-dark)}
+.modal-btn.ghost{background:var(--white);color:var(--muted);border:1.5px solid var(--border)}
+.modal-btn.ghost:hover{border-color:var(--green);color:var(--green)}
+.modal-small{max-width:520px}
+
+/* ===== RESPONSIVIDADE ===== */
+@media(max-width: 1024px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width: 900px){
+  .sys-sidebar{width:220px}
+  .sys-main{margin-left:220px}
+  .sys-sidebar-item{padding:10px 14px;font-size:13px}
+  .sys-sidebar-item-icon{font-size:16px;width:22px}
+  .sys-sidebar-brand{padding:20px 16px}
+  .sys-sidebar-brand-name{font-size:16px}
+  .sys-sidebar-brand-sub{font-size:10px}
+  .sys-sidebar-user-name{font-size:12px}
+  .sys-sidebar-user-role{font-size:9px}
+}
+@media(max-width: 768px){
+  .sys-sidebar{width:200px}
+  .sys-main{margin-left:200px}
+  .sys-sidebar-item span:last-child{font-size:12px}
+  .sys-sidebar-item-icon{font-size:15px;width:20px}
+  .sys-sidebar-brand{padding:16px 12px}
+  .sys-sidebar-brand-name{font-size:14px}
+  .sys-sidebar-brand-sub{font-size:9px}
+  .sys-page-title{font-size:16px}
+  .search-container{flex-wrap:wrap}
+  .search-results-info{margin-left:0;width:100%;text-align:center;margin-top:8px}
+}
+@media(max-width: 640px){
+  .sys-sidebar{width:180px}
+  .sys-main{margin-left:180px}
+  .sys-sidebar-item{padding:8px 12px;gap:8px}
+  .sys-sidebar-item span:last-child{font-size:11px}
+  .sys-sidebar-item-icon{font-size:14px;width:18px}
+  .sys-sidebar-brand{padding:12px 10px}
+  .sys-sidebar-brand-name{font-size:12px}
+  .sys-sidebar-brand-sub{font-size:8px}
+  .sys-sidebar-user{padding:0 4px}
+  .sys-sidebar-user-name{font-size:10px}
+  .sys-sidebar-user-role{font-size:8px}
+  .sys-logout-btn{font-size:10px;padding:8px}
+  .sys-top-header{flex-direction:column;align-items:flex-start}
+  .sys-content{padding:16px}
+}
+</style>
+</head>
+<body>
+<div class="sys-layout">
+  <!-- SIDEBAR ESQUERDA - COM ITEM DESEMPENHO ADICIONADO -->
+  <aside class="sys-sidebar">
+    <div class="sys-sidebar-brand">
+      <div class="sys-sidebar-brand-icon">🛍️</div>
+      <div class="sys-sidebar-brand-name">SIMPLES HUB</div>
+      <div class="sys-sidebar-brand-sub">Sistema de Gestão</div>
+    </div>
+    <nav class="sys-sidebar-nav">
+      <a class="sys-sidebar-item" onclick="navigateTo('dashboard')"><span class="sys-sidebar-item-icon">📊</span><span>Visão Geral</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('desempenho')"><span class="sys-sidebar-item-icon">📈</span><span>Desempenho</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('pdv')"><span class="sys-sidebar-item-icon">🛒</span><span>PDV</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('vendas')"><span class="sys-sidebar-item-icon">💳</span><span>Vendas</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('clientes')"><span class="sys-sidebar-item-icon">👥</span><span>Clientes</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('funcionarios')"><span class="sys-sidebar-item-icon">👤</span><span>Funcionários</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('produtos')"><span class="sys-sidebar-item-icon">📦</span><span>Produtos</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('estoque')"><span class="sys-sidebar-item-icon">📋</span><span>Estoque</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('financeiro')"><span class="sys-sidebar-item-icon">💰</span><span>Financeiro</span></a>
+      <a class="sys-sidebar-item active" onclick="navigateTo('lembretes')"><span class="sys-sidebar-item-icon">🔔</span><span>Lembretes</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('suporte')"><span class="sys-sidebar-item-icon">🎧</span><span>Suporte</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('configuracoes')"><span class="sys-sidebar-item-icon">⚙️</span><span>Config</span></a>
+    </nav>
+    <div class="sys-sidebar-footer">
+      <div class="sys-sidebar-user">
+        <div class="sys-sidebar-avatar">A</div>
+        <div class="sys-sidebar-user-info">
+          <div class="sys-sidebar-user-name">Gerente da Loja</div>
+          <div class="sys-sidebar-user-role">Administrador</div>
+        </div>
+      </div>
+      <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="sys-main">
+    <div class="sys-top-header">
+      <div class="sys-page-title">🔔 Lembretes</div>
+      <div class="sys-company-info">
+        <div class="sys-company-pill">
+          <span class="sys-company-name">Loja Modelo</span>
+          <span class="sys-company-badge">Loja</span>
+        </div>
+      </div>
+    </div>
+    <div class="sys-content">
+      <div class="sys-panel-page" id="panel-lembretes">
+        <!-- CAMPO DE PESQUISA -->
+        <div class="search-container">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar por título, descrição, criado por, data/hora ou prioridade..." autocomplete="off">
+          <button class="search-clear" onclick="clearSearch()">Limpar</button>
+          <div class="search-results-info" id="searchResultsInfo">Mostrando 4 registros</div>
+        </div>
+        
+        <div class="table-wrap">
+          <div class="table-header">
+            <div><div class="table-title">Lembretes internos</div><div class="table-sub">Notificações criadas pelos usuários da empresa</div></div>
+            <div class="table-actions">
+              <button class="topbar-btn primary" onclick="openLembreteModal()">+ Novo lembrete</button>
+            </div>
+          </div>
+          <table class="tbl">
+            <thead> <th>Título</th><th>Descrição</th><th>Data e hora</th><th>Criado por</th><th>Prioridade</th><th>Ações</th> </thead>
+            <tbody id="lembretes-tbody"></tbody>
+            </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL NOVO/EDITAR LEMBRETE -->
+<div id="modal-lembrete" class="modal-overlay">
+  <div class="modal modal-small">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-lembrete-title">➕ Novo Lembrete</div>
+      <button class="modal-close" onclick="closeLembreteModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label>Título *</label><input type="text" id="lembrete-titulo" placeholder="Ex: Reunião com fornecedor"></div>
+      <div class="form-row"><label>Descrição</label><textarea id="lembrete-descricao" rows="3" placeholder="Detalhes sobre o lembrete..."></textarea></div>
+      <div class="form-row"><label>Data e hora *</label><input type="datetime-local" id="lembrete-data"></div>
+      <div class="form-row"><label>Prioridade</label><select id="lembrete-prioridade"><option value="Urgente">🔴 Urgente</option><option value="Pendente">🟡 Pendente</option><option value="Futuro">⚪ Futuro</option></select></div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeLembreteModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="salvarLembrete()">Salvar Lembrete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var pageMap = {
+  'dashboard':'visao_geral.html',
+  'desempenho':'painel_desempenho.html',
+  'pdv':'pdv.html',
+  'vendas':'vendas.html',
+  'clientes':'clientes.html',
+  'funcionarios':'funcionarios.html',
+  'produtos':'produtos.html',
+  'estoque':'estoque.html',
+  'financeiro':'financeiro.html',
+  'lembretes':'lembretes.html',
+  'suporte':'suporte.html',
+  'configuracoes':'configuracoes.html'
+};
+
+function navigateTo(name) {
+  if(pageMap[name]) {
+    const currentFile = window.location.pathname.split('/').pop();
+    if(pageMap[name] === currentFile) {
+      showToast('Você já está nesta página');
+      return;
+    }
+    window.location.href = pageMap[name];
+  } else showToast('Página em desenvolvimento');
+}
+function logout() { sessionStorage.clear(); window.location.href = 'login.html'; }
+function showToast(msg) { var t = document.getElementById('sys-toast'); if(!t){ t=document.createElement('div'); t.id='sys-toast'; t.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--ink);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:all .3s;opacity:0;transform:translateY(8px)'; document.body.appendChild(t); } t.textContent=msg; t.style.opacity='1'; t.style.transform='translateY(0)'; clearTimeout(t._to); t._to=setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(8px)'; },2800); }
+
+let lembretesData = [
+  { id: 1, titulo: "Repor estoque — Fone Bluetooth", descricao: "Quantidade abaixo do mínimo — fazer pedido ao fornecedor.", dataHora: "2026-03-18T08:00", criadoPor: "Gerente", prioridade: "Urgente" },
+  { id: 2, titulo: "Reunião com fornecedor", descricao: "Negociar nova tabela de preços para abril.", dataHora: "2026-03-18T16:00", criadoPor: "Gerente", prioridade: "Pendente" },
+  { id: 3, titulo: "Revisar precificação", descricao: "Ajustar margens dos eletrônicos conforme mercado.", dataHora: "2026-03-20T10:00", criadoPor: "Gerente", prioridade: "Pendente" },
+  { id: 4, titulo: "Renovar contrato de aluguel", descricao: "Contrato vence em abril — negociar reajuste.", dataHora: "2026-04-01T09:00", criadoPor: "Gerente", prioridade: "Futuro" }
+];
+let nextId = 5;
+let currentFilteredData = [...lembretesData];
+
+function formatarDataHora(dataHora) { if(!dataHora) return '-'; return new Date(dataHora).toLocaleString('pt-BR'); }
+function getPriorityClass(p) { switch(p){ case'Urgente':return'badge-red'; case'Pendente':return'badge-yellow'; default:return'badge-gray'; } }
+
+function filterLembretes() {
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+  if(searchTerm === '') {
+    currentFilteredData = [...lembretesData];
+  } else {
+    currentFilteredData = lembretesData.filter(l => {
+      return l.titulo.toLowerCase().includes(searchTerm) ||
+             (l.descricao && l.descricao.toLowerCase().includes(searchTerm)) ||
+             l.criadoPor.toLowerCase().includes(searchTerm) ||
+             formatarDataHora(l.dataHora).toLowerCase().includes(searchTerm) ||
+             l.prioridade.toLowerCase().includes(searchTerm);
+    });
+  }
+  renderTabelaLembretes();
+  document.getElementById('searchResultsInfo').innerHTML = `Mostrando ${currentFilteredData.length} registro(s)`;
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  filterLembretes();
+}
+
+function renderTabelaLembretes() { 
+  let tbody = document.getElementById('lembretes-tbody'); 
+  if(!tbody) return; 
+  if(currentFilteredData.length === 0){ 
+    tbody.innerHTML = '<td colspan="6" style="text-align:center;padding:40px">Nenhum lembrete encontrado</td>'; 
+    return; 
+  } 
+  let html = ''; 
+  currentFilteredData.forEach(l => { 
+    let pc = getPriorityClass(l.prioridade); 
+    html += `<tr>
+      <td><strong>${l.titulo}</strong></td>
+      <td>${l.descricao || '-'}</td>
+      <td>${formatarDataHora(l.dataHora)}</td>
+      <td>${l.criadoPor}</td>
+      <td><span class="badge ${pc}">${l.prioridade}</span></td>
+      <td>
+        <button class="action-btn" onclick="editarLembrete(${l.id})">✏️</button>
+        <button class="action-btn" onclick="excluirLembrete(${l.id})">🗑️</button>
+      </td>
+    </tr>`; 
+  }); 
+  tbody.innerHTML = html; 
+}
+
+let editandoId = null;
+function openLembreteModal() { 
+  editandoId = null; 
+  document.getElementById('modal-lembrete-title').innerHTML = '➕ Novo Lembrete'; 
+  document.getElementById('lembrete-titulo').value = ''; 
+  document.getElementById('lembrete-descricao').value = ''; 
+  let now = new Date(); 
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); 
+  document.getElementById('lembrete-data').value = now.toISOString().slice(0,16); 
+  document.getElementById('lembrete-prioridade').value = 'Pendente'; 
+  document.getElementById('modal-lembrete').classList.add('open'); 
+}
+function editarLembrete(id) { 
+  let l = lembretesData.find(l => l.id === id); 
+  if(!l) return; 
+  editandoId = id; 
+  document.getElementById('modal-lembrete-title').innerHTML = '✏️ Editar Lembrete'; 
+  document.getElementById('lembrete-titulo').value = l.titulo; 
+  document.getElementById('lembrete-descricao').value = l.descricao; 
+  document.getElementById('lembrete-data').value = l.dataHora; 
+  document.getElementById('lembrete-prioridade').value = l.prioridade; 
+  document.getElementById('modal-lembrete').classList.add('open'); 
+}
+function closeLembreteModal() { document.getElementById('modal-lembrete').classList.remove('open'); }
+function excluirLembrete(id) { 
+  if(confirm('Excluir este lembrete?')){ 
+    let idx = lembretesData.findIndex(l => l.id === id); 
+    if(idx !== -1){ 
+      lembretesData.splice(idx, 1); 
+      filterLembretes(); 
+      showToast('✅ Lembrete excluído!'); 
+    } 
+  } 
+}
+function salvarLembrete() { 
+  let titulo = document.getElementById('lembrete-titulo').value.trim(); 
+  let desc = document.getElementById('lembrete-descricao').value.trim(); 
+  let dataHora = document.getElementById('lembrete-data').value; 
+  let prioridade = document.getElementById('lembrete-prioridade').value; 
+  if(!titulo){ showToast('Informe o título.'); return; } 
+  if(!dataHora){ showToast('Informe a data e hora.'); return; } 
+  if(editandoId !== null){ 
+    let idx = lembretesData.findIndex(l => l.id === editandoId); 
+    if(idx !== -1){ 
+      lembretesData[idx] = {...lembretesData[idx], titulo, descricao: desc, dataHora, prioridade}; 
+      showToast(`✅ Lembrete "${titulo}" atualizado!`); 
+    } 
+  } else { 
+    lembretesData.push({id: nextId++, titulo, descricao: desc, dataHora, criadoPor: "Gerente", prioridade}); 
+    showToast(`✅ Lembrete "${titulo}" adicionado!`); 
+  } 
+  filterLembretes(); 
+  closeLembreteModal(); 
+}
+
+document.addEventListener('DOMContentLoaded', function() { 
+  renderTabelaLembretes(); 
+  const searchInput = document.getElementById('searchInput');
+  if(searchInput) searchInput.addEventListener('keyup', filterLembretes);
+  
+  // Garantir que o menu nunca recolha
+  const sidebar = document.querySelector('.sys-sidebar');
+  if(sidebar) {
+    const allSpans = sidebar.querySelectorAll('.sys-sidebar-item span:last-child');
+    allSpans.forEach(span => {
+      span.style.display = 'inline-block';
+      span.style.whiteSpace = 'nowrap';
+    });
+  }
+});
+
+window.addEventListener('resize', function() {
+  const sidebar = document.querySelector('.sys-sidebar');
+  if(sidebar) {
+    const allSpans = sidebar.querySelectorAll('.sys-sidebar-item span:last-child');
+    allSpans.forEach(span => {
+      span.style.display = 'inline-block';
+      span.style.whiteSpace = 'nowrap';
+    });
+  }
+});
+</script>
+</body>
+</html>

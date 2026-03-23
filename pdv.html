@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>SIMPLES HUB – PDV</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#1f2937;--green-dark:#111827;--green-mid:#374151;
+  --green-light:#f1f5f9;--green-pale:#f8fafc;--green-line:#e2e8f0;
+  --white:#ffffff;--ink:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --sidebar-width: 260px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--white)}
+::-webkit-scrollbar-thumb{background:var(--green-line);border-radius:3px}
+@keyframes heroIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== SIDEBAR LAYOUT - NUNCA RECOLHE, SEMPRE COM TEXTO VISÍVEL ===== */
+.sys-layout{display:flex;min-height:100vh}
+.sys-sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--ink);color:#fff;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+.sys-sidebar-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:24px}
+.sys-sidebar-brand-icon{width:40px;height:40px;border-radius:10px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px}
+.sys-sidebar-brand-name{font-size:18px;font-weight:800;letter-spacing:.05em}
+.sys-sidebar-brand-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:4px}
+.sys-sidebar-nav{flex:1;display:flex;flex-direction:column;gap:4px;padding:0 12px}
+.sys-sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);font-size:14px;font-weight:500;text-decoration:none}
+.sys-sidebar-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.sys-sidebar-item.active{background:var(--green);color:#fff}
+.sys-sidebar-item-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.sys-sidebar-item span:last-child{white-space:nowrap}
+.sys-sidebar-footer{padding:20px;border-top:1px solid rgba(255,255,255,.1);margin-top:auto}
+.sys-sidebar-user{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sys-sidebar-avatar{width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.sys-sidebar-user-info{flex:1;min-width:0}
+.sys-sidebar-user-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sys-sidebar-user-role{font-size:10px;color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sys-logout-btn{width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.sys-logout-btn:hover{background:rgba(255,100,100,.2);color:#ff7878;border-color:rgba(255,100,100,.3)}
+
+/* MAIN CONTENT */
+.sys-main{margin-left:var(--sidebar-width);flex:1;min-width:0}
+.sys-top-header{background:var(--white);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-wrap:wrap;gap:12px}
+.sys-page-title{font-size:18px;font-weight:700;color:var(--ink)}
+.sys-company-info{display:flex;align-items:center;gap:12px}
+.sys-company-pill{display:flex;align-items:center;gap:6px;background:var(--green-light);border:1px solid var(--border);border-radius:20px;padding:5px 12px}
+.sys-company-name{font-size:11px;font-weight:700;color:var(--ink)}
+.sys-company-badge{font-size:9px;font-weight:700;background:var(--green);color:#fff;border-radius:20px;padding:1px 7px}
+.sys-content{padding:24px 28px;min-height:calc(100vh - 60px)}
+
+/* PDV LAYOUT */
+.pdv-layout{display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start}
+.pdv-products-area{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px}
+.pdv-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.pdv-header-title{font-size:16px;font-weight:700;color:var(--ink)}
+.filial-selector{display:flex;align-items:center;gap:8px}
+.filial-selector span{font-size:12px;color:var(--muted)}
+.filial-select{ padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:500;background:var(--white);cursor:pointer}
+.category-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin:16px 0 12px}
+.category-title:first-of-type{margin-top:0}
+.products-list{display:flex;flex-direction:column;gap:8px}
+.product-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--green-pale);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s}
+.product-item:hover{border-color:var(--green);background:var(--green-light);transform:translateX(4px)}
+.product-info{flex:1}
+.product-name{font-size:14px;font-weight:600;color:var(--ink)}
+.product-price{font-size:12px;font-weight:700;color:var(--green);margin-top:2px}
+.product-add{background:var(--green);color:#fff;border:none;border-radius:8px;padding:6px 16px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.product-add:hover{background:var(--green-dark)}
+
+/* CART */
+.pdv-cart{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;position:sticky;top:80px}
+.pdv-cart-header{background:var(--green);color:#fff;padding:16px 20px}
+.pdv-cart-title{font-size:15px;font-weight:800}
+.pdv-cart-sub{font-size:11px;color:rgba(255,255,255,.7);margin-top:2px}
+.pdv-cart-items{min-height:200px;max-height:400px;overflow-y:auto;padding:12px}
+.cart-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--green-pale);border-radius:10px;margin-bottom:8px}
+.cart-item-info{flex:1}
+.cart-item-name{font-size:13px;font-weight:600}
+.cart-item-price{font-size:11px;color:var(--green);margin-top:2px}
+.cart-item-qty{display:flex;align-items:center;gap:8px}
+.cart-item-qty span{font-size:13px;font-weight:600;min-width:24px;text-align:center}
+.qty-btn{width:24px;height:24px;border-radius:6px;border:1px solid var(--border);background:var(--white);cursor:pointer;font-size:14px;font-weight:700}
+.qty-btn:hover{background:var(--green-light);border-color:var(--green)}
+.cart-item-remove{background:none;border:none;color:#c0392b;cursor:pointer;font-size:16px;padding:4px 8px;border-radius:6px}
+.cart-item-remove:hover{background:#fff0f0}
+.pdv-cart-footer{padding:16px 20px;border-top:1px solid var(--border)}
+.cart-total{display:flex;justify-content:space-between;margin-bottom:16px;font-size:18px;font-weight:800}
+.payment-select{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;margin-bottom:12px}
+.finalizar-btn{width:100%;padding:14px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s}
+.finalizar-btn:hover{background:var(--green-dark);transform:translateY(-1px)}
+.empty-cart{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
+.warning-message{background:#fff8e7;border-left:4px solid #e67e22;padding:12px 16px;margin-top:16px;border-radius:8px;font-size:12px;color:#b45f1b}
+
+/* ===== RESPONSIVIDADE: MENU NUNCA RECOLHE, APENAS AJUSTA TAMANHO ===== */
+@media(max-width: 1024px){
+  .pdv-layout{grid-template-columns:1fr}
+  .pdv-cart{position:static;margin-top:20px}
+}
+
+@media(max-width: 768px){
+  .sys-sidebar{width:220px}
+  .sys-main{margin-left:220px}
+  .sys-sidebar-item{padding:10px 14px;font-size:13px}
+  .sys-sidebar-item-icon{font-size:16px;width:22px}
+  .sys-sidebar-brand{padding:20px 16px}
+  .sys-sidebar-brand-name{font-size:16px}
+  .sys-sidebar-brand-sub{font-size:10px}
+  .sys-sidebar-user-name{font-size:12px}
+  .sys-sidebar-user-role{font-size:9px}
+  .sys-top-header{padding:12px 20px}
+  .sys-content{padding:20px}
+}
+
+@media(max-width: 640px){
+  .sys-sidebar{width:200px}
+  .sys-main{margin-left:200px}
+  .sys-sidebar-item span:last-child{font-size:12px}
+  .sys-sidebar-item-icon{font-size:15px;width:20px}
+  .sys-sidebar-brand{padding:16px 12px}
+  .sys-sidebar-brand-name{font-size:14px}
+  .sys-sidebar-brand-sub{font-size:9px}
+  .sys-page-title{font-size:16px}
+  .pdv-header-title{font-size:14px}
+  .filial-select{padding:6px 10px;font-size:12px}
+}
+
+@media(max-width: 480px){
+  .sys-sidebar{width:180px}
+  .sys-main{margin-left:180px}
+  .sys-sidebar-item{padding:8px 12px;gap:8px}
+  .sys-sidebar-item span:last-child{font-size:11px}
+  .sys-sidebar-item-icon{font-size:14px;width:18px}
+  .sys-sidebar-brand{padding:12px 10px}
+  .sys-sidebar-brand-name{font-size:12px}
+  .sys-sidebar-brand-sub{font-size:8px}
+  .sys-sidebar-user{padding:0 4px}
+  .sys-sidebar-user-name{font-size:10px}
+  .sys-sidebar-user-role{font-size:8px}
+  .sys-logout-btn{font-size:10px;padding:8px}
+  .sys-top-header{flex-direction:column;align-items:flex-start}
+  .sys-content{padding:16px}
+  .product-item{padding:10px 12px}
+  .product-name{font-size:13px}
+  .product-add{padding:4px 12px;font-size:11px}
+}
+
+/* Scroll suave para sidebar */
+.sys-sidebar-nav::-webkit-scrollbar{width:3px}
+.sys-sidebar-nav::-webkit-scrollbar-track{background:rgba(255,255,255,.1)}
+.sys-sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:3px}
+.sys-sidebar{overflow-y:auto}
+</style>
+</head>
+<body>
+<div class="sys-layout">
+  <!-- SIDEBAR ESQUERDA - NUNCA RECOLHE, SEMPRE COM TEXTO VISÍVEL -->
+  <aside class="sys-sidebar">
+    <div class="sys-sidebar-brand">
+      <div class="sys-sidebar-brand-icon">🛍️</div>
+      <div class="sys-sidebar-brand-name">SIMPLES HUB</div>
+      <div class="sys-sidebar-brand-sub">Sistema de Gestão</div>
+    </div>
+    <nav class="sys-sidebar-nav">
+      <!-- Visão Geral -->
+      <a class="sys-sidebar-item" onclick="navigateTo('dashboard')">
+        <span class="sys-sidebar-item-icon">📊</span>
+        <span>Visão Geral</span>
+      </a>
+      <!-- Desempenho - NOVO ITEM ADICIONADO -->
+      <a class="sys-sidebar-item" onclick="navigateTo('desempenho')">
+        <span class="sys-sidebar-item-icon">📈</span>
+        <span>Desempenho</span>
+      </a>
+      <!-- PDV (ativo nesta página) -->
+      <a class="sys-sidebar-item active" onclick="navigateTo('pdv')">
+        <span class="sys-sidebar-item-icon">🛒</span>
+        <span>PDV</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('vendas')">
+        <span class="sys-sidebar-item-icon">💳</span>
+        <span>Vendas</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('clientes')">
+        <span class="sys-sidebar-item-icon">👥</span>
+        <span>Clientes</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('funcionarios')">
+        <span class="sys-sidebar-item-icon">👤</span>
+        <span>Funcionários</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('produtos')">
+        <span class="sys-sidebar-item-icon">📦</span>
+        <span>Produtos</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('estoque')">
+        <span class="sys-sidebar-item-icon">📋</span>
+        <span>Estoque</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('financeiro')">
+        <span class="sys-sidebar-item-icon">💰</span>
+        <span>Financeiro</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('lembretes')">
+        <span class="sys-sidebar-item-icon">🔔</span>
+        <span>Lembretes</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('suporte')">
+        <span class="sys-sidebar-item-icon">🎧</span>
+        <span>Suporte</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('configuracoes')">
+        <span class="sys-sidebar-item-icon">⚙️</span>
+        <span>Config</span>
+      </a>
+    </nav>
+    <div class="sys-sidebar-footer">
+      <div class="sys-sidebar-user">
+        <div class="sys-sidebar-avatar">A</div>
+        <div class="sys-sidebar-user-info">
+          <div class="sys-sidebar-user-name">Gerente da Loja</div>
+          <div class="sys-sidebar-user-role">Administrador</div>
+        </div>
+      </div>
+      <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="sys-main">
+    <div class="sys-top-header">
+      <div class="sys-page-title">🛒 Ponto de Venda</div>
+      <div class="sys-company-info">
+        <div class="sys-company-pill">
+          <span class="sys-company-name">Loja Modelo</span>
+          <span class="sys-company-badge">Matriz</span>
+        </div>
+      </div>
+    </div>
+    <div class="sys-content">
+      <div class="pdv-layout">
+        <!-- Área de produtos -->
+        <div class="pdv-products-area">
+          <div class="pdv-header">
+            <div class="pdv-header-title">Selecione os produtos</div>
+            <div class="filial-selector">
+              <span>Filial atual:</span>
+              <select id="filial-atual-select" class="filial-select">
+                <option value="Centro">Centro (Matriz)</option>
+                <option value="Shopping">Shopping (Filial)</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="category-title">Eletrônicos</div>
+          <div class="products-list">
+            <div class="product-item" onclick="tryAddToCart('Smartwatch','R$ 199,00',199)">
+              <div class="product-info">
+                <div class="product-name">Smartwatch</div>
+                <div class="product-price">R$ 199,00</div>
+              </div>
+              <button class="product-add">+</button>
+            </div>
+            <div class="product-item" onclick="tryAddToCart('Fone Bluetooth','R$ 89,00',89)">
+              <div class="product-info">
+                <div class="product-name">Fone Bluetooth</div>
+                <div class="product-price">R$ 89,00</div>
+              </div>
+              <button class="product-add">+</button>
+            </div>
+            <div class="product-item" onclick="tryAddToCart('Carregador Portátil','R$ 68,00',68)">
+              <div class="product-info">
+                <div class="product-name">Carregador Portátil</div>
+                <div class="product-price">R$ 68,00</div>
+              </div>
+              <button class="product-add">+</button>
+            </div>
+            <div class="product-item" onclick="tryAddToCart('Mouse Sem Fio','R$ 79,00',79)">
+              <div class="product-info">
+                <div class="product-name">Mouse Sem Fio</div>
+                <div class="product-price">R$ 79,00</div>
+              </div>
+              <button class="product-add">+</button>
+            </div>
+            <div class="product-item" onclick="tryAddToCart('Teclado Bluetooth','R$ 149,00',149)">
+              <div class="product-info">
+                <div class="product-name">Teclado Bluetooth</div>
+                <div class="product-price">R$ 149,00</div>
+              </div>
+              <button class="product-add">+</button>
+            </div>
+          </div>
+
+          <div class="category-title">Acessórios</div>
+          <div class="products-list">
+            <div class="product-item" onclick="tryAddToCart('Cabo USB-C','R$ 34,00',34)">
+              <div class="product-info">
+                <div class="product-name">Cabo USB-C</div>
+                <div class="product-price">R$ 34,00</div>
+              </div>
+              <button class="product-add">+</button>
+            </div>
+            <div class="product-item" onclick="tryAddToCart('Suporte Celular','R$ 28,00',28)">
+              <div class="product-info">
+                <div class="product-name">Suporte Celular</div>
+                <div class="product-price">R$ 28,00</div>
+              </div>
+              <button class="product-add">+</button>
+            </div>
+            <div class="product-item" onclick="tryAddToCart('Película Protetora','R$ 19,00',19)">
+              <div class="product-info">
+                <div class="product-name">Película Protetora</div>
+                <div class="product-price">R$ 19,00</div>
+              </div>
+              <button class="product-add">+</button>
+            </div>
+            <div class="product-item" onclick="tryAddToCart('Capa para Celular','R$ 39,00',39)">
+              <div class="product-info">
+                <div class="product-name">Capa Celular</div>
+                <div class="product-price">R$ 39,00</div>
+              </div>
+              <button class="product-add">+</button>
+            </div>
+          </div>
+          <div id="pdv-multiloja-message" class="warning-message" style="display:none"></div>
+        </div>
+
+        <!-- Carrinho -->
+        <div class="pdv-cart">
+          <div class="pdv-cart-header">
+            <div class="pdv-cart-title">🛒 Carrinho</div>
+            <div class="pdv-cart-sub" id="pdv-cart-count">0 item(s)</div>
+          </div>
+          <div class="pdv-cart-items" id="pdv-cart-items">
+            <div class="empty-cart">Nenhum item adicionado</div>
+          </div>
+          <div class="pdv-cart-footer">
+            <div class="cart-total">
+              <span>Total</span>
+              <span id="pdv-total">R$ 0,00</span>
+            </div>
+            <select class="payment-select" id="pdv-payment">
+              <option value="">Forma de pagamento...</option>
+              <option>PIX</option>
+              <option>Cartão de Crédito</option>
+              <option>Cartão de Débito</option>
+              <option>Dinheiro</option>
+            </select>
+            <button class="finalizar-btn" onclick="finalizarVenda()">✓ Finalizar Venda</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ===== MAPA DE PÁGINAS COM ROTA PARA DESEMPENHO ===== */
+var pageMap = {
+  'dashboard':'visao_geral.html',
+  'desempenho':'painel_desempenho.html',
+  'pdv':'pdv.html',
+  'vendas':'vendas.html',
+  'clientes':'clientes.html',
+  'funcionarios':'funcionarios.html',
+  'produtos':'produtos.html',
+  'estoque':'estoque.html',
+  'financeiro':'financeiro.html',
+  'lembretes':'lembretes.html',
+  'suporte':'suporte.html',
+  'configuracoes':'configuracoes.html'
+};
+
+function navigateTo(name) {
+  if (pageMap[name]) {
+    const currentFile = window.location.pathname.split('/').pop();
+    if (pageMap[name] === currentFile) {
+      showToast('Você já está nesta página');
+      return;
+    }
+    window.location.href = pageMap[name];
+  } else {
+    showToast('Página em desenvolvimento');
+  }
+}
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'login.html';
+}
+
+function showToast(msg) {
+  var t = document.getElementById('sys-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'sys-toast';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--ink);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:all .3s;opacity:0;transform:translateY(8px)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateY(0)';
+  clearTimeout(t._to);
+  t._to = setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(8px)'; }, 2800);
+}
+
+/* ===== ESTRUTURA DE DADOS MULTILOJA ===== */
+const estoquePorFilial = {
+  "Smartwatch": { "Centro": 24, "Shopping": 12 },
+  "Fone Bluetooth": { "Centro": 4, "Shopping": 9 },
+  "Carregador Portátil": { "Centro": 32, "Shopping": 18 },
+  "Cabo USB-C": { "Centro": 22, "Shopping": 11 },
+  "Mouse Sem Fio": { "Centro": 18, "Shopping": 15 },
+  "Teclado Bluetooth": { "Centro": 9, "Shopping": 5 },
+  "Suporte Celular": { "Centro": 14, "Shopping": 22 },
+  "Película Protetora": { "Centro": 42, "Shopping": 60 },
+  "Capa para Celular": { "Centro": 18, "Shopping": 27 }
+};
+
+function getEstoqueAtual(produtoNome, filial) {
+  return estoquePorFilial[produtoNome]?.[filial] || 0;
+}
+
+function getEstoqueOutrasFiliais(produtoNome, filialAtual) {
+  const filiais = ["Centro", "Shopping"];
+  const outras = filiais.filter(f => f !== filialAtual);
+  const resultado = [];
+  for (let filial of outras) {
+    const qtd = estoquePorFilial[produtoNome]?.[filial] || 0;
+    if (qtd > 0) resultado.push({ filial, quantidade: qtd });
+  }
+  return resultado;
+}
+
+function verificarDisponibilidadeMultiloja(produtoNome, filialAtual) {
+  const qtdAtual = getEstoqueAtual(produtoNome, filialAtual);
+  if (qtdAtual > 0) return { disponivel: true, mensagem: null, outrasFiliais: [] };
+  const outrasFiliais = getEstoqueOutrasFiliais(produtoNome, filialAtual);
+  if (outrasFiliais.length > 0) {
+    let sugestoes = outrasFiliais.map(f => `${f.filial} (${f.quantidade} unidades)`).join(" ou ");
+    return { disponivel: false, mensagem: `⚠️ Produto sem estoque na ${filialAtual}. Disponível em: ${sugestoes}.`, outrasFiliais };
+  }
+  return { disponivel: false, mensagem: `❌ Produto sem estoque em todas as filiais.`, outrasFiliais: [] };
+}
+
+/* ===== PDV ===== */
+var cart = [];
+
+function tryAddToCart(name, price, value) {
+  const filialAtual = document.getElementById('filial-atual-select').value;
+  const qtdAtual = getEstoqueAtual(name, filialAtual);
+  
+  if (qtdAtual <= 0) {
+    const verificacao = verificarDisponibilidadeMultiloja(name, filialAtual);
+    const msgDiv = document.getElementById('pdv-multiloja-message');
+    if (verificacao.mensagem) {
+      msgDiv.style.display = 'block';
+      msgDiv.innerHTML = verificacao.mensagem;
+      setTimeout(() => { msgDiv.style.display = 'none'; }, 5000);
+    }
+    if (verificacao.outrasFiliais.length > 0) {
+      showToast(`❌ Produto sem estoque na ${filialAtual}. Disponível em: ${verificacao.outrasFiliais.map(f => f.filial).join(", ")}`);
+    } else {
+      showToast(`❌ Produto sem estoque em todas as filiais.`);
+    }
+    return;
+  }
+  addToCart(name, price, value);
+}
+
+function addToCart(name, price, value) {
+  var existing = cart.find(i => i.name === name);
+  if (existing) { existing.qty++; existing.total = existing.qty * value; }
+  else { cart.push({ name, price, value, qty: 1, total: value }); }
+  renderCart();
+  showToast(name + ' adicionado ao carrinho!');
+}
+
+function updateQuantity(idx, delta) {
+  const item = cart[idx];
+  const novaQtd = item.qty + delta;
+  if (novaQtd <= 0) {
+    cart.splice(idx, 1);
+  } else {
+    item.qty = novaQtd;
+    item.total = item.qty * item.value;
+  }
+  renderCart();
+}
+
+function removeFromCart(idx) { cart.splice(idx, 1); renderCart(); }
+
+function renderCart() {
+  var el = document.getElementById('pdv-cart-items');
+  var countEl = document.getElementById('pdv-cart-count');
+  var totalEl = document.getElementById('pdv-total');
+  if (!el) return;
+  var total = cart.reduce((s, i) => s + i.total, 0);
+  countEl.textContent = cart.length + ' item(s)';
+  totalEl.textContent = 'R$ ' + total.toFixed(2).replace('.',',');
+  if (cart.length === 0) { el.innerHTML = '<div class="empty-cart">Nenhum item adicionado</div>'; return; }
+  el.innerHTML = cart.map((item, idx) => `
+    <div class="cart-item">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">R$ ${item.value.toFixed(2).replace('.',',')}</div>
+      </div>
+      <div class="cart-item-qty">
+        <button class="qty-btn" onclick="updateQuantity(${idx}, -1)">-</button>
+        <span>${item.qty}</span>
+        <button class="qty-btn" onclick="updateQuantity(${idx}, 1)">+</button>
+        <button class="cart-item-remove" onclick="removeFromCart(${idx})">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function finalizarVenda() {
+  var pay = document.getElementById('pdv-payment').value;
+  if (cart.length === 0) { showToast('Adicione itens ao carrinho!'); return; }
+  if (!pay) { showToast('Selecione a forma de pagamento!'); return; }
+  var total = cart.reduce((s, i) => s + i.total, 0);
+  const filialAtual = document.getElementById('filial-atual-select').value;
+  for (let item of cart) {
+    if (estoquePorFilial[item.name] && estoquePorFilial[item.name][filialAtual] !== undefined) {
+      estoquePorFilial[item.name][filialAtual] -= item.qty;
+    }
+  }
+  cart = []; renderCart();
+  document.getElementById('pdv-payment').value = '';
+  showToast('✓ Venda finalizada! Total: R$ ' + total.toFixed(2).replace('.',',') + ' · ' + pay + ' · Filial: ' + filialAtual);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const selectFilial = document.getElementById('filial-atual-select');
+  if (selectFilial) {
+    selectFilial.addEventListener('change', function() {
+      showToast(`Filial alterada para: ${this.value}`);
+    });
+  }
+  
+  // Garantir que o menu nunca recolha - manter texto visível em todas as resoluções
+  const sidebar = document.querySelector('.sys-sidebar');
+  if (sidebar) {
+    const allSpans = sidebar.querySelectorAll('.sys-sidebar-item span:last-child');
+    allSpans.forEach(span => {
+      span.style.display = 'inline-block';
+      span.style.whiteSpace = 'nowrap';
+    });
+  }
+});
+</script>
+</body>
+</html>

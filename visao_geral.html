@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>SIMPLES HUB – Visão Geral</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#1f2937;--green-dark:#111827;--green-mid:#374151;
+  --green-light:#f1f5f9;--green-pale:#f8fafc;--green-line:#e2e8f0;
+  --white:#ffffff;--ink:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --sidebar-width: 260px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--white)}
+::-webkit-scrollbar-thumb{background:var(--green-line);border-radius:3px}
+@keyframes heroIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== SIDEBAR LAYOUT - NUNCA RECOLHE, SEMPRE COM TEXTO VISÍVEL ===== */
+.sys-layout{display:flex;min-height:100vh}
+.sys-sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--ink);color:#fff;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+.sys-sidebar-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:24px}
+.sys-sidebar-brand-icon{width:40px;height:40px;border-radius:10px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px}
+.sys-sidebar-brand-name{font-size:18px;font-weight:800;letter-spacing:.05em}
+.sys-sidebar-brand-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:4px}
+.sys-sidebar-nav{flex:1;display:flex;flex-direction:column;gap:4px;padding:0 12px}
+.sys-sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);font-size:14px;font-weight:500;text-decoration:none}
+.sys-sidebar-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.sys-sidebar-item.active{background:var(--green);color:#fff}
+.sys-sidebar-item-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.sys-sidebar-item span:last-child{white-space:nowrap}
+.sys-sidebar-footer{padding:20px;border-top:1px solid rgba(255,255,255,.1);margin-top:auto}
+.sys-sidebar-user{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sys-sidebar-avatar{width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.sys-sidebar-user-info{flex:1;min-width:0}
+.sys-sidebar-user-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sys-sidebar-user-role{font-size:10px;color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sys-logout-btn{width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.sys-logout-btn:hover{background:rgba(255,100,100,.2);color:#ff7878;border-color:rgba(255,100,100,.3)}
+
+/* MAIN CONTENT */
+.sys-main{margin-left:var(--sidebar-width);flex:1;min-width:0}
+.sys-top-header{background:var(--white);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-wrap:wrap;gap:12px}
+.sys-page-title{font-size:18px;font-weight:700;color:var(--ink)}
+.sys-company-info{display:flex;align-items:center;gap:12px}
+.sys-company-pill{display:flex;align-items:center;gap:6px;background:var(--green-light);border:1px solid var(--border);border-radius:20px;padding:5px 12px}
+.sys-company-name{font-size:11px;font-weight:700;color:var(--ink)}
+.sys-company-badge{font-size:9px;font-weight:700;background:var(--green);color:#fff;border-radius:20px;padding:1px 7px}
+.sys-content{padding:24px 28px;min-height:calc(100vh - 60px)}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 20px;transition:all .2s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--green-line);transition:background .2s}
+.stat-card:hover::before{background:var(--green)}
+.stat-card:hover{box-shadow:0 4px 16px rgba(31,41,55,.08);transform:translateY(-1px)}
+.stat-card-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.stat-card-num{font-size:26px;font-weight:800;color:var(--ink);line-height:1;margin-bottom:6px}
+.stat-card-num.green{color:var(--green)}
+.stat-card-trend{font-size:11px;font-weight:600}
+.trend-up{color:#1f2937}.trend-down{color:#c0392b}
+
+/* Cards */
+.cards-2col{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px}
+.cards-equal{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.inner-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.inner-card-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:14px}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-green{background:var(--green-light);color:var(--green);border:1px solid var(--green-line)}
+.badge-red{background:#fff0f0;color:#c0392b;border:1px solid #ffcccc}
+.badge-yellow{background:#fffde7;color:#856404;border:1px solid #fff176}
+.badge-blue{background:#e3f2fd;color:#1565c0;border:1px solid #bbdefb}
+.badge-gray{background:#f5f5f5;color:#666;border:1px solid #e0e0e0}
+.action-btn{background:none;border:none;cursor:pointer;padding:5px 8px;border-radius:6px;font-size:13px;transition:background .15s;color:var(--muted)}
+.action-btn:hover{background:var(--green-light);color:var(--green)}
+
+/* Bar chart */
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:110px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{background:var(--green-line);border-radius:4px 4px 0 0;width:100%;transition:all .3s;cursor:pointer}
+.bar:hover{background:var(--green)}
+.bar-label{font-size:9px;color:var(--muted);font-weight:600}
+
+/* Pie legend */
+.pie-legend{display:flex;flex-direction:column;gap:9px}
+.pie-item{display:flex;align-items:center;gap:8px;font-size:12px}
+.pie-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.pie-name{flex:1;color:var(--ink);font-weight:600}
+.pie-pct{color:var(--muted);font-weight:700;font-size:11px}
+.pie-bar-wrap{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.pie-bar-fill{height:100%;border-radius:3px;background:var(--green)}
+
+/* Recent list */
+.recent-list{display:flex;flex-direction:column;gap:0}
+.recent-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.recent-item:last-child{border-bottom:none}
+.recent-avatar{width:34px;height:34px;border-radius:50%;background:var(--green-light);border:1px solid var(--green-line);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--green);flex-shrink:0}
+.recent-info{flex:1;min-width:0}
+.recent-name{font-size:12px;font-weight:700;color:var(--ink)}
+.recent-detail{font-size:11px;color:var(--muted);margin-top:1px}
+.recent-value{font-size:12px;font-weight:700;color:var(--green);flex-shrink:0}
+
+/* ===== RESPONSIVIDADE: MENU NUNCA RECOLHE, APENAS AJUSTA TAMANHO ===== */
+@media(max-width: 1024px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .cards-2col{grid-template-columns:1fr}
+  .cards-equal{grid-template-columns:1fr}
+}
+
+@media(max-width: 768px){
+  .sys-sidebar{width:220px}
+  .sys-main{margin-left:220px}
+  .sys-sidebar-item{padding:10px 14px;font-size:13px}
+  .sys-sidebar-item-icon{font-size:16px;width:22px}
+  .sys-sidebar-brand{padding:20px 16px}
+  .sys-sidebar-brand-name{font-size:16px}
+  .sys-sidebar-brand-sub{font-size:10px}
+  .sys-sidebar-user-name{font-size:12px}
+  .sys-sidebar-user-role{font-size:9px}
+  .sys-top-header{padding:12px 20px}
+  .sys-content{padding:20px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width: 640px){
+  .sys-sidebar{width:200px}
+  .sys-main{margin-left:200px}
+  .sys-sidebar-item span:last-child{font-size:12px}
+  .sys-sidebar-item-icon{font-size:15px;width:20px}
+  .sys-sidebar-brand{padding:16px 12px}
+  .sys-sidebar-brand-name{font-size:14px}
+  .sys-sidebar-brand-sub{font-size:9px}
+  .stats-row{grid-template-columns:1fr}
+  .cards-2col{grid-template-columns:1fr}
+  .cards-equal{grid-template-columns:1fr}
+  .sys-page-title{font-size:16px}
+  .stat-card-num{font-size:22px}
+}
+
+@media(max-width: 480px){
+  .sys-sidebar{width:180px}
+  .sys-main{margin-left:180px}
+  .sys-sidebar-item{padding:8px 12px;gap:8px}
+  .sys-sidebar-item span:last-child{font-size:11px}
+  .sys-sidebar-item-icon{font-size:14px;width:18px}
+  .sys-sidebar-brand{padding:12px 10px}
+  .sys-sidebar-brand-name{font-size:12px}
+  .sys-sidebar-brand-sub{font-size:8px}
+  .sys-sidebar-user{padding:0 4px}
+  .sys-sidebar-user-name{font-size:10px}
+  .sys-sidebar-user-role{font-size:8px}
+  .sys-logout-btn{font-size:10px;padding:8px}
+  .sys-top-header{flex-direction:column;align-items:flex-start}
+  .sys-content{padding:16px}
+  .stat-card{padding:14px 16px}
+}
+
+/* Scroll suave para sidebar */
+.sys-sidebar-nav::-webkit-scrollbar{width:3px}
+.sys-sidebar-nav::-webkit-scrollbar-track{background:rgba(255,255,255,.1)}
+.sys-sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:3px}
+.sys-sidebar{overflow-y:auto}
+</style>
+</head>
+<body>
+<div class="sys-layout">
+  <!-- SIDEBAR ESQUERDA - NUNCA RECOLHE, SEMPRE COM TEXTO VISÍVEL -->
+  <aside class="sys-sidebar">
+    <div class="sys-sidebar-brand">
+      <div class="sys-sidebar-brand-icon">🛍️</div>
+      <div class="sys-sidebar-brand-name">SIMPLES HUB</div>
+      <div class="sys-sidebar-brand-sub">Sistema de Gestão</div>
+    </div>
+    <nav class="sys-sidebar-nav">
+      <!-- Visão Geral (ativa nesta página) -->
+      <a class="sys-sidebar-item active" onclick="navigateTo('dashboard')">
+        <span class="sys-sidebar-item-icon">📊</span>
+        <span>Visão Geral</span>
+      </a>
+      <!-- Desempenho - item adicionado abaixo de Visão Geral -->
+      <a class="sys-sidebar-item" onclick="navigateTo('desempenho')">
+        <span class="sys-sidebar-item-icon">📈</span>
+        <span>Desempenho</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('pdv')">
+        <span class="sys-sidebar-item-icon">🛒</span>
+        <span>PDV</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('vendas')">
+        <span class="sys-sidebar-item-icon">💳</span>
+        <span>Vendas</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('clientes')">
+        <span class="sys-sidebar-item-icon">👥</span>
+        <span>Clientes</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('funcionarios')">
+        <span class="sys-sidebar-item-icon">👤</span>
+        <span>Funcionários</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('produtos')">
+        <span class="sys-sidebar-item-icon">📦</span>
+        <span>Produtos</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('estoque')">
+        <span class="sys-sidebar-item-icon">📋</span>
+        <span>Estoque</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('financeiro')">
+        <span class="sys-sidebar-item-icon">💰</span>
+        <span>Financeiro</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('lembretes')">
+        <span class="sys-sidebar-item-icon">🔔</span>
+        <span>Lembretes</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('suporte')">
+        <span class="sys-sidebar-item-icon">🎧</span>
+        <span>Suporte</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('configuracoes')">
+        <span class="sys-sidebar-item-icon">⚙️</span>
+        <span>Config</span>
+      </a>
+    </nav>
+    <div class="sys-sidebar-footer">
+      <div class="sys-sidebar-user">
+        <div class="sys-sidebar-avatar">A</div>
+        <div class="sys-sidebar-user-info">
+          <div class="sys-sidebar-user-name">Gerente da Loja</div>
+          <div class="sys-sidebar-user-role">Administrador</div>
+        </div>
+      </div>
+      <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="sys-main">
+    <div class="sys-top-header">
+      <div class="sys-page-title">📊 Visão Geral</div>
+      <div class="sys-company-info">
+        <div class="sys-company-pill">
+          <span class="sys-company-name">Loja Modelo</span>
+          <span class="sys-company-badge">Loja</span>
+        </div>
+      </div>
+    </div>
+    <div class="sys-content">
+      <div class="sys-panel-page" id="panel-dashboard">
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-card-label">Vendas hoje</div><div class="stat-card-num green">24</div><div class="stat-card-trend trend-up">↑ +6 vs ontem</div></div>
+          <div class="stat-card"><div class="stat-card-label">Clientes cadastrados</div><div class="stat-card-num">412</div><div class="stat-card-trend trend-up">↑ +14 esta semana</div></div>
+          <div class="stat-card"><div class="stat-card-label">Receita do mês</div><div class="stat-card-num green">R$ 32.480</div><div class="stat-card-trend trend-up">↑ 18% vs mês anterior</div></div>
+          <div class="stat-card"><div class="stat-card-label">Ticket médio</div><div class="stat-card-num">R$ 94</div><div class="stat-card-trend trend-up">↑ R$ 8 vs mês anterior</div></div>
+        </div>
+        <div class="cards-2col">
+          <div class="inner-card">
+            <div class="inner-card-title">📈 Vendas por dia — Março 2026</div>
+            <div class="bar-chart">
+              <div class="bar-col"><div class="bar" style="height:55%"></div><div class="bar-label">Seg</div></div>
+              <div class="bar-col"><div class="bar" style="height:78%"></div><div class="bar-label">Ter</div></div>
+              <div class="bar-col"><div class="bar" style="height:42%"></div><div class="bar-label">Qua</div></div>
+              <div class="bar-col"><div class="bar" style="height:88%"></div><div class="bar-label">Qui</div></div>
+              <div class="bar-col"><div class="bar" style="height:100%;background:var(--green)"></div><div class="bar-label">Sex</div></div>
+              <div class="bar-col"><div class="bar" style="height:92%"></div><div class="bar-label">Sáb</div></div>
+              <div class="bar-col"><div class="bar" style="height:18%;background:#eee"></div><div class="bar-label">Dom</div></div>
+            </div>
+          </div>
+          <div class="inner-card">
+            <div class="inner-card-title">🏆 Produtos mais vendidos</div>
+            <div class="pie-legend">
+              <div class="pie-item"><div class="pie-dot" style="background:var(--green)"></div><div class="pie-name">Smartwatch</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:38%"></div></div><div class="pie-pct">38%</div></div>
+              <div class="pie-item"><div class="pie-dot" style="background:#6bcf7f"></div><div class="pie-name">Fone Bluetooth</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:27%;background:#6bcf7f"></div></div><div class="pie-pct">27%</div></div>
+              <div class="pie-item"><div class="pie-dot" style="background:#a8e6b3"></div><div class="pie-name">Carregador Portátil</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:20%;background:#a8e6b3"></div></div><div class="pie-pct">20%</div></div>
+              <div class="pie-item"><div class="pie-dot" style="background:#d4f1db"></div><div class="pie-name">Cabo USB-C</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:15%;background:#d4f1db"></div></div><div class="pie-pct">15%</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="cards-equal">
+          <div class="inner-card">
+            <div class="inner-card-title">🕐 Últimas vendas</div>
+            <div class="recent-list">
+              <div class="recent-item"><div class="recent-avatar">AC</div><div class="recent-info"><div class="recent-name">Ana Carvalho</div><div class="recent-detail">Smartwatch · Carlos · PIX</div></div><div class="recent-value">R$ 199</div></div>
+              <div class="recent-item"><div class="recent-avatar">JF</div><div class="recent-info"><div class="recent-name">João Ferreira</div><div class="recent-detail">Fone BT + Cabo · Mariana · Cartão</div></div><div class="recent-value">R$ 127</div></div>
+              <div class="recent-item"><div class="recent-avatar">PL</div><div class="recent-info"><div class="recent-name">Paula Lima</div><div class="recent-detail">Carregador · Carlos · Dinheiro</div></div><div class="recent-value">R$ 68</div></div>
+              <div class="recent-item"><div class="recent-avatar">MS</div><div class="recent-info"><div class="recent-name">Marcos Silva</div><div class="recent-detail">Cabo USB-C · Mariana · PIX</div></div><div class="recent-value">R$ 34</div></div>
+            </div>
+          </div>
+          <div class="inner-card">
+            <div class="inner-card-title">💰 Resumo financeiro — Março</div>
+            <div class="recent-list">
+              <div class="recent-item"><div class="recent-avatar" style="background:var(--green-light);color:var(--green)">↑</div><div class="recent-info"><div class="recent-name">Total Receitas</div><div class="recent-detail">345 vendas realizadas</div></div><div class="recent-value">R$ 32.480</div></div>
+              <div class="recent-item"><div class="recent-avatar" style="background:#fff0f0;color:#c0392b">↓</div><div class="recent-info"><div class="recent-name">Total Despesas</div><div class="recent-detail">Mercadoria, aluguel, outros</div></div><div class="recent-value" style="color:#c0392b">R$ 18.200</div></div>
+              <div class="recent-item"><div class="recent-avatar" style="background:var(--green);color:#fff">$</div><div class="recent-info"><div class="recent-name">Lucro Líquido</div><div class="recent-detail">Resultado do período</div></div><div class="recent-value">R$ 14.280</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+
+/* ===== MAPA DE PÁGINAS com rota para Desempenho ===== */
+var pageMap = {
+  'dashboard':'visao_geral.html',
+  'desempenho':'painel_desempenho.html',
+  'pdv':'pdv.html',
+  'vendas':'vendas.html',
+  'clientes':'clientes.html',
+  'funcionarios':'funcionarios.html',
+  'produtos':'produtos.html',
+  'estoque':'estoque.html',
+  'financeiro':'financeiro.html',
+  'lembretes':'lembretes.html',
+  'suporte':'suporte.html',
+  'configuracoes':'configuracoes.html'
+};
+
+function navigateTo(name) {
+  if (pageMap[name]) {
+    const currentFile = window.location.pathname.split('/').pop();
+    if (pageMap[name] === currentFile) {
+      showToast('Você já está nesta página');
+      return;
+    }
+    window.location.href = pageMap[name];
+  } else {
+    showToast('Página em desenvolvimento');
+  }
+}
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'login.html';
+}
+
+/* ===== TOAST ===== */
+function showToast(msg) {
+  var t = document.getElementById('sys-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'sys-toast';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--ink);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:all .3s;opacity:0;transform:translateY(8px)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateY(0)';
+  clearTimeout(t._to);
+  t._to = setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(8px)'; }, 2800);
+}
+
+/* ===== GARANTIR QUE O MENU NUNCA RECOLHA ===== */
+window.addEventListener('load', function() {
+  // Garantir que em nenhum momento o menu perca o texto
+  const sidebar = document.querySelector('.sys-sidebar');
+  if (sidebar) {
+    // Força que todos os spans de texto estejam visíveis
+    const allSpans = sidebar.querySelectorAll('.sys-sidebar-item span:last-child');
+    allSpans.forEach(span => {
+      span.style.display = 'inline-block';
+      span.style.whiteSpace = 'nowrap';
+    });
+  }
+});
+
+// Ajuste para garantir que em redimensionamento o menu continue com texto
+window.addEventListener('resize', function() {
+  const sidebar = document.querySelector('.sys-sidebar');
+  if (sidebar && window.innerWidth > 480) {
+    const allSpans = sidebar.querySelectorAll('.sys-sidebar-item span:last-child');
+    allSpans.forEach(span => {
+      span.style.display = 'inline-block';
+    });
+  }
+});
+</script>
+</body>
+</html>
