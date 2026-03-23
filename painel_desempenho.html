@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIMPLES HUB – Painel de Desempenho</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --green:#1f2937;--green-dark:#111827;--green-mid:#374151;
+  --green-light:#f1f5f9;--green-pale:#f8fafc;--green-line:#e2e8f0;
+  --white:#ffffff;--ink:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --sidebar-width: 260px;
+  --accent-amber:#f59e0b;
+  --accent-blue:#3b82f6;
+  --accent-red:#ef4444;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--white)}
+::-webkit-scrollbar-thumb{background:var(--green-line);border-radius:3px}
+@keyframes heroIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== SIDEBAR LAYOUT ===== */
+.sys-layout{display:flex;min-height:100vh}
+.sys-sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--ink);color:#fff;display:flex;flex-direction:column;z-index:100}
+.sys-sidebar-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:24px}
+.sys-sidebar-brand-icon{width:40px;height:40px;border-radius:10px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px}
+.sys-sidebar-brand-name{font-size:18px;font-weight:800;letter-spacing:.05em}
+.sys-sidebar-brand-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:4px}
+.sys-sidebar-nav{flex:1;display:flex;flex-direction:column;gap:4px;padding:0 12px}
+.sys-sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);font-size:14px;font-weight:500;text-decoration:none}
+.sys-sidebar-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.sys-sidebar-item.active{background:var(--green);color:#fff}
+.sys-sidebar-item-icon{font-size:18px;width:24px;text-align:center}
+.sys-sidebar-footer{padding:20px;border-top:1px solid rgba(255,255,255,.1);margin-top:auto}
+.sys-sidebar-user{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sys-sidebar-avatar{width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+.sys-sidebar-user-info{flex:1}
+.sys-sidebar-user-name{font-size:13px;font-weight:700}
+.sys-sidebar-user-role{font-size:10px;color:rgba(255,255,255,.5)}
+.sys-logout-btn{width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.sys-logout-btn:hover{background:rgba(255,100,100,.2);color:#ff7878;border-color:rgba(255,100,100,.3)}
+
+/* MAIN CONTENT */
+.sys-main{margin-left:var(--sidebar-width);flex:1;min-width:0}
+.sys-top-header{background:var(--white);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.sys-page-title{font-size:18px;font-weight:700;color:var(--ink)}
+.sys-company-info{display:flex;align-items:center;gap:12px}
+.sys-company-pill{display:flex;align-items:center;gap:6px;background:var(--green-light);border:1px solid var(--border);border-radius:20px;padding:5px 12px}
+.sys-company-name{font-size:11px;font-weight:700;color:var(--ink)}
+.sys-company-badge{font-size:9px;font-weight:700;background:var(--green);color:#fff;border-radius:20px;padding:1px 7px}
+.sys-content{padding:24px 28px;min-height:calc(100vh - 60px)}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 20px;transition:all .2s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--green-line);transition:background .2s}
+.stat-card:hover::before{background:var(--green)}
+.stat-card:hover{box-shadow:0 4px 16px rgba(31,41,55,.08);transform:translateY(-1px)}
+.stat-card-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.stat-card-num{font-size:26px;font-weight:800;color:var(--ink);line-height:1;margin-bottom:6px}
+.stat-card-num.green{color:var(--green)}
+.stat-card-trend{font-size:11px;font-weight:600}
+.trend-up{color:#1f2937}.trend-down{color:#c0392b}
+
+/* Cards */
+.cards-2col{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px}
+.cards-equal{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.inner-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.inner-card-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+
+/* Toggle buttons */
+.metric-toggles{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.toggle-btn{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--white);color:var(--muted);transition:all .2s}
+.toggle-btn:hover{border-color:var(--green);color:var(--green)}
+.toggle-btn.active{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* Charts */
+.chart-container{position:relative;height:250px;width:100%}
+.chart-wrapper{height:220px;margin-top:8px}
+
+/* Bar chart */
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:110px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{background:var(--green-line);border-radius:4px 4px 0 0;width:100%;transition:all .3s;cursor:pointer}
+.bar:hover{background:var(--green)}
+.bar-label{font-size:9px;color:var(--muted);font-weight:600}
+
+/* Pie legend */
+.pie-legend{display:flex;flex-direction:column;gap:9px}
+.pie-item{display:flex;align-items:center;gap:8px;font-size:12px}
+.pie-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.pie-name{flex:1;color:var(--ink);font-weight:600}
+.pie-pct{color:var(--muted);font-weight:700;font-size:11px}
+.pie-bar-wrap{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.pie-bar-fill{height:100%;border-radius:3px;background:var(--green)}
+
+/* Recent list */
+.recent-list{display:flex;flex-direction:column;gap:0}
+.recent-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.recent-item:last-child{border-bottom:none}
+.recent-avatar{width:34px;height:34px;border-radius:50%;background:var(--green-light);border:1px solid var(--green-line);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--green);flex-shrink:0}
+.recent-info{flex:1;min-width:0}
+.recent-name{font-size:12px;font-weight:700;color:var(--ink)}
+.recent-detail{font-size:11px;color:var(--muted);margin-top:1px}
+.recent-value{font-size:12px;font-weight:700;color:var(--green);flex-shrink:0}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-green{background:var(--green-light);color:var(--green);border:1px solid var(--green-line)}
+.badge-yellow{background:#fffde7;color:#856404;border:1px solid #fff176}
+.badge-blue{background:#e3f2fd;color:#1565c0;border:1px solid #bbdefb}
+.badge-purple{background:#f3e8ff;color:#7c3aed;border:1px solid #e9d5ff}
+
+@media(max-width:900px){
+  .sys-sidebar{width:70px}
+  .sys-sidebar-brand{padding:16px 12px}
+  .sys-sidebar-brand-icon{margin:0 auto}
+  .sys-sidebar-brand-name,.sys-sidebar-brand-sub{display:none}
+  .sys-sidebar-item span:last-child{display:none}
+  .sys-sidebar-item{padding:12px;justify-content:center}
+  .sys-sidebar-user-info{display:none}
+  .sys-sidebar-user{justify-content:center}
+  .sys-main{margin-left:70px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .cards-2col{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .sys-sidebar{display:none}
+  .sys-main{margin-left:0}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="sys-layout">
+  <!-- SIDEBAR ESQUERDA -->
+  <aside class="sys-sidebar">
+    <div class="sys-sidebar-brand">
+      <div class="sys-sidebar-brand-icon">✂️</div>
+      <div class="sys-sidebar-brand-name">SIMPLES HUB</div>
+      <div class="sys-sidebar-brand-sub">Sistema de Gestão</div>
+    </div>
+    <nav class="sys-sidebar-nav">
+      <a class="sys-sidebar-item" onclick="navigateTo('dashboard')">
+        <span class="sys-sidebar-item-icon">📊</span>
+        <span>Visão Geral</span>
+      </a>
+      <a class="sys-sidebar-item active" onclick="navigateTo('painel_desempenho')">
+        <span class="sys-sidebar-item-icon">📈</span>
+        <span>Painel de Desempenho</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('pdv')">
+        <span class="sys-sidebar-item-icon">🛒</span>
+        <span>PDV</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('clientes')">
+        <span class="sys-sidebar-item-icon">👥</span>
+        <span>Clientes</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('funcionarios')">
+        <span class="sys-sidebar-item-icon">👤</span>
+        <span>Funcionários</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('produtos')">
+        <span class="sys-sidebar-item-icon">📦</span>
+        <span>Produtos</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('estoque')">
+        <span class="sys-sidebar-item-icon">📋</span>
+        <span>Estoque</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('financeiro')">
+        <span class="sys-sidebar-item-icon">💰</span>
+        <span>Financeiro</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('lembretes')">
+        <span class="sys-sidebar-item-icon">🔔</span>
+        <span>Lembretes</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('suporte')">
+        <span class="sys-sidebar-item-icon">🎧</span>
+        <span>Suporte</span>
+      </a>
+      <a class="sys-sidebar-item" onclick="navigateTo('configuracoes')">
+        <span class="sys-sidebar-item-icon">⚙️</span>
+        <span>Config</span>
+      </a>
+    </nav>
+    <div class="sys-sidebar-footer">
+      <div class="sys-sidebar-user">
+        <div class="sys-sidebar-avatar">G</div>
+        <div class="sys-sidebar-user-info">
+          <div class="sys-sidebar-user-name">Gerente</div>
+          <div class="sys-sidebar-user-role">Administrador</div>
+        </div>
+      </div>
+      <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="sys-main">
+    <div class="sys-top-header">
+      <div class="sys-page-title">📈 Painel de Desempenho</div>
+      <div class="sys-company-info">
+        <div class="sys-company-pill">
+          <span class="sys-company-name">Barbearia Modelo</span>
+          <span class="sys-company-badge">Matriz</span>
+        </div>
+      </div>
+    </div>
+    <div class="sys-content">
+      <div class="sys-panel-page" id="panel-desempenho">
+        <!-- Cards de métricas principais -->
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-card-label">Serviços hoje</div><div class="stat-card-num green">18</div><div class="stat-card-trend trend-up">↑ +4 vs ontem</div></div>
+          <div class="stat-card"><div class="stat-card-label">Clientes atendidos</div><div class="stat-card-num">412</div><div class="stat-card-trend trend-up">↑ +14 esta semana</div></div>
+          <div class="stat-card"><div class="stat-card-label">Faturamento do mês</div><div class="stat-card-num green">R$ 18.750</div><div class="stat-card-trend trend-up">↑ 22% vs mês anterior</div></div>
+          <div class="stat-card"><div class="stat-card-label">Ticket médio</div><div class="stat-card-num">R$ 82,50</div><div class="stat-card-trend trend-up">↑ R$ 5 vs mês anterior</div></div>
+        </div>
+
+        <!-- Botões de alternância entre métricas -->
+        <div class="metric-toggles">
+          <button class="toggle-btn active" data-metric="vendas" onclick="switchMetric('vendas')">💰 Vendas / Serviços</button>
+          <button class="toggle-btn" data-metric="agendamentos" onclick="switchMetric('agendamentos')">📅 Agendamentos</button>
+          <button class="toggle-btn" data-metric="profissionais" onclick="switchMetric('profissionais')">✂️ Profissionais</button>
+        </div>
+
+        <!-- Área dinâmica que mostra diferentes métricas -->
+        <div id="metric-vendas" class="metric-content">
+          <div class="cards-2col">
+            <div class="inner-card">
+              <div class="inner-card-title">📈 Vendas por dia — Março 2026</div>
+              <div class="bar-chart" id="vendas-chart-bars">
+                <div class="bar-col"><div class="bar" style="height:45%"></div><div class="bar-label">Seg</div></div>
+                <div class="bar-col"><div class="bar" style="height:68%"></div><div class="bar-label">Ter</div></div>
+                <div class="bar-col"><div class="bar" style="height:52%"></div><div class="bar-label">Qua</div></div>
+                <div class="bar-col"><div class="bar" style="height:85%"></div><div class="bar-label">Qui</div></div>
+                <div class="bar-col"><div class="bar" style="height:100%;background:var(--green)"></div><div class="bar-label">Sex</div></div>
+                <div class="bar-col"><div class="bar" style="height:92%"></div><div class="bar-label">Sáb</div></div>
+                <div class="bar-col"><div class="bar" style="height:32%"></div><div class="bar-label">Dom</div></div>
+              </div>
+            </div>
+            <div class="inner-card">
+              <div class="inner-card-title">🏆 Serviços mais realizados</div>
+              <div class="pie-legend">
+                <div class="pie-item"><div class="pie-dot" style="background:var(--green)"></div><div class="pie-name">Corte Degradê</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:42%"></div></div><div class="pie-pct">42%</div></div>
+                <div class="pie-item"><div class="pie-dot" style="background:#6bcf7f"></div><div class="pie-name">Barba</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:28%;background:#6bcf7f"></div></div><div class="pie-pct">28%</div></div>
+                <div class="pie-item"><div class="pie-dot" style="background:#a8e6b3"></div><div class="pie-name">Corte + Barba</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:18%;background:#a8e6b3"></div></div><div class="pie-pct">18%</div></div>
+                <div class="pie-item"><div class="pie-dot" style="background:#d4f1db"></div><div class="pie-name">Hidratação</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:12%;background:#d4f1db"></div></div><div class="pie-pct">12%</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="cards-equal">
+            <div class="inner-card">
+              <div class="inner-card-title">🕐 Últimos atendimentos</div>
+              <div class="recent-list">
+                <div class="recent-item"><div class="recent-avatar">AC</div><div class="recent-info"><div class="recent-name">Ana Carvalho</div><div class="recent-detail">Corte Degradê · Carlos · PIX</div></div><div class="recent-value">R$ 65</div></div>
+                <div class="recent-item"><div class="recent-avatar">JF</div><div class="recent-info"><div class="recent-name">João Ferreira</div><div class="recent-detail">Barba + Sobrancelha · Mariana · Cartão</div></div><div class="recent-value">R$ 45</div></div>
+                <div class="recent-item"><div class="recent-avatar">PL</div><div class="recent-info"><div class="recent-name">Paula Lima</div><div class="recent-detail">Corte + Barba · Carlos · Dinheiro</div></div><div class="recent-value">R$ 90</div></div>
+                <div class="recent-item"><div class="recent-avatar">MS</div><div class="recent-info"><div class="recent-name">Marcos Silva</div><div class="recent-detail">Hidratação · Mariana · PIX</div></div><div class="recent-value">R$ 70</div></div>
+              </div>
+            </div>
+            <div class="inner-card">
+              <div class="inner-card-title">💰 Resumo financeiro — Março</div>
+              <div class="recent-list">
+                <div class="recent-item"><div class="recent-avatar" style="background:var(--green-light);color:var(--green)">↑</div><div class="recent-info"><div class="recent-name">Total Receitas</div><div class="recent-detail">248 serviços realizados</div></div><div class="recent-value">R$ 18.750</div></div>
+                <div class="recent-item"><div class="recent-avatar" style="background:#fff0f0;color:#c0392b">↓</div><div class="recent-info"><div class="recent-name">Total Despesas</div><div class="recent-detail">Produtos, comissões, aluguel</div></div><div class="recent-value" style="color:#c0392b">R$ 9.200</div></div>
+                <div class="recent-item"><div class="recent-avatar" style="background:var(--green);color:#fff">$</div><div class="recent-info"><div class="recent-name">Lucro Líquido</div><div class="recent-detail">Resultado do período</div></div><div class="recent-value">R$ 9.550</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Área de Agendamentos -->
+        <div id="metric-agendamentos" class="metric-content" style="display:none">
+          <div class="cards-2col">
+            <div class="inner-card">
+              <div class="inner-card-title">📅 Agendamentos por dia — Março 2026</div>
+              <div class="bar-chart" id="agendamentos-chart-bars">
+                <div class="bar-col"><div class="bar" style="height:38%"></div><div class="bar-label">Seg</div></div>
+                <div class="bar-col"><div class="bar" style="height:55%"></div><div class="bar-label">Ter</div></div>
+                <div class="bar-col"><div class="bar" style="height:42%"></div><div class="bar-label">Qua</div></div>
+                <div class="bar-col"><div class="bar" style="height:72%"></div><div class="bar-label">Qui</div></div>
+                <div class="bar-col"><div class="bar" style="height:95%;background:var(--green)"></div><div class="bar-label">Sex</div></div>
+                <div class="bar-col"><div class="bar" style="height:88%"></div><div class="bar-label">Sáb</div></div>
+                <div class="bar-col"><div class="bar" style="height:22%"></div><div class="bar-label">Dom</div></div>
+              </div>
+            </div>
+            <div class="inner-card">
+              <div class="inner-card-title">⏰ Horários mais procurados</div>
+              <div class="pie-legend">
+                <div class="pie-item"><div class="pie-dot" style="background:var(--green)"></div><div class="pie-name">Manhã (08-12h)</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:35%"></div></div><div class="pie-pct">35%</div></div>
+                <div class="pie-item"><div class="pie-dot" style="background:#6bcf7f"></div><div class="pie-name">Tarde (13-17h)</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:45%;background:#6bcf7f"></div></div><div class="pie-pct">45%</div></div>
+                <div class="pie-item"><div class="pie-dot" style="background:#a8e6b3"></div><div class="pie-name">Noite (18-20h)</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:20%;background:#a8e6b3"></div></div><div class="pie-pct">20%</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="inner-card">
+            <div class="inner-card-title">📋 Próximos agendamentos</div>
+            <div class="recent-list">
+              <div class="recent-item"><div class="recent-avatar" style="background:#e3f2fd;color:#1565c0">✂️</div><div class="recent-info"><div class="recent-name">Carlos Oliveira</div><div class="recent-detail">Corte Degradê · Hoje 15:30 · Prof: Carlos</div></div><div class="recent-value">Confirmado</div></div>
+              <div class="recent-item"><div class="recent-avatar" style="background:#fff0f0;color:#c0392b">⚠️</div><div class="recent-info"><div class="recent-name">Fernanda Souza</div><div class="recent-detail">Barba · Hoje 16:45 · Prof: Mariana</div></div><div class="recent-value">Pendente</div></div>
+              <div class="recent-item"><div class="recent-avatar" style="background:#e8f5e9;color:#2e7d32">✓</div><div class="recent-info"><div class="recent-name">Bruno Lima</div><div class="recent-detail">Corte + Barba · Amanhã 10:00 · Prof: Carlos</div></div><div class="recent-value">Confirmado</div></div>
+              <div class="recent-item"><div class="recent-avatar" style="background:#f3e8ff;color:#7c3aed">⭐</div><div class="recent-info"><div class="recent-name">Rafael Mendes</div><div class="recent-detail">Hidratação · Amanhã 14:30 · Prof: Mariana</div></div><div class="recent-value">Confirmado</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Área de Profissionais -->
+        <div id="metric-profissionais" class="metric-content" style="display:none">
+          <div class="cards-equal">
+            <div class="inner-card">
+              <div class="inner-card-title">✂️ Desempenho dos profissionais</div>
+              <div class="pie-legend">
+                <div class="pie-item"><div class="pie-dot" style="background:var(--green)"></div><div class="pie-name">Carlos (Barbeiro)</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:45%"></div></div><div class="pie-pct">128 serviços</div></div>
+                <div class="pie-item"><div class="pie-dot" style="background:#6bcf7f"></div><div class="pie-name">Mariana (Barbeira)</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:38%;background:#6bcf7f"></div></div><div class="pie-pct">96 serviços</div></div>
+                <div class="pie-item"><div class="pie-dot" style="background:#a8e6b3"></div><div class="pie-name">Roberto (Auxiliar)</div><div class="pie-bar-wrap"><div class="pie-bar-fill" style="width:17%;background:#a8e6b3"></div></div><div class="pie-pct">24 serviços</div></div>
+              </div>
+            </div>
+            <div class="inner-card">
+              <div class="inner-card-title">💰 Ranking de faturamento</div>
+              <div class="recent-list">
+                <div class="recent-item"><div class="recent-avatar" style="background:var(--green);color:#fff">1º</div><div class="recent-info"><div class="recent-name">Carlos Silva</div><div class="recent-detail">Barbeiro · 128 atendimentos</div></div><div class="recent-value">R$ 7.680</div></div>
+                <div class="recent-item"><div class="recent-avatar" style="background:#6bcf7f;color:#fff">2º</div><div class="recent-info"><div class="recent-name">Mariana Oliveira</div><div class="recent-detail">Barbeira · 96 atendimentos</div></div><div class="recent-value">R$ 5.760</div></div>
+                <div class="recent-item"><div class="recent-avatar" style="background:#a8e6b3;color:#1f2937">3º</div><div class="recent-info"><div class="recent-name">Roberto Santos</div><div class="recent-detail">Auxiliar · 24 atendimentos</div></div><div class="recent-value">R$ 1.200</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="inner-card">
+            <div class="inner-card-title">⭐ Avaliações dos clientes</div>
+            <div class="recent-list">
+              <div class="recent-item"><div class="recent-avatar">⭐⭐⭐⭐⭐</div><div class="recent-info"><div class="recent-name">Carlos Silva</div><div class="recent-detail">"Excelente atendimento! Corte perfeito."</div></div><div class="recent-value">5 estrelas</div></div>
+              <div class="recent-item"><div class="recent-avatar">⭐⭐⭐⭐⭐</div><div class="recent-info"><div class="recent-name">Mariana Oliveira</div><div class="recent-detail">"Muito profissional e atenciosa."</div></div><div class="recent-value">5 estrelas</div></div>
+              <div class="recent-item"><div class="recent-avatar">⭐⭐⭐⭐</div><div class="recent-info"><div class="recent-name">Roberto Santos</div><div class="recent-detail">"Ambiente agradável, voltarei mais vezes."</div></div><div class="recent-value">4 estrelas</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ===== MAPA DE PÁGINAS ===== */
+var pageMap = {
+  'dashboard':'visao_geral.html',
+  'painel_desempenho':'painel_desempenho.html',
+  'pdv':'pdv.html',
+  'vendas':'vendas.html',
+  'clientes':'clientes.html',
+  'funcionarios':'funcionarios.html',
+  'produtos':'produtos.html',
+  'estoque':'estoque.html',
+  'financeiro':'financeiro.html',
+  'lembretes':'lembretes.html',
+  'suporte':'suporte.html',
+  'configuracoes':'configuracoes.html'
+};
+
+function navigateTo(name) {
+  if (pageMap[name]) {
+    window.location.href = pageMap[name];
+  } else {
+    showToast('Página em desenvolvimento');
+  }
+}
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'index.html';
+}
+
+function showToast(msg) {
+  var t = document.getElementById('sys-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'sys-toast';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--ink);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:all .3s;opacity:0;transform:translateY(8px)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateY(0)';
+  clearTimeout(t._to);
+  t._to = setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(8px)'; }, 2800);
+}
+
+/* ===== FUNÇÃO DE ALTERNÂNCIA ENTRE MÉTRICAS ===== */
+function switchMetric(metric) {
+  // Esconder todos os conteúdos
+  document.getElementById('metric-vendas').style.display = 'none';
+  document.getElementById('metric-agendamentos').style.display = 'none';
+  document.getElementById('metric-profissionais').style.display = 'none';
+  
+  // Mostrar o conteúdo selecionado
+  document.getElementById('metric-' + metric).style.display = 'block';
+  
+  // Atualizar botões ativos
+  const buttons = document.querySelectorAll('.toggle-btn');
+  buttons.forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.getAttribute('data-metric') === metric) {
+      btn.classList.add('active');
+    }
+  });
+  
+  showToast(`📊 Exibindo métricas de ${metric === 'vendas' ? 'Vendas/Serviços' : metric === 'agendamentos' ? 'Agendamentos' : 'Profissionais'}`);
+}
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', function() {
+  // Garantir que apenas a seção de vendas esteja visível inicialmente
+  document.getElementById('metric-vendas').style.display = 'block';
+  document.getElementById('metric-agendamentos').style.display = 'none';
+  document.getElementById('metric-profissionais').style.display = 'none';
+});
+</script>
+</body>
+</html>
