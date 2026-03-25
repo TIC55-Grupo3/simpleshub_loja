@@ -68,7 +68,26 @@ body{font-family:'Inter',sans-serif;background:var(--white);color:var(--ink);min
       <div class="login-form-sub">Escolha uma conta de demonstração ou insira suas credenciais</div>
 
       <div class="demo-accounts">
-        <!-- Conta Administrador -->
+        <!-- Conta Administrador VTA (Super Admin da Plataforma) - NOVO USUÁRIO -->
+        <div class="demo-card" id="demo-superadmin" onclick="selectDemo('admin@simpleshub.com.br','admin123','demo-superadmin')">
+          <div class="demo-card-header">
+            <div class="demo-card-icon">👑</div>
+            <div class="demo-card-name">Administrador VTA</div>
+            <div class="demo-card-role" style="background:#8b5cf6">Super Admin</div>
+          </div>
+          <div class="demo-card-creds">
+            <div>
+              <div class="demo-cred-label">E-mail</div>
+              <div class="demo-cred-val">admin@simpleshub.com.br</div>
+            </div>
+            <div>
+              <div class="demo-cred-label">Senha</div>
+              <div class="demo-cred-val">admin123</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conta Administrador (original - mantido intacto) -->
         <div class="demo-card" id="demo-admin" onclick="selectDemo('admin@lojasimples.com.br','123456','demo-admin')">
           <div class="demo-card-header">
             <div class="demo-card-icon">ADM</div>
@@ -87,7 +106,7 @@ body{font-family:'Inter',sans-serif;background:var(--white);color:var(--ink);min
           </div>
         </div>
 
-        <!-- Conta Vendedor -->
+        <!-- Conta Vendedor (original - mantido intacto) -->
         <div class="demo-card" id="demo-func" onclick="selectDemo('vendedor@lojasimples.com.br','vend123','demo-func')">
           <div class="demo-card-header">
             <div class="demo-card-icon">🛒</div>
@@ -124,9 +143,11 @@ body{font-family:'Inter',sans-serif;background:var(--white);color:var(--ink);min
 </div>
 
 <script>
+  // Mantém os dois usuários originais intactos e adiciona o novo Super Admin
   var validAccounts = [
-    { email: 'admin@lojasimples.com.br',    senha: '123456',  role: 'admin', nome: 'Gerente da Loja' },
-    { email: 'vendedor@lojasimples.com.br', senha: 'vend123', role: 'func',  nome: 'Carlos Vendedor' }
+    { email: 'admin@simpleshub.com.br',    senha: 'admin123', role: 'superadmin', nome: 'Administrador VTA', redirect: 'gestao_visao_geral.html' },
+    { email: 'admin@lojasimples.com.br',   senha: '123456',   role: 'admin',      nome: 'Gerente da Loja',   redirect: 'visao_geral.html' },
+    { email: 'vendedor@lojasimples.com.br', senha: 'vend123',  role: 'func',       nome: 'Carlos Vendedor',   redirect: 'visao_geral_vendedor.html' }
   ];
 
   function selectDemo(email, senha, cardId) {
@@ -149,14 +170,8 @@ body{font-family:'Inter',sans-serif;background:var(--white);color:var(--ink);min
       sessionStorage.setItem('userEmail', found.email);
       sessionStorage.setItem('userName', found.nome);
       
-      // Redirecionamento baseado no perfil - AMBOS VÃO PARA SUA VISÃO GERAL
-      if (found.role === 'admin') {
-        window.location.href = 'visao_geral.html';
-      } else if (found.role === 'func') {
-        window.location.href = 'visao_geral_vendedor.html';
-      } else {
-        window.location.href = 'visao_geral.html';
-      }
+      // Redirecionamento baseado na página definida para cada perfil
+      window.location.href = found.redirect;
     } else {
       err.style.display = 'block';
     }
