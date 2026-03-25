@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>SIMPLES HUB – Suporte</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --green:#1f2937;--green-dark:#111827;--green-mid:#374151;
+  --green-light:#f1f5f9;--green-pale:#f8fafc;--green-line:#e2e8f0;
+  --white:#ffffff;--ink:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --sidebar-width: 260px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--white)}
+::-webkit-scrollbar-thumb{background:var(--green-line);border-radius:3px}
+@keyframes heroIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== SIDEBAR LAYOUT - NUNCA RECOLHE, SEMPRE COM TEXTO VISÍVEL ===== */
+.sys-layout{display:flex;min-height:100vh}
+.sys-sidebar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:var(--sidebar-width);
+  height:100vh;
+  background:var(--ink);
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  z-index:100;
+  overflow-y:auto;
+  overflow-x:hidden;
+}
+.sys-sidebar::-webkit-scrollbar{width:4px}
+.sys-sidebar::-webkit-scrollbar-track{background:rgba(255,255,255,.1);border-radius:4px}
+.sys-sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:4px}
+.sys-sidebar-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:16px;flex-shrink:0}
+.sys-sidebar-brand-icon{width:40px;height:40px;border-radius:10px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px}
+.sys-sidebar-brand-name{font-size:18px;font-weight:800;letter-spacing:.05em}
+.sys-sidebar-brand-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:4px}
+.sys-sidebar-nav{flex:1;display:flex;flex-direction:column;gap:4px;padding:0 12px 20px 12px}
+.sys-sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);font-size:14px;font-weight:500;text-decoration:none;flex-shrink:0}
+.sys-sidebar-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.sys-sidebar-item.active{background:var(--green);color:#fff}
+.sys-sidebar-item-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.sys-sidebar-item span:last-child{white-space:nowrap}
+.sys-sidebar-footer{padding:20px;border-top:1px solid rgba(255,255,255,.1);margin-top:auto;flex-shrink:0}
+.sys-sidebar-user{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sys-sidebar-avatar{width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.sys-sidebar-user-info{flex:1;min-width:0}
+.sys-sidebar-user-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sys-sidebar-user-role{font-size:10px;color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sys-logout-btn{width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.sys-logout-btn:hover{background:rgba(255,100,100,.2);color:#ff7878;border-color:rgba(255,100,100,.3)}
+
+/* MAIN CONTENT */
+.sys-main{margin-left:var(--sidebar-width);flex:1;min-width:0}
+.sys-top-header{background:var(--white);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-wrap:wrap;gap:12px}
+.sys-page-title{font-size:18px;font-weight:700;color:var(--ink)}
+.sys-company-info{display:flex;align-items:center;gap:12px}
+.sys-company-pill{display:flex;align-items:center;gap:6px;background:var(--green-light);border:1px solid var(--border);border-radius:20px;padding:5px 12px}
+.sys-company-name{font-size:11px;font-weight:700;color:var(--ink)}
+.sys-company-badge{font-size:9px;font-weight:700;background:var(--green);color:#fff;border-radius:20px;padding:1px 7px}
+.sys-content{padding:24px 28px;min-height:calc(100vh - 60px)}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 20px;transition:all .2s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--green-line);transition:background .2s}
+.stat-card:hover::before{background:var(--green)}
+.stat-card:hover{box-shadow:0 4px 16px rgba(31,41,55,.08);transform:translateY(-1px)}
+.stat-card-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.stat-card-num{font-size:26px;font-weight:800;color:var(--ink);line-height:1;margin-bottom:6px}
+.stat-card-num.green{color:var(--green)}
+.stat-card-trend{font-size:11px;font-weight:600}
+.trend-up{color:#1f2937}.trend-down{color:#c0392b}
+
+/* Search bar */
+.search-container{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.search-icon{font-size:18px;color:var(--muted)}
+.search-input{flex:1;min-width:200px;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;outline:none;transition:all .2s;font-family:'Inter',sans-serif}
+.search-input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(31,41,55,.08)}
+.search-clear{background:var(--green-light);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .2s}
+.search-clear:hover{background:var(--green-line);border-color:var(--green);color:var(--green)}
+.search-results-info{font-size:11px;color:var(--muted);margin-left:auto}
+
+/* Tables */
+.table-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:var(--white)}
+.table-title{font-size:14px;font-weight:700;color:var(--ink)}
+.table-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.table-actions{display:flex;gap:8px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:9px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--green-pale);border-bottom:1px solid var(--border)}
+.tbl td{padding:11px 14px;font-size:13px;color:var(--ink);border-bottom:1px solid var(--border)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--green-pale)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-green{background:var(--green-light);color:var(--green);border:1px solid var(--green-line)}
+.badge-yellow{background:#fffde7;color:#856404;border:1px solid #fff176}
+.badge-red{background:#fff0f0;color:#c0392b;border:1px solid #ffcccc}
+.badge-blue{background:#e3f2fd;color:#1565c0;border:1px solid #bbdefb}
+.badge-gray{background:#f5f5f5;color:#666;border:1px solid #e0e0e0}
+.action-btn{background:none;border:none;cursor:pointer;padding:5px 8px;border-radius:6px;font-size:13px;transition:background .15s;color:var(--muted)}
+.action-btn:hover{background:var(--green-light);color:var(--green)}
+
+/* Topbar btn */
+.topbar-btn{padding:9px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif}
+.topbar-btn.primary{background:var(--green);color:#fff}
+.topbar-btn.primary:hover{background:var(--green-dark)}
+.topbar-btn.ghost{background:var(--white);color:var(--muted);border:1.5px solid var(--border)}
+.topbar-btn.ghost:hover{border-color:var(--green);color:var(--green)}
+
+/* Form */
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.06em;text-transform:uppercase}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);outline:none;transition:border-color .2s;font-family:'Inter',sans-serif;background:var(--white)}
+.form-row input:focus,.form-row select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(31,41,55,.08)}
+.form-section-title{font-size:12px;font-weight:700;color:var(--green);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:14px;letter-spacing:.06em;text-transform:uppercase}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:16px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.2)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:15px;font-weight:800;color:var(--ink)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);transition:color .2s;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.modal-close:hover{color:var(--ink);background:var(--green-light)}
+.modal-body{padding:22px}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.modal-btn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif}
+.modal-btn.primary{background:var(--green);color:#fff}
+.modal-btn.primary:hover{background:var(--green-dark)}
+.modal-btn.ghost{background:var(--white);color:var(--muted);border:1.5px solid var(--border)}
+.modal-btn.ghost:hover{border-color:var(--green);color:var(--green)}
+.modal-small{max-width:520px}
+.radio-group{display:flex;gap:16px;margin-top:8px}
+.file-input{padding:8px 12px;border:1.5px dashed var(--border);border-radius:8px;background:var(--green-pale);cursor:pointer;font-size:12px;color:var(--muted);text-align:center}
+.file-input:hover{border-color:var(--green);background:var(--green-light)}
+
+/* ===== RESPONSIVIDADE ===== */
+@media(max-width: 1024px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width: 900px){
+  .sys-sidebar{width:220px}
+  .sys-main{margin-left:220px}
+  .sys-sidebar-item{padding:10px 14px;font-size:13px}
+  .sys-sidebar-item-icon{font-size:16px;width:22px}
+  .sys-sidebar-brand{padding:20px 16px}
+  .sys-sidebar-brand-name{font-size:16px}
+  .sys-sidebar-brand-sub{font-size:10px}
+  .sys-sidebar-user-name{font-size:12px}
+  .sys-sidebar-user-role{font-size:9px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width: 768px){
+  .sys-sidebar{width:200px}
+  .sys-main{margin-left:200px}
+  .sys-sidebar-item span:last-child{font-size:12px}
+  .sys-sidebar-item-icon{font-size:15px;width:20px}
+  .sys-sidebar-brand{padding:16px 12px}
+  .sys-sidebar-brand-name{font-size:14px}
+  .sys-sidebar-brand-sub{font-size:9px}
+  .sys-page-title{font-size:16px}
+  .search-container{flex-wrap:wrap}
+  .search-results-info{margin-left:0;width:100%;text-align:center;margin-top:8px}
+}
+@media(max-width: 640px){
+  .sys-sidebar{width:180px}
+  .sys-main{margin-left:180px}
+  .sys-sidebar-item{padding:8px 12px;gap:8px}
+  .sys-sidebar-item span:last-child{font-size:11px}
+  .sys-sidebar-item-icon{font-size:14px;width:18px}
+  .sys-sidebar-brand{padding:12px 10px}
+  .sys-sidebar-brand-name{font-size:12px}
+  .sys-sidebar-brand-sub{font-size:8px}
+  .sys-sidebar-user{padding:0 4px}
+  .sys-sidebar-user-name{font-size:10px}
+  .sys-sidebar-user-role{font-size:8px}
+  .sys-logout-btn{font-size:10px;padding:8px}
+  .sys-top-header{flex-direction:column;align-items:flex-start}
+  .sys-content{padding:16px}
+  .stats-row{grid-template-columns:1fr}
+  .stat-card{padding:14px 16px}
+}
+</style>
+</head>
+<body>
+<div class="sys-layout">
+  <!-- SIDEBAR ESQUERDA - COM ITEM DESEMPENHO ADICIONADO -->
+  <aside class="sys-sidebar">
+    <div class="sys-sidebar-brand">
+      <div class="sys-sidebar-brand-icon">🎧</div>
+      <div class="sys-sidebar-brand-name">SIMPLES HUB</div>
+      <div class="sys-sidebar-brand-sub">Sistema de Gestão</div>
+    </div>
+    <nav class="sys-sidebar-nav">
+      <a class="sys-sidebar-item" onclick="navigateTo('dashboard')"><span class="sys-sidebar-item-icon">📊</span><span>Visão Geral</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('desempenho')"><span class="sys-sidebar-item-icon">📈</span><span>Desempenho</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('empresas')"><span class="sys-sidebar-item-icon">🏢</span><span>Empresas</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('usuarios')"><span class="sys-sidebar-item-icon">👥</span><span>Usuários</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('modulos')"><span class="sys-sidebar-item-icon">🧩</span><span>Módulos</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('contratos')"><span class="sys-sidebar-item-icon">📄</span><span>Contratos</span></a>
+      <a class="sys-sidebar-item active" onclick="navigateTo('suporte')"><span class="sys-sidebar-item-icon">🎧</span><span>Suporte</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('configuracoes')"><span class="sys-sidebar-item-icon">⚙️</span><span>Config</span></a>
+    </nav>
+    <div class="sys-sidebar-footer">
+      <div class="sys-sidebar-user">
+        <div class="sys-sidebar-avatar">A</div>
+        <div class="sys-sidebar-user-info">
+          <div class="sys-sidebar-user-name">Administrador VTA</div>
+          <div class="sys-sidebar-user-role">Super Admin</div>
+        </div>
+      </div>
+      <button class="sys-logout-btn" onclick="logout()">⏻ Sair</button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="sys-main">
+    <div class="sys-top-header">
+      <div class="sys-page-title">🎧 Suporte</div>
+      <div class="sys-company-info">
+        <div class="sys-company-pill">
+          <span class="sys-company-name">Plataforma SIMPLES HUB</span>
+          <span class="sys-company-badge">SaaS</span>
+        </div>
+      </div>
+    </div>
+    <div class="sys-content">
+      <div class="sys-panel-page" id="panel-suporte">
+        <div class="stats-row" style="grid-template-columns:repeat(4,1fr)">
+          <div class="stat-card"><div class="stat-card-label">Chamados abertos</div><div class="stat-card-num green" id="chamados-abertos">0</div><div class="stat-card-trend">aguardando</div></div>
+          <div class="stat-card"><div class="stat-card-label">Total de chamados</div><div class="stat-card-num" id="total-chamados">0</div><div class="stat-card-trend">histórico</div></div>
+          <div class="stat-card"><div class="stat-card-label">Resolvidos (mês)</div><div class="stat-card-num" id="resolvidos-mes">0</div><div class="stat-card-trend trend-up">últimos 30 dias</div></div>
+          <div class="stat-card"><div class="stat-card-label">Ticket médio</div><div class="stat-card-num" id="ticket-medio">0h</div><div class="stat-card-trend">tempo de resposta</div></div>
+        </div>
+        
+        <!-- CAMPO DE PESQUISA -->
+        <div class="search-container">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar por número, título, categoria, prioridade, data, status..." autocomplete="off">
+          <button class="search-clear" onclick="clearSearch()">Limpar</button>
+          <div class="search-results-info" id="searchResultsInfo">Mostrando 6 registros</div>
+        </div>
+        
+        <div class="table-wrap">
+          <div class="table-header">
+            <div><div class="table-title">Chamados de suporte</div><div class="table-sub">Solicitações enviadas à equipe SIMPLES HUB</div></div>
+            <div class="table-actions">
+              <button class="topbar-btn ghost" onclick="openExportModal()">📤 Exportar</button>
+              <button class="topbar-btn primary" onclick="openChamadoModal()">+ Abrir chamado</button>
+            </div>
+          </div>
+          <table class="tbl">
+            <thead>
+                <tr><th>Nº</th><th>Título</th><th>Categoria</th><th>Prioridade</th><th>Abertura</th><th>Status</th><th>Ações</th> </thead>
+            <tbody id="chamados-tbody"></tbody>
+            </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL ABRIR CHAMADO -->
+<div id="modal-chamado" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">📞 Abrir Chamado de Suporte</div>
+      <button class="modal-close" onclick="closeChamadoModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label>Empresa *</label><select id="chamado-empresa"></select></div>
+      <div class="form-row"><label>Título *</label><input type="text" id="chamado-titulo" placeholder="Ex: Erro ao gerar relatório"></div>
+      <div class="form-row"><label>Descrição *</label><textarea id="chamado-descricao" rows="4" placeholder="Descreva detalhadamente o problema ou dúvida..."></textarea></div>
+      <div class="form-row"><label>Categoria</label><select id="chamado-categoria">
+        <option value="Técnico">🔧 Técnico - Erro no sistema</option>
+        <option value="Funcionalidade">✨ Funcionalidade - Sugestão</option>
+        <option value="Dúvida">❓ Dúvida - Como usar</option>
+        <option value="Financeiro">💰 Financeiro - Cobrança/Assinatura</option>
+        <option value="Urgente">⚠️ Urgente - Impacta vendas</option>
+      </select></div>
+      <div class="form-row"><label>Prioridade</label><select id="chamado-prioridade">
+        <option value="Baixa">🟢 Baixa - Não impacta operação</option>
+        <option value="Média">🟡 Média - Impacta parcialmente</option>
+        <option value="Alta">🔴 Alta - Impacta vendas diárias</option>
+      </select></div>
+      <div class="form-row"><label>Anexar imagem (opcional)</label><div class="file-input" onclick="document.getElementById('chamado-anexo').click()">📎 Clique para selecionar arquivo</div><input type="file" id="chamado-anexo" accept="image/*" style="display:none"><div id="anexo-nome" style="font-size:10px;color:var(--muted);margin-top:4px"></div></div>
+      <div class="form-row"><label>Atribuir atendente</label><select id="chamado-atendente"><option value="">Não atribuir agora</option><option value="Equipe Técnica">👨‍💻 Equipe Técnica</option><option value="Financeiro">💰 Financeiro</option><option value="Suporte N1">🎧 Suporte N1</option></select></div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeChamadoModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="salvarChamado()">Enviar Chamado</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EXPORTAÇÃO -->
+<div id="modal-export" class="modal-overlay">
+  <div class="modal modal-small">
+    <div class="modal-head">
+      <div class="modal-title">📤 Exportar Chamados de Suporte</div>
+      <button class="modal-close" onclick="closeExportModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label>Formato de exportação</label><div class="radio-group"><label><input type="radio" name="formato-export" value="csv" checked> 📄 CSV (Excel)</label><label><input type="radio" name="formato-export" value="json"> 📋 JSON</label><label><input type="radio" name="formato-export" value="pdf"> 📑 PDF</label></div></div>
+      <div class="form-row"><label>Filtrar por status</label><select id="filtro-status-export"><option value="todos">Todos os chamados</option><option value="Aberto">Abertos</option><option value="Em análise">Em análise</option><option value="Atendimento">Em atendimento</option><option value="Resolvido">Resolvidos</option></select></div>
+      <div class="form-row"><label>Nome do arquivo</label><input type="text" id="nome-arquivo" placeholder="chamados_exportados"><div style="font-size:10px;color:var(--muted);margin-top:4px">Extensão será adicionada automaticamente</div></div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn ghost" onclick="closeExportModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="exportarChamados()">📥 Exportar Agora</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Mapeamento de páginas
+var pageMap = {
+  'dashboard': 'gestao_visao_geral.html',
+  'desempenho': 'gestao_desempenho.html',
+  'empresas': 'gestao_empresas.html',
+  'usuarios': 'gestao_usuarios.html',
+  'modulos': 'gestao_modulos.html',
+  'contratos': 'gestao_contratos.html',
+  'suporte': 'gestao_suporte.html',
+  'configuracoes': 'gestao_configuracoes.html'
+};
+
+function navigateTo(name) {
+  if(pageMap[name]) {
+    const currentFile = window.location.pathname.split('/').pop();
+    if(pageMap[name] === currentFile) {
+      showToast('Você já está nesta página');
+      return;
+    }
+    window.location.href = pageMap[name];
+  } else showToast('Página em desenvolvimento');
+}
+
+function logout() { sessionStorage.clear(); window.location.href = 'login.html'; }
+function showToast(msg) { var t = document.getElementById('sys-toast'); if(!t){ t=document.createElement('div'); t.id='sys-toast'; t.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--ink);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:all .3s;opacity:0;transform:translateY(8px)'; document.body.appendChild(t); } t.textContent=msg; t.style.opacity='1'; t.style.transform='translateY(0)'; clearTimeout(t._to); t._to=setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(8px)'; },2800); }
+
+// Dados mock
+let empresasList = [
+  { id: 1, nome: "Barbearia Modelo" },
+  { id: 2, nome: "Loja Simples" },
+  { id: 3, nome: "Ferragem do Bairro" },
+  { id: 4, nome: "Barbearia Elite" },
+  { id: 5, nome: "Tech Store" }
+];
+
+let chamadosData = [
+  { id: 8, titulo: "Erro ao registrar venda no PDV", descricao: "Ao tentar finalizar venda, sistema apresenta erro inesperado. Já tentei reiniciar o sistema.", categoria: "Técnico", prioridade: "Alta", abertura: "17/03/2026", fechamento: "-", status: "Em análise", anexo: null, empresaId: 1, empresa: "Barbearia Modelo", atendente: "Equipe Técnica" },
+  { id: 7, titulo: "Relatório financeiro não exporta PDF", descricao: "Ao clicar em exportar PDF, nada acontece. O problema ocorre apenas no módulo financeiro.", categoria: "Funcionalidade", prioridade: "Média", abertura: "15/03/2026", fechamento: "-", status: "Atendimento", anexo: null, empresaId: 2, empresa: "Loja Simples", atendente: "Suporte N1" },
+  { id: 6, titulo: "Dúvida sobre cadastro de produtos", descricao: "Como cadastrar produtos com preços diferenciados por filial? A documentação não cobre este caso.", categoria: "Dúvida", prioridade: "Baixa", abertura: "10/03/2026", fechamento: "12/03/2026", status: "Resolvido", anexo: null, empresaId: 3, empresa: "Ferragem do Bairro", atendente: "Equipe Técnica" },
+  { id: 5, titulo: "Problema com impressora fiscal", descricao: "Impressora não emite cupom após atualização do sistema. Já verifiquei conexões.", categoria: "Técnico", prioridade: "Alta", abertura: "08/03/2026", fechamento: "09/03/2026", status: "Resolvido", anexo: null, empresaId: 1, empresa: "Barbearia Modelo", atendente: "Suporte N1" },
+  { id: 4, titulo: "Sugestão: atalhos no PDV", descricao: "Adicionar atalhos no teclado para agilizar as vendas diárias.", categoria: "Funcionalidade", prioridade: "Baixa", abertura: "05/03/2026", fechamento: "-", status: "Aberto", anexo: null, empresaId: 4, empresa: "Barbearia Elite", atendente: "" },
+  { id: 3, titulo: "Erro ao sincronizar estoque", descricao: "Estoque não atualiza corretamente entre filiais. Produtos aparecem com quantidades divergentes.", categoria: "Técnico", prioridade: "Alta", abertura: "01/03/2026", fechamento: "03/03/2026", status: "Resolvido", anexo: null, empresaId: 5, empresa: "Tech Store", atendente: "Equipe Técnica" }
+];
+let nextId = 9;
+let currentFilteredData = [...chamadosData];
+
+function getPrioridadeClass(p) { 
+  switch(p){ 
+    case 'Alta': return 'badge-red'; 
+    case 'Média': return 'badge-yellow'; 
+    default: return 'badge-gray'; 
+  } 
+}
+function getStatusClass(s) { 
+  switch(s){ 
+    case 'Resolvido': return 'badge-green'; 
+    case 'Em análise': return 'badge-yellow'; 
+    case 'Atendimento': return 'badge-blue'; 
+    case 'Aberto': return 'badge-blue'; 
+    default: return 'badge-gray'; 
+  } 
+}
+function getCategoriaIcon(cat) {
+  switch(cat){
+    case 'Técnico': return '🔧';
+    case 'Funcionalidade': return '✨';
+    case 'Dúvida': return '❓';
+    case 'Financeiro': return '💰';
+    case 'Urgente': return '⚠️';
+    default: return '📋';
+  }
+}
+
+function atualizarStats() {
+  let abertos = currentFilteredData.filter(c => c.status !== 'Resolvido' && c.status !== 'Fechado');
+  document.getElementById('chamados-abertos').innerText = abertos.length;
+  document.getElementById('total-chamados').innerText = currentFilteredData.length;
+  let resolvidosMes = currentFilteredData.filter(c => c.status === 'Resolvido' && c.fechamento && c.fechamento !== '-').length;
+  document.getElementById('resolvidos-mes').innerText = resolvidosMes;
+  document.getElementById('ticket-medio').innerText = '≈ 2.5h';
+}
+
+function filterChamados() {
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+  if(searchTerm === '') {
+    currentFilteredData = [...chamadosData];
+  } else {
+    currentFilteredData = chamadosData.filter(c => {
+      return c.id.toString().includes(searchTerm) ||
+             c.titulo.toLowerCase().includes(searchTerm) ||
+             c.descricao.toLowerCase().includes(searchTerm) ||
+             c.categoria.toLowerCase().includes(searchTerm) ||
+             c.prioridade.toLowerCase().includes(searchTerm) ||
+             c.abertura.toLowerCase().includes(searchTerm) ||
+             c.status.toLowerCase().includes(searchTerm) ||
+             (c.empresa && c.empresa.toLowerCase().includes(searchTerm));
+    });
+  }
+  renderTabelaChamados();
+  document.getElementById('searchResultsInfo').innerHTML = `Mostrando ${currentFilteredData.length} registro(s)`;
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  filterChamados();
+}
+
+function renderTabelaChamados() { 
+  let tbody = document.getElementById('chamados-tbody'); 
+  if(!tbody) return; 
+  if(currentFilteredData.length === 0){ 
+    tbody.innerHTML = '<td colspan="7" style="text-align:center;padding:40px">Nenhum chamado encontrado<\/td>'; 
+    atualizarStats();
+    return; 
+  } 
+  let html = ''; 
+  currentFilteredData.forEach(c => { 
+    let pClass = getPrioridadeClass(c.prioridade); 
+    let sClass = getStatusClass(c.status); 
+    let catIcon = getCategoriaIcon(c.categoria);
+    html += '        <tr>' +
+      '<td style="font-weight:600">#' + c.id.toString().padStart(4,'0') + '<\/td>' +
+      '<td><strong>' + c.titulo + '<\/strong><br><small style="color:var(--muted)">' + (c.empresa || '—') + '<\/small><\/td>' +
+      '<td>' + catIcon + ' ' + c.categoria + '<\/td>' +
+      '<td><span class="badge ' + pClass + '">' + c.prioridade + '<\/span><\/td>' +
+      '<td>' + c.abertura + '<\/td>' +
+      '<td><span class="badge ' + sClass + '">' + c.status + '<\/span><\/td>' +
+      '<td><button class="action-btn" onclick="visualizarChamado(' + c.id + ')">🔍<\/button><\/td>' +
+    '<\/tr>'; 
+  }); 
+  tbody.innerHTML = html; 
+  atualizarStats();
+}
+
+function carregarEmpresasSelect() {
+  let select = document.getElementById('chamado-empresa');
+  if(select) {
+    select.innerHTML = '<option value="">Selecione uma empresa</option>';
+    empresasList.forEach(e => {
+      select.innerHTML += '<option value="' + e.id + '">' + e.nome + '</option>';
+    });
+  }
+}
+
+function openChamadoModal() { 
+  carregarEmpresasSelect();
+  document.getElementById('chamado-titulo').value = ''; 
+  document.getElementById('chamado-descricao').value = ''; 
+  document.getElementById('chamado-categoria').value = 'Técnico'; 
+  document.getElementById('chamado-prioridade').value = 'Média'; 
+  document.getElementById('chamado-anexo').value = ''; 
+  document.getElementById('anexo-nome').innerHTML = ''; 
+  document.getElementById('chamado-atendente').value = '';
+  document.getElementById('modal-chamado').classList.add('open'); 
+}
+function closeChamadoModal() { document.getElementById('modal-chamado').classList.remove('open'); }
+
+function visualizarChamado(id) { 
+  let c = chamadosData.find(c => c.id === id); 
+  if(!c) return; 
+  let anexo = c.anexo ? `\n📎 Anexo: ${c.anexo}` : ''; 
+  let atendente = c.atendente ? `\n👤 Atendente: ${c.atendente}` : '';
+  let fechamento = c.fechamento && c.fechamento !== '-' ? `\n📅 Fechamento: ${c.fechamento}` : '';
+  alert(`📋 Detalhes do Chamado #${c.id.toString().padStart(4,'0')}\n\n` +
+    `Empresa: ${c.empresa || '—'}\n` +
+    `Título: ${c.titulo}\n` +
+    `Descrição: ${c.descricao}\n` +
+    `Categoria: ${c.categoria}\n` +
+    `Prioridade: ${c.prioridade}\n` +
+    `Abertura: ${c.abertura}${fechamento}\n` +
+    `Status: ${c.status}${atendente}${anexo}`); 
+}
+
+document.getElementById('chamado-anexo').addEventListener('change', function(e){ 
+  let file = e.target.files[0]; 
+  document.getElementById('anexo-nome').innerHTML = file ? `📎 Arquivo selecionado: ${file.name}` : ''; 
+});
+
+function salvarChamado() { 
+  let empresaId = document.getElementById('chamado-empresa').value;
+  let titulo = document.getElementById('chamado-titulo').value.trim(); 
+  let desc = document.getElementById('chamado-descricao').value.trim(); 
+  let cat = document.getElementById('chamado-categoria').value; 
+  let prioridade = document.getElementById('chamado-prioridade').value; 
+  let anexoFile = document.getElementById('chamado-anexo').files[0]; 
+  let atendente = document.getElementById('chamado-atendente').value;
+  
+  if(!empresaId) { showToast('Selecione a empresa.'); return; }
+  if(!titulo){ showToast('Informe o título.'); return; } 
+  if(!desc){ showToast('Descreva o problema.'); return; } 
+  
+  let empresa = empresasList.find(e => e.id == empresaId);
+  let dataAbertura = new Date().toLocaleDateString('pt-BR'); 
+  let anexoNome = anexoFile ? anexoFile.name : null; 
+  let novo = {
+    id: nextId++, 
+    titulo, 
+    descricao: desc, 
+    categoria: cat, 
+    prioridade, 
+    abertura: dataAbertura, 
+    fechamento: "-", 
+    status: "Em análise", 
+    anexo: anexoNome,
+    empresaId: parseInt(empresaId),
+    empresa: empresa ? empresa.nome : '',
+    atendente: atendente || ''
+  }; 
+  chamadosData.unshift(novo); 
+  filterChamados(); 
+  let msg = `✅ Chamado #${novo.id.toString().padStart(4,'0')} aberto!`; 
+  if(anexoNome) msg += `\n📎 Anexo: ${anexoNome}`; 
+  showToast(msg); 
+  closeChamadoModal(); 
+}
+
+function openExportModal() { document.getElementById('modal-export').classList.add('open'); }
+function closeExportModal() { document.getElementById('modal-export').classList.remove('open'); }
+
+function exportarChamados() {
+  let formato = document.querySelector('input[name="formato-export"]:checked').value;
+  let filtro = document.getElementById('filtro-status-export').value;
+  let nomeArquivo = document.getElementById('nome-arquivo').value.trim() || `chamados_${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  let dados = [...currentFilteredData];
+  if(filtro !== 'todos') dados = dados.filter(c => c.status === filtro);
+  if(dados.length === 0) { showToast('Nenhum chamado encontrado.'); return; }
+  
+  let dadosExp = dados.map(c => ({
+    'Nº': '#' + c.id.toString().padStart(4,'0'),
+    'Empresa': c.empresa || '—',
+    'Título': c.titulo,
+    'Descrição': c.descricao,
+    'Categoria': c.categoria,
+    'Prioridade': c.prioridade,
+    'Abertura': c.abertura,
+    'Fechamento': c.fechamento === '-' ? '—' : c.fechamento,
+    'Status': c.status,
+    'Atendente': c.atendente || '—'
+  }));
+  
+  if(formato === 'pdf') {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape' });
+    doc.setFontSize(18);
+    doc.text('Relatório de Chamados - SIMPLES HUB', 14, 22);
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text('Gerado em: ' + new Date().toLocaleString(), 14, 30);
+    let headers = ['Nº', 'Empresa', 'Título', 'Categoria', 'Prioridade', 'Abertura', 'Status'];
+    let rows = dadosExp.map(c => [c['Nº'], c.Empresa, c.Título.length > 40 ? c.Título.substring(0,40)+'...' : c.Título, c.Categoria, c.Prioridade, c.Abertura, c.Status]);
+    doc.autoTable({ head: [headers], body: rows, startY: 40, theme: 'grid', headStyles: { fillColor: [31, 41, 55] }, styles: { fontSize: 8 } });
+    doc.save(nomeArquivo + '.pdf');
+    showToast('✅ PDF gerado com sucesso!');
+  } else if(formato === 'csv') {
+    let headers = ['Nº', 'Empresa', 'Título', 'Descrição', 'Categoria', 'Prioridade', 'Abertura', 'Fechamento', 'Status', 'Atendente'];
+    let conteudo = headers.join(';') + '\n';
+    dadosExp.forEach(c => {
+      let linha = [`"${c['Nº']}"`, `"${c.Empresa}"`, `"${c.Título}"`, `"${c.Descrição}"`, `"${c.Categoria}"`, `"${c.Prioridade}"`, `"${c.Abertura}"`, `"${c.Fechamento}"`, `"${c.Status}"`, `"${c.Atendente}"`];
+      conteudo += linha.join(';') + '\n';
+    });
+    let blob = new Blob(["\uFEFF" + conteudo], { type: 'text/csv;charset=utf-8;' });
+    let link = document.createElement('a');
+    let url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = nomeArquivo + '.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('✅ CSV gerado com sucesso!');
+  } else {
+    let blob = new Blob([JSON.stringify(dadosExp, null, 2)], { type: 'application/json;charset=utf-8;' });
+    let link = document.createElement('a');
+    let url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = nomeArquivo + '.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('✅ JSON gerado com sucesso!');
+  }
+  closeExportModal();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  renderTabelaChamados();
+  const searchInput = document.getElementById('searchInput');
+  if(searchInput) searchInput.addEventListener('keyup', filterChamados);
+  
+  const sidebar = document.querySelector('.sys-sidebar');
+  if(sidebar) {
+    const allSpans = sidebar.querySelectorAll('.sys-sidebar-item span:last-child');
+    allSpans.forEach(span => {
+      span.style.display = 'inline-block';
+      span.style.whiteSpace = 'nowrap';
+    });
+  }
+});
+
+window.addEventListener('resize', function() {
+  const sidebar = document.querySelector('.sys-sidebar');
+  if(sidebar) {
+    const allSpans = sidebar.querySelectorAll('.sys-sidebar-item span:last-child');
+    allSpans.forEach(span => {
+      span.style.display = 'inline-block';
+      span.style.whiteSpace = 'nowrap';
+    });
+  }
+});
+</script>
+</body>
+</html>

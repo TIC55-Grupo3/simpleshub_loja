@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>SIMPLES HUB – Painel de Desempenho</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<!-- Chart.js para gráficos profissionais -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root{
+  --green:#1f2937;--green-dark:#111827;--green-mid:#374151;
+  --green-light:#f1f5f9;--green-pale:#f8fafc;--green-line:#e2e8f0;
+  --white:#ffffff;--ink:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --sidebar-width: 260px;
+  --success:#10b981;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+  --info:#3b82f6;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--white)}
+::-webkit-scrollbar-thumb{background:var(--green-line);border-radius:3px}
+@keyframes heroIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== SIDEBAR LAYOUT - NUNCA RECOLHE, SEMPRE COM TEXTO VISÍVEL ===== */
+.sys-layout{display:flex;min-height:100vh}
+.sys-sidebar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:var(--sidebar-width);
+  height:100vh;
+  background:var(--ink);
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  z-index:100;
+  overflow-y:auto;
+  overflow-x:hidden;
+}
+.sys-sidebar::-webkit-scrollbar{width:4px}
+.sys-sidebar::-webkit-scrollbar-track{background:rgba(255,255,255,.1);border-radius:4px}
+.sys-sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:4px}
+.sys-sidebar-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:16px;flex-shrink:0}
+.sys-sidebar-brand-icon{width:40px;height:40px;border-radius:10px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px}
+.sys-sidebar-brand-name{font-size:18px;font-weight:800;letter-spacing:.05em}
+.sys-sidebar-brand-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:4px}
+.sys-sidebar-nav{flex:1;display:flex;flex-direction:column;gap:4px;padding:0 12px 20px 12px}
+.sys-sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);font-size:14px;font-weight:500;text-decoration:none;flex-shrink:0}
+.sys-sidebar-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.sys-sidebar-item.active{background:var(--green);color:#fff}
+.sys-sidebar-item-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.sys-sidebar-item span:last-child{white-space:nowrap}
+.sys-sidebar-footer{padding:20px;border-top:1px solid rgba(255,255,255,.1);margin-top:auto;flex-shrink:0}
+.sys-sidebar-user{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sys-sidebar-avatar{width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.sys-sidebar-user-info{flex:1;min-width:0}
+.sys-sidebar-user-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sys-sidebar-user-role{font-size:10px;color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sys-logout-btn{width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.sys-logout-btn:hover{background:rgba(255,100,100,.2);color:#ff7878;border-color:rgba(255,100,100,.3)}
+
+/* MAIN CONTENT */
+.sys-main{margin-left:var(--sidebar-width);flex:1;min-width:0}
+.sys-top-header{background:var(--white);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-wrap:wrap;gap:12px}
+.sys-page-title{font-size:18px;font-weight:700;color:var(--ink)}
+.sys-company-info{display:flex;align-items:center;gap:12px}
+.sys-company-pill{display:flex;align-items:center;gap:6px;background:var(--green-light);border:1px solid var(--border);border-radius:20px;padding:5px 12px}
+.sys-company-name{font-size:11px;font-weight:700;color:var(--ink)}
+.sys-company-badge{font-size:9px;font-weight:700;background:var(--green);color:#fff;border-radius:20px;padding:1px 7px}
+.sys-content{padding:24px 28px;min-height:calc(100vh - 60px)}
+
+/* KPI Cards */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:24px}
+.kpi-card{background:var(--white);border-radius:20px;border:1px solid var(--border);padding:20px 18px;transition:all .2s}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:0 12px 24px -12px rgba(0,0,0,.1);border-color:var(--green-line)}
+.kpi-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.kpi-value{font-size:32px;font-weight:800;color:var(--ink);line-height:1.2;margin-bottom:8px}
+.kpi-trend{font-size:12px;font-weight:500;display:flex;align-items:center;gap:4px}
+.trend-up{color:var(--success)}.trend-down{color:var(--danger)}.trend-neutral{color:var(--muted)}
+
+/* Charts */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+.chart-card{background:var(--white);border-radius:20px;border:1px solid var(--border);padding:18px 20px}
+.chart-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+canvas{max-height:260px;width:100%}
+
+/* Tables */
+.ranking-table{background:var(--white);border-radius:20px;border:1px solid var(--border);overflow:hidden;margin-bottom:20px}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--white)}
+.table-title{font-size:14px;font-weight:700;color:var(--ink)}
+.rank-tbl{width:100%;border-collapse:collapse}
+.rank-tbl th{padding:10px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--green-pale);border-bottom:1px solid var(--border)}
+.rank-tbl td{padding:12px 16px;font-size:13px;border-bottom:1px solid var(--border);color:var(--ink)}
+.rank-tbl tr:last-child td{border-bottom:none}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:30px;font-size:11px;font-weight:700}
+.badge-green{background:var(--green-light);color:var(--green);border:1px solid var(--green-line)}
+.badge-red{background:#fff0f0;color:#c0392b;border:1px solid #ffcccc}
+.badge-yellow{background:#fffde7;color:#856404;border:1px solid #fff176}
+.badge-blue{background:#e3f2fd;color:#1565c0}
+.action-btn{background:none;border:none;cursor:pointer;padding:5px 8px;border-radius:6px;font-size:13px;color:var(--muted)}
+.action-btn:hover{background:var(--green-light);color:var(--green)}
+.topbar-btn{padding:9px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s}
+.topbar-btn.primary{background:var(--green);color:#fff}
+.topbar-btn.primary:hover{background:var(--green-dark)}
+.topbar-btn.ghost{background:var(--white);color:var(--muted);border:1.5px solid var(--border)}
+.topbar-btn.ghost:hover{border-color:var(--green);color:var(--green)}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:16px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.2)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:15px;font-weight:800;color:var(--ink)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;width:28px;height:28px;border-radius:6px}
+.modal-close:hover{background:var(--green-light);color:var(--ink)}
+.modal-body{padding:22px}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.modal-btn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none}
+.modal-btn.primary{background:var(--green);color:#fff}
+.modal-btn.primary:hover{background:var(--green-dark)}
+.modal-btn.ghost{background:var(--white);color:var(--muted);border:1.5px solid var(--border)}
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase}
+.form-row input,.form-row select{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px}
+.form-row input:focus{border-color:var(--green);outline:none}
+.radio-group{display:flex;gap:16px;margin-top:8px}
+.radio-group label{display:flex;align-items:center;gap:6px;font-size:13px}
+
+@media(max-width:1024px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.charts-row{grid-template-columns:1fr}}
+@media(max-width:900px){.sys-sidebar{width:220px}.sys-main{margin-left:220px}.sys-sidebar-item{padding:10px 14px;font-size:13px}.sys-sidebar-item-icon{font-size:16px;width:22px}}
+@media(max-width:768px){.sys-sidebar{width:200px}.sys-main{margin-left:200px}.kpi-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.sys-sidebar{width:180px}.sys-main{margin-left:180px}.sys-sidebar-item{padding:8px 12px;gap:8px}.sys-sidebar-item span:last-child{font-size:11px}}
+</style>
+</head>
+<body>
+<div class="sys-layout">
+  <aside class="sys-sidebar">
+    <div class="sys-sidebar-brand"><div class="sys-sidebar-brand-icon">📊</div><div class="sys-sidebar-brand-name">SIMPLES HUB</div><div class="sys-sidebar-brand-sub">Sistema de Gestão</div></div>
+    <nav class="sys-sidebar-nav">
+      <a class="sys-sidebar-item" onclick="navigateTo('dashboard')"><span class="sys-sidebar-item-icon">📊</span><span>Visão Geral</span></a>
+      <a class="sys-sidebar-item active" onclick="navigateTo('desempenho')"><span class="sys-sidebar-item-icon">📈</span><span>Desempenho</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('empresas')"><span class="sys-sidebar-item-icon">🏢</span><span>Empresas</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('usuarios')"><span class="sys-sidebar-item-icon">👥</span><span>Usuários</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('modulos')"><span class="sys-sidebar-item-icon">🧩</span><span>Módulos</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('contratos')"><span class="sys-sidebar-item-icon">📄</span><span>Contratos</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('suporte')"><span class="sys-sidebar-item-icon">🎧</span><span>Suporte</span></a>
+      <a class="sys-sidebar-item" onclick="navigateTo('configuracoes')"><span class="sys-sidebar-item-icon">⚙️</span><span>Configurações</span></a>
+    </nav>
+    <div class="sys-sidebar-footer"><div class="sys-sidebar-user"><div class="sys-sidebar-avatar">A</div><div class="sys-sidebar-user-info"><div class="sys-sidebar-user-name">Administrador VTA</div><div class="sys-sidebar-user-role">Super Admin</div></div></div><button class="sys-logout-btn" onclick="logout()">⏻ Sair</button></div>
+  </aside>
+  <main class="sys-main">
+    <div class="sys-top-header"><div class="sys-page-title">📈 Painel de Desempenho</div><div class="sys-company-info"><div class="sys-company-pill"><span class="sys-company-name">Plataforma SIMPLES HUB</span><span class="sys-company-badge">SaaS</span></div></div></div>
+    <div class="sys-content">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">💰 MRR (Receita Recorrente)</div><div class="kpi-value" id="kpi-mrr">R$ 18.480</div><div class="kpi-trend trend-up">▲ +23% vs mês anterior</div></div>
+        <div class="kpi-card"><div class="kpi-label">🏢 Empresas Ativas</div><div class="kpi-value" id="kpi-empresas">24</div><div class="kpi-trend trend-up">▲ +4 este mês</div></div>
+        <div class="kpi-card"><div class="kpi-label">👥 Usuários Ativos</div><div class="kpi-value" id="kpi-usuarios">156</div><div class="kpi-trend trend-up">▲ +28 últimos 30d</div></div>
+        <div class="kpi-card"><div class="kpi-label">📉 Churn Rate</div><div class="kpi-value" id="kpi-churn">2.8%</div><div class="kpi-trend trend-down">▼ -0.5% vs mês anterior</div></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card"><div class="chart-title">📊 Crescimento de Empresas (últimos 6 meses)</div><canvas id="crescimentoChart"></canvas></div>
+        <div class="chart-card"><div class="chart-title">💰 Distribuição de Receita por Plano</div><canvas id="receitaPlanoChart"></canvas></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card"><div class="chart-title">🎯 Top Módulos mais contratados</div><canvas id="modulosChart"></canvas></div>
+        <div class="chart-card"><div class="chart-title">📊 Tickets de Suporte por Status</div><canvas id="suporteChart"></canvas></div>
+      </div>
+      <div class="ranking-table">
+        <div class="table-header"><div class="table-title">🏆 Top 5 Empresas por Faturamento</div><button class="topbar-btn ghost" onclick="exportarRanking()">📤 Exportar</button></div>
+        <table class="rank-tbl"><thead><tr><th>Empresa</th><th>Plano</th><th>Valor Mensal</th><th>Status</th><th>Usuários</th></tr></thead><tbody id="top-empresas-tbody"></tbody></table>
+      </div>
+      <div class="ranking-table">
+        <div class="table-header"><div class="table-title">📈 Indicadores Operacionais</div><button class="topbar-btn ghost" onclick="exportarIndicadores()">📤 Exportar</button></div>
+        <table class="rank-tbl"><thead><tr><th>Métrica</th><th>Valor</th><th>Referência</th><th>Tendência</th></tr></thead><tbody><tr><td>Ticket Médio (ARPU)</td><td><strong>R$ 385,00</strong></td><td>Receita / empresas ativas</td><td class="trend-up">▲ +12%</td></tr><tr><td>LTV (Tempo de vida)</td><td><strong>R$ 4.620</strong></td><td>Ticket médio × 12 meses</td><td class="trend-up">▲ +8%</td></tr><tr><td>CAC (Custo Aquisição)</td><td><strong>R$ 187,00</strong></td><td>Marketing + vendas</td><td class="trend-down">▼ -5%</td></tr><tr><td>Taxa de Conversão Trial → Pago</td><td><strong>42%</strong></td><td>Média do último trimestre</td><td class="trend-up">▲ +3%</td></tr></tbody></table>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="modal-export" class="modal-overlay"><div class="modal"><div class="modal-head"><div class="modal-title">📤 Exportar Relatório</div><button class="modal-close" onclick="closeExportModal()">×</button></div><div class="modal-body"><div class="form-row"><label>Formato</label><div class="radio-group"><label><input type="radio" name="export-format" value="csv" checked> 📄 CSV</label><label><input type="radio" name="export-format" value="pdf"> 📑 PDF</label></div></div><div class="form-row"><label>Tipo de relatório</label><select id="export-type"><option value="empresas">Top Empresas</option><option value="indicadores">Indicadores Operacionais</option></select></div><div class="form-row"><label>Nome do arquivo</label><input type="text" id="export-filename" value="relatorio_desempenho"></div></div><div class="modal-foot"><button class="modal-btn ghost" onclick="closeExportModal()">Cancelar</button><button class="modal-btn primary" onclick="confirmExport()">📥 Exportar</button></div></div></div>
+<script>
+var pageMap={'dashboard':'gestao_gestao_visao_geral.html','desempenho':'gestao_desempenho.html','empresas':'gestao_empresas.html','usuarios':'gestao_usuarios.html','modulos':'gestao_modulos.html','contratos':'gestao_contratos.html','suporte':'gestao_suporte.html','configuracoes':'gestao_configuracoes.html'};
+function navigateTo(name){if(pageMap[name]){const cf=window.location.pathname.split('/').pop();if(pageMap[name]===cf){showToast('Você já está nesta página');return}window.location.href=pageMap[name]}else showToast('Página em desenvolvimento');}
+function logout(){sessionStorage.clear();window.location.href='login.html';}
+function showToast(msg){var t=document.getElementById('sys-toast');if(!t){t=document.createElement('div');t.id='sys-toast';t.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--ink);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:all .3s;opacity:0;transform:translateY(8px)';document.body.appendChild(t);}t.textContent=msg;t.style.opacity='1';t.style.transform='translateY(0)';clearTimeout(t._to);t._to=setTimeout(function(){t.style.opacity='0';t.style.transform='translateY(8px)';},2800);}
+const topEmpresas=[{nome:"Barbearia Modelo",plano:"Profissional",valor:99.90,status:"Ativo",usuarios:5},{nome:"Loja Simples",plano:"Essencial",valor:49.90,status:"Ativo",usuarios:3},{nome:"Barbearia Elite",plano:"Enterprise",valor:199.90,status:"Ativo",usuarios:8},{nome:"Tech Store",plano:"Essencial",valor:49.90,status:"Ativo",usuarios:4},{nome:"Construção Rápida",plano:"Profissional",valor:99.90,status:"Teste",usuarios:2}];
+function renderTopEmpresas(){let tbody=document.getElementById('top-empresas-tbody');if(!tbody)return;let html='';topEmpresas.forEach(e=>{html+=`<tr><td style="font-weight:600">${e.nome}</td><td>${e.plano}</td><td>R$ ${e.valor.toFixed(2).replace('.',',')}</td><td><span class="badge badge-green">${e.status}</span></td><td>${e.usuarios}</td></tr>`;});tbody.innerHTML=html;}
+const dadosCrescimento=[12,15,18,21,24,28];
+const ctxCrescimento=document.getElementById('crescimentoChart').getContext('2d');new Chart(ctxCrescimento,{type:'line',data:{labels:['Out/25','Nov/25','Dez/25','Jan/26','Fev/26','Mar/26'],datasets:[{label:'Empresas Ativas',data:dadosCrescimento,borderColor:'#1f2937',backgroundColor:'rgba(31,41,55,0.05)',borderWidth:2.5,pointBackgroundColor:'#1f2937',pointRadius:4,fill:true}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'top'}}}});
+const ctxReceita=document.getElementById('receitaPlanoChart').getContext('2d');new Chart(ctxReceita,{type:'doughnut',data:{labels:['Essencial (R$ 49,90)','Profissional (R$ 99,90)','Enterprise (R$ 199,90)'],datasets:[{data:[8,12,4],backgroundColor:['#1f2937','#2c3e50','#3b5c7a'],borderWidth:0,cutout:'55%'}]},options:{plugins:{legend:{position:'bottom'}}}});
+const ctxModulos=document.getElementById('modulosChart').getContext('2d');new Chart(ctxModulos,{type:'bar',data:{labels:['Barbearia','Loja','Ferragem'],datasets:[{label:'Empresas contratando',data:[12,18,6],backgroundColor:'#1f2937',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'top'}}}});
+const ctxSuporte=document.getElementById('suporteChart').getContext('2d');new Chart(ctxSuporte,{type:'bar',data:{labels:['Abertos','Em análise','Em atendimento','Resolvidos'],datasets:[{label:'Chamados',data:[4,6,3,22],backgroundColor:['#f59e0b','#3b82f6','#8b5cf6','#10b981'],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'top'}}}});
+renderTopEmpresas();
+function openExportModal(){document.getElementById('modal-export').classList.add('open');}
+function closeExportModal(){document.getElementById('modal-export').classList.remove('open');}
+function exportarRanking(){openExportModal();}
+function exportarIndicadores(){openExportModal();}
+function confirmExport(){let format=document.querySelector('input[name="export-format"]:checked').value;let type=document.getElementById('export-type').value;let filename=document.getElementById('export-filename').value.trim()||'relatorio_desempenho';if(type==='empresas'){let headers=['Empresa','Plano','Valor Mensal','Status','Usuários'];let rows=topEmpresas.map(e=>[e.nome,e.plano,`R$ ${e.valor.toFixed(2).replace('.',',')}`,e.status,e.usuarios]);if(format==='pdf'){const{jsPDF}=window.jspdf;const doc=new jsPDF();doc.setFontSize(18);doc.text('Ranking de Empresas - SIMPLES HUB',14,22);doc.setFontSize(11);doc.text('Gerado em: '+new Date().toLocaleString(),14,30);doc.autoTable({head:[headers],body:rows,startY:40,theme:'grid',headStyles:{fillColor:[31,41,55]}});doc.save(filename+'.pdf');showToast('✅ PDF gerado!');}else{let csv=[headers.join(';'),...rows.map(r=>r.map(c=>`"${c}"`).join(';'))].join('\n');let blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8'});let link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=filename+'.csv';link.click();URL.revokeObjectURL(blob);showToast('✅ CSV gerado!');}}else{let indicadores=[['Métrica','Valor','Referência','Tendência'],['Ticket Médio (ARPU)','R$ 385,00','Receita / empresas ativas','▲ +12%'],['LTV (Tempo de vida)','R$ 4.620','Ticket médio × 12 meses','▲ +8%'],['CAC (Custo Aquisição)','R$ 187,00','Marketing + vendas','▼ -5%'],['Taxa de Conversão Trial → Pago','42%','Média do último trimestre','▲ +3%']];if(format==='pdf'){const{jsPDF}=window.jspdf;const doc=new jsPDF();doc.setFontSize(18);doc.text('Indicadores Operacionais - SIMPLES HUB',14,22);doc.setFontSize(11);doc.text('Gerado em: '+new Date().toLocaleString(),14,30);doc.autoTable({head:[indicadores[0]],body:indicadores.slice(1),startY:40,theme:'grid',headStyles:{fillColor:[31,41,55]}});doc.save(filename+'.pdf');showToast('✅ PDF gerado!');}else{let csv=indicadores.map(row=>row.map(c=>`"${c}"`).join(';')).join('\n');let blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8'});let link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=filename+'.csv';link.click();URL.revokeObjectURL(blob);showToast('✅ CSV gerado!');}}closeExportModal();}
+document.addEventListener('DOMContentLoaded',function(){const sidebar=document.querySelector('.sys-sidebar');if(sidebar){const spans=sidebar.querySelectorAll('.sys-sidebar-item span:last-child');spans.forEach(span=>{span.style.display='inline-block';span.style.whiteSpace='nowrap';});}});
+window.addEventListener('resize',function(){const sidebar=document.querySelector('.sys-sidebar');if(sidebar){const spans=sidebar.querySelectorAll('.sys-sidebar-item span:last-child');spans.forEach(span=>{span.style.display='inline-block';span.style.whiteSpace='nowrap';});}});
+</script>
+</body>
+</html>
