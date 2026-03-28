@@ -93,6 +93,7 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 .badge-red{background:#fff0f0;color:#c0392b;border:1px solid #ffcccc}
 .badge-blue{background:#e3f2fd;color:#1565c0;border:1px solid #bbdefb}
 .badge-gray{background:#f5f5f5;color:#666;border:1px solid #e0e0e0}
+.badge-purple{background:#f3e5f5;color:#7b1fa2;border:1px solid #ce93d8}
 .action-btn{background:none;border:none;cursor:pointer;padding:5px 8px;border-radius:6px;font-size:13px;transition:background .15s;color:var(--muted)}
 .action-btn:hover{background:var(--green-light);color:var(--green)}
 
@@ -109,6 +110,7 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
 .form-row input,.form-row select,.form-row textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);outline:none;transition:border-color .2s;font-family:'Inter',sans-serif;background:var(--white)}
 .form-row input:focus,.form-row select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(31,41,55,.08)}
 .form-section-title{font-size:12px;font-weight:700;color:var(--green);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:14px;letter-spacing:.06em;text-transform:uppercase}
+.form-row-small{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
 /* Modal */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px}
@@ -223,7 +225,7 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
         <!-- CAMPO DE PESQUISA -->
         <div class="search-container">
           <span class="search-icon">🔍</span>
-          <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar por nome, categoria, preço, margem, data cadastro ou status..." autocomplete="off">
+          <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar por nome, categoria, preço, margem, validade, data cadastro ou status..." autocomplete="off">
           <button class="search-clear" onclick="clearSearch()">Limpar</button>
           <div class="search-results-info" id="searchResultsInfo">Mostrando 6 registros</div>
         </div>
@@ -236,9 +238,19 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
             </div>
           </div>
           <table class="tbl">
-            <thead> <th>Produto</th><th>Categoria</th><th>Preço de custo</th><th>Preço de venda</th><th>Margem</th><th>Cadastro</th><th>Status</th><th>Ações</th> </thead>
+            <thead> 
+              <th>Produto</th>
+              <th>Categoria</th>
+              <th>Preço de custo</th>
+              <th>Preço de venda</th>
+              <th>Margem</th>
+              <th>Validade</th>
+              <th>Cadastro</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </thead>
             <tbody id="produtos-tbody"></tbody>
-            </table>
+           </table>
         </div>
       </div>
     </div>
@@ -254,9 +266,12 @@ body{font-family:'Inter',sans-serif;background:#eef2ee;color:var(--ink);overflow
     </div>
     <div class="modal-body">
       <div class="form-row"><label>Nome do Produto *</label><input type="text" id="produto-nome" placeholder="Ex: Smartwatch Pro"></div>
-      <div class="form-row"><label>Categoria</label><select id="produto-categoria"><option value="Eletrônicos">Eletrônicos</option><option value="Acessórios">Acessórios</option><option value="Informática">Informática</option><option value="Celulares">Celulares</option><option value="Áudio">Áudio</option></select></div>
-      <div class="form-row"><label>Preço de custo (R$)</label><input type="text" id="produto-custo" placeholder="0,00"></div>
-      <div class="form-row"><label>Preço de venda (R$) *</label><input type="text" id="produto-venda" placeholder="0,00"></div>
+      <div class="form-row"><label>Categoria</label><select id="produto-categoria"><option value="Eletrônicos">Eletrônicos</option><option value="Acessórios">Acessórios</option><option value="Informática">Informática</option><option value="Celulares">Celulares</option><option value="Áudio">Áudio</option><option value="Alimentos">Alimentos</option><option value="Bebidas">Bebidas</option></select></div>
+      <div class="form-row-small">
+        <div class="form-row"><label>Preço de custo (R$)</label><input type="text" id="produto-custo" placeholder="0,00"></div>
+        <div class="form-row"><label>Preço de venda (R$) *</label><input type="text" id="produto-venda" placeholder="0,00"></div>
+      </div>
+      <div class="form-row"><label>Data de validade</label><input type="date" id="produto-validade"><div style="font-size:10px;color:var(--muted);margin-top:4px">Deixe em branco se não houver validade</div></div>
       <div class="form-row"><label>Status</label><select id="produto-status"><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option></select></div>
       <div class="form-row"><label>Descrição (opcional)</label><textarea id="produto-descricao" rows="2" placeholder="Descrição do produto..."></textarea></div>
     </div>
@@ -297,18 +312,31 @@ function logout() { sessionStorage.clear(); window.location.href = 'login.html';
 function showToast(msg) { var t = document.getElementById('sys-toast'); if(!t){ t=document.createElement('div'); t.id='sys-toast'; t.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--ink);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:all .3s;opacity:0;transform:translateY(8px)'; document.body.appendChild(t); } t.textContent=msg; t.style.opacity='1'; t.style.transform='translateY(0)'; clearTimeout(t._to); t._to=setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(8px)'; },2800); }
 
 let produtosData = [
-  { id: 1, nome: "Smartwatch", categoria: "Eletrônicos", precoCusto: 110.00, precoVenda: 199.00, status: "Ativo", dataCadastro: "10/01/2025", descricao: "" },
-  { id: 2, nome: "Fone Bluetooth", categoria: "Eletrônicos", precoCusto: 42.00, precoVenda: 89.00, status: "Ativo", dataCadastro: "10/01/2025", descricao: "" },
-  { id: 3, nome: "Carregador Portátil", categoria: "Eletrônicos", precoCusto: 30.00, precoVenda: 68.00, status: "Ativo", dataCadastro: "15/02/2025", descricao: "" },
-  { id: 4, nome: "Cabo USB-C", categoria: "Acessórios", precoCusto: 12.00, precoVenda: 34.00, status: "Ativo", dataCadastro: "15/02/2025", descricao: "" },
-  { id: 5, nome: "Mouse Sem Fio", categoria: "Eletrônicos", precoCusto: 38.00, precoVenda: 79.00, status: "Ativo", dataCadastro: "01/03/2025", descricao: "" },
-  { id: 6, nome: "Película Protetora", categoria: "Acessórios", precoCusto: 5.00, precoVenda: 19.00, status: "Inativo", dataCadastro: "01/03/2025", descricao: "" }
+  { id: 1, nome: "Smartwatch", categoria: "Eletrônicos", precoCusto: 110.00, precoVenda: 199.00, validade: "", status: "Ativo", dataCadastro: "10/01/2025", descricao: "" },
+  { id: 2, nome: "Fone Bluetooth", categoria: "Eletrônicos", precoCusto: 42.00, precoVenda: 89.00, validade: "", status: "Ativo", dataCadastro: "10/01/2025", descricao: "" },
+  { id: 3, nome: "Carregador Portátil", categoria: "Eletrônicos", precoCusto: 30.00, precoVenda: 68.00, validade: "", status: "Ativo", dataCadastro: "15/02/2025", descricao: "" },
+  { id: 4, nome: "Cabo USB-C", categoria: "Acessórios", precoCusto: 12.00, precoVenda: 34.00, validade: "", status: "Ativo", dataCadastro: "15/02/2025", descricao: "" },
+  { id: 5, nome: "Mouse Sem Fio", categoria: "Eletrônicos", precoCusto: 38.00, precoVenda: 79.00, validade: "", status: "Ativo", dataCadastro: "01/03/2025", descricao: "" },
+  { id: 6, nome: "Película Protetora", categoria: "Acessórios", precoCusto: 5.00, precoVenda: 19.00, validade: "", status: "Inativo", dataCadastro: "01/03/2025", descricao: "" },
+  { id: 7, nome: "Chocolate Gourmet", categoria: "Alimentos", precoCusto: 3.50, precoVenda: 8.90, validade: "2025-12-31", status: "Ativo", dataCadastro: "20/03/2025", descricao: "Chocolate ao leite importado" },
+  { id: 8, nome: "Refrigerante Lata", categoria: "Bebidas", precoCusto: 2.80, precoVenda: 5.50, validade: "2025-09-15", status: "Ativo", dataCadastro: "20/03/2025", descricao: "" }
 ];
-let nextId = 7;
+let nextId = 9;
 let currentFilteredData = [...produtosData];
 
 function formatarMoeda(valor) { return 'R$ ' + valor.toFixed(2).replace('.', ','); }
 function calcularMargem(custo, venda) { if(custo<=0||venda<=0) return '0%'; return ((venda-custo)/venda*100).toFixed(1)+'%'; }
+
+function formatarValidade(dataValidade) {
+  if(!dataValidade) return '─';
+  const hoje = new Date();
+  const validade = new Date(dataValidade);
+  const diffDias = Math.ceil((validade - hoje) / (1000 * 60 * 60 * 24));
+  
+  if(diffDias < 0) return `<span class="badge badge-red">Vencido (${validade.toLocaleDateString('pt-BR')})</span>`;
+  if(diffDias <= 30) return `<span class="badge badge-yellow">Vence em ${diffDias} dias</span>`;
+  return `<span style="color:var(--muted)">${validade.toLocaleDateString('pt-BR')}</span>`;
+}
 
 function filterProdutos() {
   const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -316,11 +344,13 @@ function filterProdutos() {
     currentFilteredData = [...produtosData];
   } else {
     currentFilteredData = produtosData.filter(p => {
+      const validadeStr = p.validade ? new Date(p.validade).toLocaleDateString('pt-BR') : '';
       return p.nome.toLowerCase().includes(searchTerm) ||
              p.categoria.toLowerCase().includes(searchTerm) ||
              p.precoCusto.toString().includes(searchTerm) ||
              p.precoVenda.toString().includes(searchTerm) ||
              calcularMargem(p.precoCusto, p.precoVenda).replace('%','').includes(searchTerm) ||
+             validadeStr.includes(searchTerm) ||
              p.dataCadastro.toLowerCase().includes(searchTerm) ||
              p.status.toLowerCase().includes(searchTerm);
     });
@@ -338,19 +368,21 @@ function renderTabelaProdutos() {
   let tbody = document.getElementById('produtos-tbody'); 
   if(!tbody) return; 
   if(currentFilteredData.length===0){ 
-    tbody.innerHTML='<td colspan="8" style="text-align:center;padding:40px">Nenhum produto encontrado</td>'; 
+    tbody.innerHTML='<td colspan="9" style="text-align:center;padding:40px">Nenhum produto encontrado</td>'; 
     return; 
   } 
   let html=''; 
   currentFilteredData.forEach(p=>{ 
     let margem=calcularMargem(p.precoCusto,p.precoVenda); 
     let statusClass=p.status==='Ativo'?'badge-green':'badge-yellow'; 
+    let validadeHtml = formatarValidade(p.validade);
     html+=`<tr>
       <td><strong>${p.nome}</strong></td>
       <td>${p.categoria}</td>
       <td>${formatarMoeda(p.precoCusto)}</td>
       <td>${formatarMoeda(p.precoVenda)}</td>
       <td>${margem}</td>
+      <td>${validadeHtml}</td>
       <td>${p.dataCadastro}</td>
       <td><span class="badge ${statusClass}">${p.status}</span></td>
       <td><button class="action-btn" onclick="editarProduto(${p.id})">✏️</button></td>
@@ -367,6 +399,7 @@ function openProdutoModal() {
   document.getElementById('produto-categoria').value='Eletrônicos'; 
   document.getElementById('produto-custo').value=''; 
   document.getElementById('produto-venda').value=''; 
+  document.getElementById('produto-validade').value=''; 
   document.getElementById('produto-status').value='Ativo'; 
   document.getElementById('produto-descricao').value=''; 
   document.getElementById('modal-produto').classList.add('open'); 
@@ -380,6 +413,7 @@ function editarProduto(id) {
   document.getElementById('produto-categoria').value=p.categoria; 
   document.getElementById('produto-custo').value=p.precoCusto.toFixed(2).replace('.',','); 
   document.getElementById('produto-venda').value=p.precoVenda.toFixed(2).replace('.',','); 
+  document.getElementById('produto-validade').value=p.validade || ''; 
   document.getElementById('produto-status').value=p.status; 
   document.getElementById('produto-descricao').value=p.descricao||''; 
   document.getElementById('modal-produto').classList.add('open'); 
@@ -390,6 +424,7 @@ function salvarProduto() {
   let categoria=document.getElementById('produto-categoria').value; 
   let precoCustoStr=document.getElementById('produto-custo').value; 
   let precoVendaStr=document.getElementById('produto-venda').value; 
+  let validade=document.getElementById('produto-validade').value; 
   let status=document.getElementById('produto-status').value; 
   let descricao=document.getElementById('produto-descricao').value; 
   if(!nome){ showToast('Informe o nome do produto.'); return; } 
@@ -403,11 +438,11 @@ function salvarProduto() {
   if(editandoId!==null){ 
     let idx=produtosData.findIndex(p=>p.id===editandoId); 
     if(idx!==-1){ 
-      produtosData[idx]={...produtosData[idx], nome, categoria, precoCusto, precoVenda, status, descricao}; 
+      produtosData[idx]={...produtosData[idx], nome, categoria, precoCusto, precoVenda, validade, status, descricao}; 
       showToast(`✅ Produto "${nome}" atualizado!`); 
     } 
   } else { 
-    let novo={id:nextId++, nome, categoria, precoCusto, precoVenda, status, dataCadastro, descricao}; 
+    let novo={id:nextId++, nome, categoria, precoCusto, precoVenda, validade, status, dataCadastro, descricao}; 
     produtosData.push(novo); 
     showToast(`✅ Produto "${nome}" cadastrado!`); 
   } 
